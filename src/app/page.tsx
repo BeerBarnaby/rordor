@@ -34,7 +34,6 @@ export default function Home() {
   const [callScore, setCallScore] = useState<number>(0);
   const [cprRhythmScore, setCprRhythmScore] = useState<number>(0);
   const [cprAvgBpm, setCprAvgBpm] = useState<number>(0);
-  const [aedScore, setAedScore] = useState<number>(100);
   const [collectedMistakes, setCollectedMistakes] = useState<string[]>([]);
   const [startTimeMs, setStartTimeMs] = useState<number>(0);
   const [currentResult, setCurrentResult] = useState<MissionResult | null>(null);
@@ -46,7 +45,6 @@ export default function Home() {
     setCallScore(0);
     setCprRhythmScore(0);
     setCprAvgBpm(0);
-    setAedScore(100);
     setCollectedMistakes([]);
     setStartTimeMs(Date.now());
   };
@@ -74,7 +72,6 @@ export default function Home() {
   };
 
   const handleAedComplete = (score: number, mistakes: string[]) => {
-    setAedScore(score);
     if (mistakes.length > 0) {
       setCollectedMistakes(prev => [...prev, ...mistakes]);
     }
@@ -214,7 +211,7 @@ export default function Home() {
             <div className="p-3 rounded-xl bg-slate-800/60 border border-slate-700/50 text-xs text-slate-300 space-y-1">
               <div className="font-bold text-white">สถานการณ์: &ldquo;เพื่อนล้มลงระหว่างการฝึก&rdquo;</div>
               <div className="text-[11px] text-slate-400">
-                สนามฝึก นศท. กองพันทหารสารวัตรที่ 11
+                หน่วยฝึก นศท. มทบ.37 • ศูนย์วันอังคาร รร.วิทยาศาสตร์จุฬาภรณราชวิทยาลัย เชียงราย
               </div>
             </div>
           </div>
@@ -282,7 +279,7 @@ export default function Home() {
                 </h2>
 
                 <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 text-xs text-emerald-200/90 leading-relaxed text-left">
-                  &ldquo;นักศึกษาวิชาทหารคนหนึ่งล้มลงบริเวณสนามฝึก กองพันทหารสารวัตรที่ 11 และไม่ตอบสนองเมื่อถูกตบไหล่เรียก...&rdquo;
+                  &ldquo;นักศึกษาวิชาทหารคนหนึ่งล้มลงระหว่างการฝึก ณ ศูนย์วันอังคาร โรงเรียนวิทยาศาสตร์จุฬาภรณราชวิทยาลัย เชียงราย (หน่วยฝึก นศท. มทบ.37) และไม่ตอบสนองเมื่อถูกตบไหล่เรียก...&rdquo;
                 </div>
 
                 <div className="text-xs text-slate-300 flex items-center justify-center gap-1.5">

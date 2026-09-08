@@ -86,9 +86,13 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
               <span className="text-emerald-400 font-medium">Version:</span>
               <span className="font-mono text-emerald-200">{MAIN_PROTOCOL_METADATA.version}</span>
             </div>
-            <div className="flex items-center justify-between text-[11px]">
-              <span className="text-emerald-400 font-medium">Target Audience:</span>
-              <span className="text-emerald-200">นักศึกษาวิชาทหาร (นศท. / ROTC)</span>
+            <div className="flex items-start justify-between text-[11px] gap-2 pt-1 border-t border-emerald-800/40">
+              <span className="text-emerald-400 font-medium shrink-0">หน่วยฝึก:</span>
+              <span className="text-emerald-200 text-right">หน่วยฝึกนักศึกษาวิชาทหาร มณฑลทหารบกที่ 37 (มทบ.37)</span>
+            </div>
+            <div className="flex items-start justify-between text-[11px] gap-2">
+              <span className="text-emerald-400 font-medium shrink-0">ศูนย์ฝึก:</span>
+              <span className="text-emerald-200 text-right">ศูนย์วันอังคาร โรงเรียนวิทยาศาสตร์จุฬาภรณราชวิทยาลัย เชียงราย</span>
             </div>
           </div>
 
