@@ -41,45 +41,45 @@ export const AEDSimulation: React.FC<AEDSimulationProps> = ({ onCompleteStep }) 
   return (
     <div className="space-y-5">
       {/* Title Header */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-1 shadow-md">
+      <div className="bg-white border border-[#D8E4DE] rounded-2xl p-4 space-y-1.5 shadow-sm">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-800">
+          <span className="text-[11px] font-bold text-[#0F5C4D] bg-[#DFF4EC] px-2.5 py-0.5 rounded-lg border border-[#D8E4DE]">
             ภารกิจขั้นที่ 3/4
           </span>
-          <span className="text-xs text-slate-400 font-mono">AED Sequence Simulation</span>
+          <span className="text-xs text-[#5C6B65]">AED Simulation</span>
         </div>
-        <h3 className="text-base font-bold text-white flex items-center gap-2">
-          <Zap className="w-5 h-5 text-amber-400 fill-current" />
+        <h3 className="text-base font-bold text-[#17221E] flex items-center gap-2">
+          <Zap className="w-5 h-5 text-[#F4A63D] fill-current" />
           การใช้เครื่องกระตุกหัวใจไฟฟ้าอัตโนมัติ (AED)
         </h3>
-        <p className="text-xs text-slate-300">
+        <p className="text-xs text-[#5C6B65]">
           ปฏิบัติตามขั้นตอนจำลองระบบเครื่อง AED อย่างปลอดภัย
         </p>
       </div>
 
       {/* AED Device Frame */}
-      <div className="bg-gradient-to-b from-amber-950/80 via-slate-900 to-slate-950 border-2 border-amber-500/50 rounded-3xl p-5 shadow-2xl space-y-4 relative overflow-hidden">
+      <div className="bg-white border-2 border-[#F4A63D]/50 rounded-2xl p-5 shadow-sm space-y-4 relative overflow-hidden">
         {/* Device Status Bar */}
-        <div className="flex items-center justify-between border-b border-amber-500/30 pb-3">
+        <div className="flex items-center justify-between border-b border-[#D8E4DE] pb-3">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
-            <span className="text-xs font-black text-amber-300 tracking-wider">
+            <div className="w-3 h-3 rounded-full bg-[#0F5C4D] animate-pulse" />
+            <span className="text-xs font-bold text-[#F4A63D] tracking-wide">
               AED TRAINER DEVICE (จำลอง)
             </span>
           </div>
-          <span className="text-xs font-mono text-slate-400">
+          <span className="text-xs text-[#5C6B65]">
             ขั้นตอน {activeStepIndex + 1} / {AED_STEPS.length}
           </span>
         </div>
 
         {/* Dynamic Voice Prompt Display */}
-        <div className="p-4 rounded-2xl bg-black/80 border border-amber-500/30 space-y-2 text-center">
-          <div className="text-[10px] text-amber-400 uppercase font-mono tracking-widest flex items-center justify-center gap-1">
-            <Sparkles className="w-3 h-3" /> Voice Guidance / เสียงคำแนะนำ AED
+        <div className="p-4 rounded-xl bg-[#F7FAF8] border border-[#D8E4DE] space-y-2 text-center">
+          <div className="text-[11px] text-[#F4A63D] font-semibold flex items-center justify-center gap-1">
+            <Sparkles className="w-3 h-3" /> เสียงคำแนะนำ AED
           </div>
-          <div className="text-sm font-bold text-white leading-relaxed">
+          <div className="text-sm font-bold text-[#17221E] leading-relaxed">
             {isAnalyzing ? (
-              <span className="text-amber-400 animate-pulse">
+              <span className="text-[#F4A63D] animate-pulse">
                 &ldquo;กำลังวิเคราะห์จังหวะหัวใจ... ห้ามสัมผัสตัวผู้ป่วย!&rdquo;
               </span>
             ) : (
@@ -92,43 +92,43 @@ export const AEDSimulation: React.FC<AEDSimulationProps> = ({ onCompleteStep }) 
         {currentStep && (
           <div className="space-y-4">
             {activeStepIndex === 0 && (
-              <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col items-center justify-center text-center space-y-3">
-                <div className="w-16 h-16 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center border border-rose-500/40 animate-pulse">
-                  <Power className="w-8 h-8" />
+              <div className="p-4 rounded-xl bg-[#F7FAF8] border border-[#D8E4DE] flex flex-col items-center justify-center text-center space-y-3">
+                <div className="w-14 h-14 rounded-full bg-red-50 text-red-500 flex items-center justify-center border border-red-200 animate-pulse">
+                  <Power className="w-7 h-7" />
                 </div>
-                <div className="text-xs font-bold text-white">กดปุ่ม POWER เพื่อเปิดเครื่อง AED</div>
+                <div className="text-sm font-bold text-[#17221E]">กดปุ่ม POWER เพื่อเปิดเครื่อง AED</div>
               </div>
             )}
 
             {activeStepIndex === 1 && (
-              <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3 text-center">
-                <div className="grid grid-cols-2 gap-2 text-[11px] font-semibold">
-                  <div className="p-2.5 rounded-xl bg-teal-950/60 border border-teal-700/50 text-teal-200">
+              <div className="p-4 rounded-xl bg-[#F7FAF8] border border-[#D8E4DE] space-y-3 text-center">
+                <div className="grid grid-cols-2 gap-2 text-xs font-semibold">
+                  <div className="p-3 rounded-xl bg-[#DFF4EC] border border-[#D8E4DE] text-[#0F5C4D]">
                     แผ่นที่ 1: ใต้ไหปลาร้าขวา
                   </div>
-                  <div className="p-2.5 rounded-xl bg-teal-950/60 border border-teal-700/50 text-teal-200">
+                  <div className="p-3 rounded-xl bg-[#DFF4EC] border border-[#D8E4DE] text-[#0F5C4D]">
                     แผ่นที่ 2: ใต้ราวนมซ้าย
                   </div>
                 </div>
-                <div className="text-xs text-slate-300">แปะแผ่นนำไฟฟ้าแนบสนิทกับผิวหนังแห้งของผู้ป่วย</div>
+                <div className="text-xs text-[#5C6B65]">แปะแผ่นนำไฟฟ้าแนบสนิทกับผิวหนังแห้งของผู้ป่วย</div>
               </div>
             )}
 
             {activeStepIndex === 2 && (
-              <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 text-center space-y-2">
-                <AlertTriangle className="w-10 h-10 text-amber-400 mx-auto animate-bounce" />
-                <div className="text-xs font-bold text-amber-300">
+              <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-center space-y-2">
+                <AlertTriangle className="w-10 h-10 text-[#F4A63D] mx-auto animate-bounce" />
+                <div className="text-sm font-bold text-amber-800">
                   ตะโกน &ldquo;ถอย! ห้ามแตะตัวผู้ป่วย&rdquo;
                 </div>
               </div>
             )}
 
             {activeStepIndex === 3 && (
-              <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 text-center space-y-3">
-                <div className="text-xs font-bold text-rose-300">
+              <div className="p-4 rounded-xl bg-[#F7FAF8] border border-[#D8E4DE] text-center space-y-3">
+                <div className="text-sm font-bold text-red-700">
                   ตะโกน &ldquo;ฉันถอย คุณถอย ทุกคนถอย&rdquo; แล้วกดปุ่ม SHOCK
                 </div>
-                <div className="w-20 h-20 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-black text-xs flex flex-col items-center justify-center mx-auto shadow-xl shadow-rose-950 border-4 border-rose-400 cursor-pointer animate-pulse">
+                <div className="w-20 h-20 rounded-full bg-red-500 hover:bg-red-600 text-white font-extrabold text-xs flex flex-col items-center justify-center mx-auto shadow-lg border-4 border-red-300 cursor-pointer animate-pulse">
                   <Zap className="w-8 h-8 fill-current" />
                   <span>SHOCK</span>
                 </div>
@@ -136,9 +136,9 @@ export const AEDSimulation: React.FC<AEDSimulationProps> = ({ onCompleteStep }) 
             )}
 
             {activeStepIndex === 4 && (
-              <div className="p-4 rounded-2xl bg-emerald-950/80 border border-emerald-700/50 text-center space-y-2">
-                <HeartPulse className="w-10 h-10 text-emerald-400 mx-auto" />
-                <div className="text-xs font-bold text-white">
+              <div className="p-4 rounded-xl bg-[#DFF4EC] border border-[#D8E4DE] text-center space-y-2">
+                <HeartPulse className="w-10 h-10 text-[#0F5C4D] mx-auto" />
+                <div className="text-sm font-bold text-[#17221E]">
                   ทำการกดหน้าอก CPR ต่อเนื่องทันที!
                 </div>
               </div>
@@ -148,7 +148,7 @@ export const AEDSimulation: React.FC<AEDSimulationProps> = ({ onCompleteStep }) 
             <button
               onClick={handleStepAction}
               disabled={isAnalyzing}
-              className="w-full py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 font-black text-xs shadow-xl transition-all flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-xl bg-[#F4A63D] hover:bg-[#e09530] disabled:opacity-40 text-white font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2"
             >
               <span>{isAnalyzing ? 'กำลังวิเคราะห์จังหวะ...' : 'ปฏิบัติตามขั้นตอน'}</span>
               <ArrowRight className="w-4 h-4" />
@@ -159,14 +159,14 @@ export const AEDSimulation: React.FC<AEDSimulationProps> = ({ onCompleteStep }) 
         {/* All AED steps completed */}
         {activeStepIndex >= AED_STEPS.length - 1 && completedStepIds.length >= AED_STEPS.length && (
           <div className="pt-3 space-y-3 animate-in fade-in duration-300">
-            <div className="p-3.5 rounded-xl bg-emerald-950 border border-emerald-800 text-emerald-200 text-xs flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+            <div className="p-3.5 rounded-xl bg-green-50 border border-green-200 text-green-800 text-sm flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0" />
               <span>ปฏิบัติตามลำดับการใช้ AED ครบถ้วนถูกต้อง!</span>
             </div>
 
             <button
               onClick={handleProceed}
-              className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-950 transition-all flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-xl bg-[#0F5C4D] hover:bg-[#0a4a3d] text-white font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2"
             >
               <span>สรุปภารกิจ (After Action Review)</span>
               <ArrowRight className="w-4 h-4" />

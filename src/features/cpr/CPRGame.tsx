@@ -21,7 +21,7 @@ export const CPRGame: React.FC<CPRGameProps> = ({
     bpm: 0,
     state: 'insufficient',
     feedbackMessage: 'เริ่มกดจังหวะปั๊มหัวใจ (เป้าหมาย 100-120 ครั้ง/นาที)',
-    colorClass: 'text-slate-400 border-slate-700 bg-slate-900',
+    colorClass: 'text-[#5C6B65] border-[#D8E4DE] bg-[#F7FAF8]',
     tapCount: 0,
   });
 
@@ -96,16 +96,16 @@ export const CPRGame: React.FC<CPRGameProps> = ({
   return (
     <div className="space-y-5 select-none">
       {/* Title Header */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-1 shadow-md">
+      <div className="bg-white border border-[#D8E4DE] rounded-2xl p-4 space-y-1.5 shadow-sm">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-800">
+          <span className="text-[11px] font-bold text-[#0F5C4D] bg-[#DFF4EC] px-2.5 py-0.5 rounded-lg border border-[#D8E4DE]">
             ภารกิจขั้นที่ 2/4
           </span>
-          <span className="text-xs text-slate-400 font-mono">CPR Rhythm Training</span>
+          <span className="text-xs text-[#5C6B65]">ฝึกจังหวะ CPR</span>
         </div>
-        <h3 className="text-base font-bold text-white">ฝึกจังหวะปั๊มหัวใจ (CPR Compressions)</h3>
-        <p className="text-xs text-slate-300">
-          กดปุ่มตรงกลางตามจังหวะเป้าหมาย <strong className="text-emerald-400 font-semibold">100–120 ครั้ง/นาที</strong>
+        <h3 className="text-base font-bold text-[#17221E]">ฝึกจังหวะปั๊มหัวใจ (CPR Compressions)</h3>
+        <p className="text-xs text-[#5C6B65]">
+          กดปุ่มตรงกลางตามจังหวะเป้าหมาย <strong className="text-[#0F5C4D] font-semibold">100–120 ครั้ง/นาที</strong>
         </p>
       </div>
 
@@ -114,31 +114,31 @@ export const CPRGame: React.FC<CPRGameProps> = ({
           {/* Realtime Stats Bar */}
           <div className="grid grid-cols-2 gap-3">
             {/* Compression Counter */}
-            <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center">
-              <span className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">
+            <div className="p-3.5 rounded-2xl bg-white border border-[#D8E4DE] flex flex-col items-center justify-center shadow-sm">
+              <span className="text-xs text-[#5C6B65] font-medium">
                 จำนวนการกด
               </span>
-              <div className="text-2xl font-black text-white mt-0.5 font-mono">
-                {compressions} <span className="text-sm font-normal text-slate-500">/ {targetCompressions}</span>
+              <div className="text-2xl font-extrabold text-[#17221E] mt-0.5 font-mono">
+                {compressions} <span className="text-sm font-normal text-[#5C6B65]">/ {targetCompressions}</span>
               </div>
             </div>
 
             {/* Live Rhythm BPM */}
-            <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center">
-              <span className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold flex items-center gap-1">
-                <Activity className="w-3 h-3 text-emerald-400" />
+            <div className="p-3.5 rounded-2xl bg-white border border-[#D8E4DE] flex flex-col items-center justify-center shadow-sm">
+              <span className="text-xs text-[#5C6B65] font-medium flex items-center gap-1">
+                <Activity className="w-3 h-3 text-[#0F5C4D]" />
                 จังหวะปัจจุบัน
               </span>
-              <div className="text-2xl font-black text-emerald-400 mt-0.5 font-mono">
+              <div className="text-2xl font-extrabold text-[#0F5C4D] mt-0.5 font-mono">
                 {calculatorResult.bpm > 0 ? calculatorResult.bpm : '--'}{' '}
-                <span className="text-xs font-normal text-slate-400">ครั้ง/นาที</span>
+                <span className="text-xs font-normal text-[#5C6B65]">ครั้ง/นาที</span>
               </div>
             </div>
           </div>
 
           {/* Feedback Status Pill */}
           <div
-            className={`p-3 rounded-xl border text-center text-xs font-bold transition-all duration-200 ${calculatorResult.colorClass}`}
+            className={`p-3.5 rounded-xl border text-center text-sm font-bold transition-all duration-200 ${calculatorResult.colorClass}`}
           >
             {calculatorResult.feedbackMessage}
           </div>
@@ -148,19 +148,17 @@ export const CPRGame: React.FC<CPRGameProps> = ({
             <button
               onMouseDown={handleTap}
               onTouchStart={handleTap}
-              className={`relative w-48 h-48 rounded-full bg-gradient-to-b from-emerald-500 to-teal-700 border-4 border-emerald-300 shadow-2xl flex flex-col items-center justify-center text-white transition-transform duration-75 active:scale-95 touch-none ${
-                isPulsing ? 'scale-95 shadow-emerald-400/50' : 'scale-100 shadow-emerald-950/80'
+              className={`relative w-44 h-44 rounded-full bg-[#0F5C4D] border-4 border-[#DFF4EC] shadow-lg flex flex-col items-center justify-center text-white transition-transform duration-75 active:scale-95 touch-none ${
+                isPulsing ? 'scale-95 shadow-xl' : 'scale-100'
               }`}
             >
-              <div className="absolute inset-0 rounded-full border-2 border-emerald-300/40 animate-ping pointer-events-none" />
-              <Heart className={`w-16 h-16 text-white drop-shadow-md transition-transform ${isPulsing ? 'scale-125' : 'scale-100'}`} />
-              <span className="mt-2 text-sm font-black tracking-wider uppercase">กดปั๊มหัวใจ</span>
-              <span className="text-[10px] text-emerald-100 opacity-90 font-mono">PUSH HERE</span>
+              <Heart className={`w-14 h-14 text-white drop-shadow-sm transition-transform ${isPulsing ? 'scale-125' : 'scale-100'}`} />
+              <span className="mt-2 text-sm font-extrabold tracking-wider">กดปั๊มหัวใจ</span>
             </button>
           </div>
 
-          <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 text-[11px] text-slate-400 space-y-1">
-            <div className="flex items-center gap-1.5 font-bold text-amber-400">
+          <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 space-y-1">
+            <div className="flex items-center gap-1.5 font-bold text-amber-700">
               <AlertCircle className="w-3.5 h-3.5 shrink-0" />
               <span>ดัชนีวัดผล: Compression Rhythm Score</span>
             </div>
@@ -173,49 +171,49 @@ export const CPRGame: React.FC<CPRGameProps> = ({
 
       {/* 30:2 Rescue Breath Simulation Sequence */}
       {mode === 'rescuing' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 animate-in fade-in duration-300">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-            <span className="text-xs font-bold text-teal-400 flex items-center gap-1.5">
+        <div className="bg-white border border-[#D8E4DE] rounded-2xl p-5 space-y-4 animate-in fade-in duration-300 shadow-sm">
+          <div className="flex items-center justify-between border-b border-[#D8E4DE] pb-3">
+            <span className="text-xs font-bold text-[#0F5C4D] flex items-center gap-1.5">
               <Wind className="w-4 h-4" />
-              ขั้นตอนสลับการช่วยหายใจ (30:2 Rescue Breath)
+              ขั้นตอนสลับการช่วยหายใจ (30:2)
             </span>
-            <span className="text-xs font-mono text-emerald-400 font-semibold">
+            <span className="text-xs text-[#0F5C4D] font-semibold bg-[#DFF4EC] px-2 py-0.5 rounded-lg border border-[#D8E4DE]">
               ครบ 30 Compressions
             </span>
           </div>
 
           <div className="space-y-3">
             {rescueStep === 0 && (
-              <div className="p-4 rounded-xl bg-emerald-950/60 border border-emerald-700/50 space-y-2 text-center">
-                <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
+              <div className="p-4 rounded-xl bg-[#DFF4EC] border border-[#D8E4DE] space-y-2 text-center">
+                <div className="w-12 h-12 rounded-full bg-white text-[#0F5C4D] flex items-center justify-center mx-auto shadow-sm">
                   <Wind className="w-6 h-6" />
                 </div>
-                <h4 className="text-sm font-bold text-white">ขั้นตอนที่ 1: เปิดทางเดินหายใจ (Airway)</h4>
-                <p className="text-xs text-slate-300">
+                <h4 className="text-sm font-bold text-[#17221E]">ขั้นตอนที่ 1: เปิดทางเดินหายใจ (Airway)</h4>
+                <p className="text-xs text-[#5C6B65]">
                   เชิดคางและกดหน้าผากผู้ป่วยลง เพื่อเปิดทางเดินหายใจให้โล่ง
                 </p>
               </div>
             )}
 
             {rescueStep === 1 && (
-              <div className="p-4 rounded-xl bg-teal-950/60 border border-teal-700/50 space-y-2 text-center">
-                <div className="w-12 h-12 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center mx-auto">
+              <div className="p-4 rounded-xl bg-[#DFF4EC] border border-[#D8E4DE] space-y-2 text-center">
+                <div className="w-12 h-12 rounded-full bg-white text-[#0F5C4D] flex items-center justify-center mx-auto shadow-sm">
                   <Wind className="w-6 h-6 animate-pulse" />
                 </div>
-                <h4 className="text-sm font-bold text-white">ขั้นตอนที่ 2: เป่าปาก ครั้งที่ 1 (Breath 1)</h4>
-                <p className="text-xs text-slate-300">
+                <h4 className="text-sm font-bold text-[#17221E]">ขั้นตอนที่ 2: เป่าปาก ครั้งที่ 1 (Breath 1)</h4>
+                <p className="text-xs text-[#5C6B65]">
                   บีบจมูก เป่าลมเข้าปากผู้ป่วย 1 วินาที สังเกตหน้าอกยกขึ้น
                 </p>
               </div>
             )}
 
             {rescueStep === 2 && (
-              <div className="p-4 rounded-xl bg-emerald-950/60 border border-emerald-700/50 space-y-2 text-center">
-                <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
+              <div className="p-4 rounded-xl bg-[#DFF4EC] border border-[#D8E4DE] space-y-2 text-center">
+                <div className="w-12 h-12 rounded-full bg-white text-[#0F5C4D] flex items-center justify-center mx-auto shadow-sm">
                   <Wind className="w-6 h-6 animate-pulse" />
                 </div>
-                <h4 className="text-sm font-bold text-white">ขั้นตอนที่ 3: เป่าปาก ครั้งที่ 2 (Breath 2)</h4>
-                <p className="text-xs text-slate-300">
+                <h4 className="text-sm font-bold text-[#17221E]">ขั้นตอนที่ 3: เป่าปาก ครั้งที่ 2 (Breath 2)</h4>
+                <p className="text-xs text-[#5C6B65]">
                   ปล่อยให้ลมออก แล้วเป่าซ้ำอีก 1 ครั้ง ก่อนเตรียมกลับเข้าสู่การกดหน้าอกหรือใช้ AED
                 </p>
               </div>
@@ -223,7 +221,7 @@ export const CPRGame: React.FC<CPRGameProps> = ({
 
             <button
               onClick={handleRescueStepClick}
-              className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-xl bg-[#0F5C4D] hover:bg-[#0a4a3d] text-white font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2"
             >
               <span>{rescueStep === 2 ? 'เสร็จสิ้นการช่วยหายใจ 30:2' : 'ถัดไป'}</span>
               <ArrowRight className="w-4 h-4" />
@@ -234,33 +232,33 @@ export const CPRGame: React.FC<CPRGameProps> = ({
 
       {/* Finished Summary */}
       {mode === 'finished' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 animate-in fade-in duration-300">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+        <div className="bg-white border border-[#D8E4DE] rounded-2xl p-5 space-y-4 animate-in fade-in duration-300 shadow-sm">
+          <div className="flex items-center justify-between border-b border-[#D8E4DE] pb-3">
+            <h4 className="text-sm font-bold text-[#17221E] flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-[#0F5C4D]" />
               สรุปผล Compression Rhythm Score
             </h4>
-            <span className="text-xs font-bold font-mono px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400">
+            <span className="text-xs font-bold font-mono px-2.5 py-0.5 rounded-lg bg-green-50 text-green-700 border border-green-200">
               {finalScore}%
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-3 text-center">
-            <div className="p-3 bg-slate-800/60 rounded-xl border border-slate-700/50">
-              <div className="text-[10px] text-slate-400">คะแนนจังหวะ (Rhythm Score)</div>
-              <div className="text-xl font-bold text-emerald-400 font-mono mt-0.5">{finalScore}%</div>
+            <div className="p-3.5 bg-[#F7FAF8] rounded-xl border border-[#D8E4DE]">
+              <div className="text-xs text-[#5C6B65]">คะแนนจังหวะ</div>
+              <div className="text-xl font-bold text-[#0F5C4D] font-mono mt-0.5">{finalScore}%</div>
             </div>
-            <div className="p-3 bg-slate-800/60 rounded-xl border border-slate-700/50">
-              <div className="text-[10px] text-slate-400">ความเร็วเฉลี่ย (Avg BPM)</div>
-              <div className="text-xl font-bold text-teal-300 font-mono mt-0.5">{avgBpm} BPM</div>
+            <div className="p-3.5 bg-[#F7FAF8] rounded-xl border border-[#D8E4DE]">
+              <div className="text-xs text-[#5C6B65]">ความเร็วเฉลี่ย</div>
+              <div className="text-xl font-bold text-[#0F5C4D] font-mono mt-0.5">{avgBpm} BPM</div>
             </div>
           </div>
 
           <button
             onClick={handleFinish}
-            className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-950 transition-all flex items-center justify-center gap-2"
+            className="w-full py-3.5 rounded-xl bg-[#0F5C4D] hover:bg-[#0a4a3d] text-white font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2"
           >
-            <span>AED มาถึงแล้ว! ไปขั้นตอน AED Simulation</span>
+            <span>AED มาถึงแล้ว! ไปขั้นตอน AED</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

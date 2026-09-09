@@ -51,37 +51,37 @@ export const LearningCenter: React.FC<LearningCenterProps> = ({ onStartMission }
   return (
     <div className="space-y-6 pb-20">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-emerald-900/80 to-teal-900/60 p-4 rounded-2xl border border-emerald-700/30 flex items-center justify-between">
+      <div className="bg-[#DFF4EC] p-4 rounded-2xl border border-[#D8E4DE] flex items-center justify-between">
         <div>
-          <h2 className="text-base font-bold text-white flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-emerald-400" />
+          <h2 className="text-base font-bold text-[#17221E] flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-[#0F5C4D]" />
             คลังการเรียนรู้ปฐมพยาบาล
           </h2>
-          <p className="text-xs text-emerald-200/80 mt-0.5">
+          <p className="text-xs text-[#5C6B65] mt-1">
             เรียนรู้ขั้นตอนและดูวิดีโอสาธิตก่อนลงภารกิจจำลอง
           </p>
         </div>
       </div>
 
       {/* Prototype Disclaimer Banner */}
-      <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-2.5">
-        <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-        <p className="text-[11px] text-amber-200 leading-snug">
-          <strong className="font-semibold text-amber-400">คำเตือน: </strong>
+      <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-2.5">
+        <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+        <p className="text-xs text-amber-800 leading-snug">
+          <strong className="font-semibold text-amber-700">คำเตือน: </strong>
           {PROTOTYPE_DISCLAIMER}
         </p>
       </div>
 
       {/* Topics Filter Bar */}
       <div className="space-y-2">
-        <div className="text-xs font-semibold text-slate-300">เลือกหมวดหมู่การเรียนรู้</div>
+        <div className="text-xs font-semibold text-[#17221E]">เลือกหมวดหมู่การเรียนรู้</div>
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
           <button
             onClick={() => setSelectedTopicId('all')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-medium shrink-0 transition-all ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-medium shrink-0 transition-all border ${
               selectedTopicId === 'all'
-                ? 'bg-emerald-500 text-white shadow-md shadow-emerald-900/40 font-semibold'
-                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'
+                ? 'bg-[#0F5C4D] text-white border-[#0F5C4D] shadow-sm font-semibold'
+                : 'bg-white text-[#5C6B65] border-[#D8E4DE] hover:border-[#0F5C4D]/30'
             }`}
           >
             ทั้งหมด
@@ -90,10 +90,10 @@ export const LearningCenter: React.FC<LearningCenterProps> = ({ onStartMission }
             <button
               key={topic.id}
               onClick={() => setSelectedTopicId(topic.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-medium shrink-0 flex items-center gap-1.5 transition-all ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-medium shrink-0 flex items-center gap-1.5 transition-all border ${
                 selectedTopicId === topic.id
-                  ? 'bg-emerald-500 text-white shadow-md shadow-emerald-900/40 font-semibold'
-                  : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'
+                  ? 'bg-[#0F5C4D] text-white border-[#0F5C4D] shadow-sm font-semibold'
+                  : 'bg-white text-[#5C6B65] border-[#D8E4DE] hover:border-[#0F5C4D]/30'
               }`}
             >
               {getTopicIcon(topic.iconName)}
@@ -104,27 +104,27 @@ export const LearningCenter: React.FC<LearningCenterProps> = ({ onStartMission }
       </div>
 
       {/* Micro-learning Steps Section */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3">
+      <div className="bg-white border border-[#D8E4DE] rounded-2xl p-4 space-y-3 shadow-sm">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-            <HeartPulse className="w-4 h-4" />
-            สรุปขั้นตอนสำคัญ (Micro-Learning)
+          <h3 className="text-xs font-bold text-[#17221E] flex items-center gap-1.5">
+            <HeartPulse className="w-4 h-4 text-[#0F5C4D]" />
+            สรุปขั้นตอนสำคัญ
           </h3>
-          <span className="text-[10px] text-slate-400">8 ขั้นตอน CPR ผู้ใหญ่</span>
+          <span className="text-[11px] text-[#5C6B65]">8 ขั้นตอน CPR ผู้ใหญ่</span>
         </div>
 
         <div className="space-y-2">
           {MICRO_LEARNING_STEPS.map((item) => (
             <div
               key={item.step}
-              className="flex items-start gap-3 p-2.5 rounded-xl bg-slate-800/50 border border-slate-700/40 hover:border-emerald-500/40 transition-colors"
+              className="flex items-start gap-3 p-3 rounded-xl bg-[#F7FAF8] border border-[#D8E4DE] hover:border-[#0F5C4D]/30 transition-colors"
             >
-              <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center justify-center text-xs font-bold shrink-0">
+              <div className="w-7 h-7 rounded-full bg-[#DFF4EC] text-[#0F5C4D] border border-[#D8E4DE] flex items-center justify-center text-xs font-bold shrink-0">
                 {item.step}
               </div>
               <div className="space-y-0.5">
-                <div className="text-xs font-semibold text-white">{item.title}</div>
-                <div className="text-[11px] text-slate-400">{item.detail}</div>
+                <div className="text-xs font-semibold text-[#17221E]">{item.title}</div>
+                <div className="text-xs text-[#5C6B65]">{item.detail}</div>
               </div>
             </div>
           ))}
@@ -133,9 +133,8 @@ export const LearningCenter: React.FC<LearningCenterProps> = ({ onStartMission }
 
       {/* Educational Video Cards */}
       <div className="space-y-3">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center justify-between">
-          <span>วิดีโอสาธิตการปฏิบัติ ({filteredVideos.length})</span>
-          <span className="text-[10px] text-slate-400 font-normal">YouTube Embed</span>
+        <h3 className="text-xs font-bold text-[#17221E]">
+          วิดีโอสาธิตการปฏิบัติ ({filteredVideos.length})
         </h3>
 
         <div className="grid grid-cols-1 gap-3">
@@ -143,39 +142,39 @@ export const LearningCenter: React.FC<LearningCenterProps> = ({ onStartMission }
             <div
               key={video.id}
               onClick={() => setActiveVideo(video)}
-              className="group cursor-pointer bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden hover:border-emerald-500/50 transition-all shadow-md flex flex-col"
+              className="group cursor-pointer bg-white border border-[#D8E4DE] rounded-2xl overflow-hidden hover:border-[#0F5C4D]/40 transition-all shadow-sm hover:shadow-md flex flex-col"
             >
               {/* Thumbnail Container */}
-              <div className="relative aspect-video w-full bg-slate-950 flex items-center justify-center overflow-hidden">
+              <div className="relative aspect-video w-full bg-gray-100 flex items-center justify-center overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={`https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg`}
                   alt={video.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-80"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-black/10" />
                 
                 {/* Play Button Overlay */}
-                <div className="absolute w-12 h-12 rounded-full bg-rose-600/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <div className="absolute w-12 h-12 rounded-full bg-[#0F5C4D]/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                   <Play className="w-5 h-5 fill-current ml-0.5" />
                 </div>
 
                 {video.duration && (
-                  <div className="absolute bottom-2 right-2 px-2 py-0.5 bg-black/80 rounded text-[10px] font-mono text-white">
+                  <div className="absolute bottom-2 right-2 px-2 py-0.5 bg-black/70 rounded text-[11px] font-mono text-white">
                     {video.duration}
                   </div>
                 )}
               </div>
 
               {/* Video Info */}
-              <div className="p-3 space-y-1">
-                <h4 className="text-xs font-bold text-white group-hover:text-emerald-300 transition-colors line-clamp-1">
+              <div className="p-3.5 space-y-1">
+                <h4 className="text-sm font-semibold text-[#17221E] group-hover:text-[#0F5C4D] transition-colors line-clamp-1">
                   {video.title}
                 </h4>
-                <p className="text-[11px] text-slate-400 line-clamp-2">{video.description}</p>
-                <div className="pt-2 flex items-center justify-between text-[10px] text-emerald-400/90 font-medium">
+                <p className="text-xs text-[#5C6B65] line-clamp-2">{video.description}</p>
+                <div className="pt-2 flex items-center justify-between text-xs text-[#5C6B65]">
                   <span>ผู้จัดทำ: {video.provider}</span>
-                  <span className="flex items-center gap-1 group-hover:underline">
+                  <span className="flex items-center gap-1 text-[#0F5C4D] font-medium group-hover:underline">
                     รับชม <ArrowRight className="w-3 h-3" />
                   </span>
                 </div>
@@ -187,7 +186,7 @@ export const LearningCenter: React.FC<LearningCenterProps> = ({ onStartMission }
 
       {/* Official Document Cards */}
       <div className="space-y-3">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
+        <h3 className="text-xs font-bold text-[#17221E]">
           เอกสารอ้างอิงและคู่มือทางการ ({filteredDocs.length})
         </h3>
 
@@ -198,18 +197,18 @@ export const LearningCenter: React.FC<LearningCenterProps> = ({ onStartMission }
               href={doc.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-emerald-500/40 transition-all text-left"
+              className="flex items-center justify-between p-3.5 rounded-xl bg-white border border-[#D8E4DE] hover:border-[#0F5C4D]/40 transition-all text-left shadow-sm"
             >
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-teal-500/10 text-teal-400 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-[#DFF4EC] text-[#0F5C4D] flex items-center justify-center shrink-0">
                   <FileText className="w-5 h-5" />
                 </div>
                 <div className="space-y-0.5">
-                  <h4 className="text-xs font-semibold text-white leading-tight">{doc.title}</h4>
-                  <p className="text-[10px] text-slate-400">{doc.provider}</p>
+                  <h4 className="text-xs font-semibold text-[#17221E] leading-tight">{doc.title}</h4>
+                  <p className="text-[11px] text-[#5C6B65]">{doc.provider}</p>
                 </div>
               </div>
-              <ExternalLink className="w-4 h-4 text-slate-500 shrink-0" />
+              <ExternalLink className="w-4 h-4 text-[#5C6B65] shrink-0" />
             </a>
           ))}
         </div>
@@ -219,7 +218,7 @@ export const LearningCenter: React.FC<LearningCenterProps> = ({ onStartMission }
       <div className="pt-2">
         <button
           onClick={onStartMission}
-          className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-xl shadow-emerald-950 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+          className="w-full py-3.5 px-4 rounded-xl bg-[#0F5C4D] hover:bg-[#0a4a3d] text-white font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
         >
           <span>เรียนพร้อมแล้ว? เข้าสู่ภารกิจจำลอง</span>
           <ArrowRight className="w-4 h-4" />
