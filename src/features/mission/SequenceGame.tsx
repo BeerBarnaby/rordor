@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { INITIAL_SEQUENCE_CARDS } from '@/data/scenarios';
 import { SequenceCardItem } from '@/types';
-import { CheckCircle2, XCircle, RotateCcw, ArrowRight, ShieldCheck, Info, Sparkles } from 'lucide-react';
+import { CheckCircle2, XCircle, RotateCcw, ArrowRight, ShieldCheck, Info, Sparkles, ChevronDown, ChevronUp, ListOrdered, Trash2 } from 'lucide-react';
 
 interface SequenceGameProps {
   onCompleteStep: (score: number, mistakes: string[]) => void;
@@ -17,6 +17,16 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({ onCompleteStep }) =>
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [feedbackList, setFeedbackList] = useState<{ isCorrect: boolean; text: string }[]>([]);
   const [score, setScore] = useState<number>(0);
+
+  const moveCard = (index: number, direction: -1 | 1) => {
+    setSelectedCards((previous) => {
+      const targetIndex = index + direction;
+      if (targetIndex < 0 || targetIndex >= previous.length) return previous;
+      const next = [...previous];
+      [next[index], next[targetIndex]] = [next[targetIndex], next[index]];
+      return next;
+    });
+  };
 
   const resetGame = useCallback(() => {
     const shuffled = [...INITIAL_SEQUENCE_CARDS].sort(() => Math.random() - 0.5);
@@ -86,7 +96,7 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({ onCompleteStep }) =>
   return (
     <div className="space-y-5">
       {/* Title Card */}
-      <div className="bg-white border border-[#D8E4DE] rounded-2xl p-4 space-y-1.5 shadow-sm">
+      <div className="bg-white border border-[#D8E4DE] rounded-2xl p-4 space-y-2 shadow-sm">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-bold text-[#0F5C4D] bg-[#DFF4EC] px-2.5 py-0.5 rounded-lg border border-[#D8E4DE]">
             ภารกิจขั้นที่ 1/4
@@ -97,8 +107,12 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({ onCompleteStep }) =>
           จัดลำดับขั้นตอนการเข้าช่วยเหลือผู้ป่วย
         </h3>
         <p className="text-xs text-[#5C6B65]">
-          แตะเลือกการปฏิบัติให้ถูกต้องตามลำดับขั้นตอนสากล (ระวังข้อห้ามและตัวลวง)
+          เลือกเฉพาะสิ่งที่ควรทำ แล้วใช้ปุ่มลูกศรเพื่อสลับลำดับก่อนส่งคำตอบ
         </p>
+        <div className="flex items-center gap-2 text-[11px] text-[#0F5C4D] bg-[#DFF4EC] rounded-lg px-2.5 py-2">
+          <ListOrdered className="w-4 h-4 shrink-0" />
+          <span>เป้าหมาย: จัด 7 ขั้นตอนให้ครบและถูกลำดับ</span>
+        </div>
       </div>
 
       {/* Selected Sequence Slots */}
@@ -111,27 +125,33 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({ onCompleteStep }) =>
           {selectedCards.length > 0 && !isSubmitted && (
             <button
               onClick={() => {
-                setAvailableCards(INITIAL_SEQUENCE_CARDS.sort(() => Math.random() - 0.5));
+                setAvailableCards([...INITIAL_SEQUENCE_CARDS].sort(() => Math.random() - 0.5));
                 setSelectedCards([]);
               }}
-              className="text-xs text-[#5C6B65] hover:text-[#17221E] underline"
+              className="min-h-10 px-2 text-xs text-[#5C6B65] hover:text-red-700 flex items-center gap-1"
             >
-              ล้างทั้งหมด
+              <Trash2 className="w-3.5 h-3.5" /> ล้าง
             </button>
           )}
         </div>
 
+        <div className="flex gap-1" aria-label={`เลือกแล้ว ${selectedCards.length} จาก 7 ขั้นตอน`}>
+          {Array.from({ length: 7 }, (_, index) => (
+            <span key={index} className={`h-1.5 flex-1 rounded-full ${index < selectedCards.length ? 'bg-[#0F5C4D]' : 'bg-[#D8E4DE]'}`} />
+          ))}
+        </div>
+
         {selectedCards.length === 0 ? (
-          <div className="h-32 border-2 border-dashed border-[#D8E4DE] rounded-xl flex items-center justify-center text-xs text-[#5C6B65]">
-            แตะตัวเลือกด้านล่างเพื่อเรียงลำดับขั้นตอน
+          <div className="h-32 border-2 border-dashed border-[#D8E4DE] rounded-xl flex flex-col gap-1 items-center justify-center text-xs text-[#5C6B65]">
+            <ListOrdered className="w-6 h-6 text-[#0F5C4D]/50" />
+            <span>เลือกการ์ดด้านล่างเพื่อเริ่มจัดลำดับ</span>
           </div>
         ) : (
           <div className="space-y-2">
             {selectedCards.map((card, idx) => (
               <div
                 key={card.id}
-                onClick={() => handleDeselectCard(card)}
-                className={`p-3 rounded-xl border flex items-center justify-between transition-all cursor-pointer ${
+                className={`p-3 rounded-xl border flex items-center justify-between transition-all ${
                   isSubmitted
                     ? card.isCorrect && card.correctOrder === idx + 1
                       ? 'bg-green-50 border-green-300 text-green-800'
@@ -150,9 +170,13 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({ onCompleteStep }) =>
                 </div>
 
                 {!isSubmitted && (
-                  <span className="text-[11px] text-[#5C6B65] bg-[#F7FAF8] px-2 py-0.5 rounded border border-[#D8E4DE]">
-                    นำออก
-                  </span>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <div className="flex flex-col border border-[#D8E4DE] rounded-lg overflow-hidden">
+                      <button aria-label={`เลื่อน ${card.title} ขึ้น`} onClick={() => moveCard(idx, -1)} disabled={idx === 0} className="w-9 h-6 flex items-center justify-center hover:bg-[#DFF4EC] disabled:opacity-30"><ChevronUp className="w-3.5 h-3.5" /></button>
+                      <button aria-label={`เลื่อน ${card.title} ลง`} onClick={() => moveCard(idx, 1)} disabled={idx === selectedCards.length - 1} className="w-9 h-6 flex items-center justify-center border-t border-[#D8E4DE] hover:bg-[#DFF4EC] disabled:opacity-30"><ChevronDown className="w-3.5 h-3.5" /></button>
+                    </div>
+                    <button aria-label={`นำ ${card.title} ออกจากลำดับ`} onClick={() => handleDeselectCard(card)} className="w-10 h-12 rounded-lg text-[#5C6B65] hover:bg-red-50 hover:text-red-700 flex items-center justify-center"><Trash2 className="w-4 h-4" /></button>
+                  </div>
                 )}
                 {isSubmitted && (
                   card.isCorrect && card.correctOrder === idx + 1 ? (

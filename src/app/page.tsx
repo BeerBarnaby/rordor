@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { MobileContainer } from '@/components/MobileContainer';
 import { MascotHeader } from '@/components/MascotHeader';
 import { AboutModal } from '@/components/AboutModal';
@@ -13,8 +14,6 @@ import { AfterActionReview } from '@/features/debrief/AfterActionReview';
 import { ProgressService } from '@/lib/progress';
 import { MissionResult, UserProgress, SkillScores, TimelineEntry } from '@/types';
 import { 
-  BookOpen, 
-  ShieldCheck, 
   Award, 
   ArrowRight, 
   Sparkles
@@ -154,8 +153,8 @@ export default function Home() {
               className="group cursor-pointer p-4 rounded-2xl bg-white border border-[#D8E4DE] hover:border-[#0F5C4D]/40 shadow-sm hover:shadow-md transition-all active:scale-[0.99] flex items-center justify-between"
             >
               <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-[#DFF4EC] text-[#0F5C4D] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                  <BookOpen className="w-6 h-6" />
+                <div className="w-12 h-12 rounded-2xl bg-[#DFF4EC] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform overflow-hidden">
+                  <Image src="/icon-learn.png" alt="ไอคอนคลังการเรียนรู้" width={48} height={48} className="w-full h-full object-cover" />
                 </div>
                 <div className="space-y-0.5">
                   <h3 className="text-sm font-bold text-[#17221E] group-hover:text-[#0F5C4D] transition-colors">
@@ -175,8 +174,8 @@ export default function Home() {
               className="group cursor-pointer p-4 rounded-2xl bg-[#0F5C4D] hover:bg-[#0a4a3d] shadow-sm hover:shadow-md transition-all active:scale-[0.99] flex items-center justify-between"
             >
               <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-white/20 text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                  <ShieldCheck className="w-6 h-6" />
+                <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform overflow-hidden">
+                  <Image src="/icon-mission.png" alt="ไอคอนเริ่มภารกิจ" width={48} height={48} className="w-full h-full object-cover" />
                 </div>
                 <div className="space-y-0.5">
                   <h3 className="text-sm font-bold text-white">
