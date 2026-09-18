@@ -1,232 +1,220 @@
-'use client';
+"use client";
+import { useState } from "react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Play,
+  FileText,
+  ExternalLink,
+} from "lucide-react";
+import {
+  LEARNING_TOPICS,
+  LEARNING_VIDEOS,
+  LEARNING_DOCUMENTS,
+  PROTOTYPE_DISCLAIMER,
+} from "@/data/learning";
+import { LearningVideo } from "@/types";
+import { YouTubeModal } from "@/components/YouTubeModal";
+import { ContentMetadata } from "@/components/TrainingUI";
 
-import React, { useState } from 'react';
-import { 
-  LEARNING_TOPICS, 
-  LEARNING_VIDEOS, 
-  LEARNING_DOCUMENTS, 
-  MICRO_LEARNING_STEPS, 
-  PROTOTYPE_DISCLAIMER 
-} from '@/data/learning';
-import { LearningVideo } from '@/types';
-import { YouTubeModal } from '@/components/YouTubeModal';
-import { 
-  Play, 
-  FileText, 
-  ExternalLink, 
-  ShieldAlert, 
-  HeartPulse, 
-  PhoneCall, 
-  Zap, 
-  BookOpen, 
-  ArrowRight
-} from 'lucide-react';
-
-interface LearningCenterProps {
+const modules = [
+  {
+    id: "assessment",
+    title: "ประเมินสถานการณ์",
+    detail: "ความปลอดภัย · การตอบสนอง",
+  },
+  { id: "call1669", title: "ขอความช่วยเหลือ", detail: "โทร 1669 · ขอ AED" },
+  { id: "cpr", title: "เริ่ม CPR", detail: "ตำแหน่งมือ · ความเร็ว · จังหวะ" },
+  {
+    id: "aed",
+    title: "ใช้ AED",
+    detail: "เปิดเครื่อง · ติดแผ่น · ทำตามคำสั่ง",
+  },
+];
+export function LearningCenter({
+  onStartMission,
+}: {
   onStartMission: () => void;
-}
-
-export const LearningCenter: React.FC<LearningCenterProps> = ({ onStartMission }) => {
-  const [selectedTopicId, setSelectedTopicId] = useState<string>('all');
-  const [activeVideo, setActiveVideo] = useState<LearningVideo | null>(null);
-
-  const filteredVideos = selectedTopicId === 'all' 
-    ? LEARNING_VIDEOS 
-    : LEARNING_VIDEOS.filter(v => v.topicId === selectedTopicId);
-
-  const filteredDocs = selectedTopicId === 'all'
-    ? LEARNING_DOCUMENTS
-    : LEARNING_DOCUMENTS.filter(d => d.topicId === selectedTopicId);
-
-  const getTopicIcon = (iconName: string) => {
-    switch (iconName) {
-      case 'ShieldAlert': return <ShieldAlert className="w-4 h-4" />;
-      case 'HeartPulse': return <HeartPulse className="w-4 h-4" />;
-      case 'PhoneCall': return <PhoneCall className="w-4 h-4" />;
-      case 'Zap': return <Zap className="w-4 h-4" />;
-      default: return <BookOpen className="w-4 h-4" />;
-    }
-  };
-
+}) {
+  const [selected, setSelected] = useState<string | null>(null);
+  const [video, setVideo] = useState<LearningVideo | null>(null);
+  const topic = LEARNING_TOPICS.find((item) => item.id === selected);
+  const activeModule = modules.find((item) => item.id === selected);
+  const videos = LEARNING_VIDEOS.filter(
+    (item) =>
+      item.topicId === selected ||
+      (selected === "aed" && item.topicId === "cpr"),
+  );
+  const docs = LEARNING_DOCUMENTS.filter((item) => item.topicId === selected);
+  function openModule(id: string | null) {
+    setSelected(id);
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }
   return (
-    <div className="space-y-6 pb-20">
-      {/* Header Banner */}
-      <div className="bg-[#DFF4EC] p-4 rounded-2xl border border-[#D8E4DE] flex items-center justify-between">
-        <div>
-          <h2 className="text-base font-bold text-[#17221E] flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-[#0F5C4D]" />
-            คลังการเรียนรู้ปฐมพยาบาล
-          </h2>
-          <p className="text-xs text-[#5C6B65] mt-1">
-            เรียนรู้ขั้นตอนและดูวิดีโอสาธิตก่อนลงภารกิจจำลอง
-          </p>
-        </div>
-      </div>
-
-      {/* Prototype Disclaimer Banner */}
-      <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-2.5">
-        <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-        <p className="text-xs text-amber-800 leading-snug">
-          <strong className="font-semibold text-amber-700">คำเตือน: </strong>
-          {PROTOTYPE_DISCLAIMER}
-        </p>
-      </div>
-
-      {/* Topics Filter Bar */}
-      <div className="space-y-2">
-        <div className="text-xs font-semibold text-[#17221E]">เลือกหมวดหมู่การเรียนรู้</div>
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-          <button
-            onClick={() => setSelectedTopicId('all')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-medium shrink-0 transition-all border ${
-              selectedTopicId === 'all'
-                ? 'bg-[#0F5C4D] text-white border-[#0F5C4D] shadow-sm font-semibold'
-                : 'bg-white text-[#5C6B65] border-[#D8E4DE] hover:border-[#0F5C4D]/30'
-            }`}
-          >
-            ทั้งหมด
-          </button>
-          {LEARNING_TOPICS.map((topic) => (
+    <div className="page-stack">
+      <header>
+        <h1 className="page-title">{activeModule?.title || "คู่มือก่อนฝึก"}</h1>
+        {!topic && <p className="caption mt-2">เลือกบทที่ต้องการทบทวน</p>}
+      </header>
+      {!topic ? (
+        <>
+          <aside className="notice">
+            {PROTOTYPE_DISCLAIMER} และไม่ทดแทนการฝึกภาคปฏิบัติ
+          </aside>
+          <div className="module-grid">
+            {modules.map((item, index) => (
+              <button
+                className="learning-module"
+                key={item.id}
+                onClick={() => openModule(item.id)}
+              >
+                <span>0{index + 1}</span>
+                <span className="flex-1">
+                  <strong>{item.title}</strong>
+                  <span className="caption block mt-1">{item.detail}</span>
+                </span>
+                <ArrowRight size={20} />
+              </button>
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          <div>
             <button
-              key={topic.id}
-              onClick={() => setSelectedTopicId(topic.id)}
-              className={`px-3.5 py-2 rounded-xl text-xs font-medium shrink-0 flex items-center gap-1.5 transition-all border ${
-                selectedTopicId === topic.id
-                  ? 'bg-[#0F5C4D] text-white border-[#0F5C4D] shadow-sm font-semibold'
-                  : 'bg-white text-[#5C6B65] border-[#D8E4DE] hover:border-[#0F5C4D]/30'
-              }`}
+              className="text-button !pl-0"
+              onClick={() => openModule(null)}
             >
-              {getTopicIcon(topic.iconName)}
-              {topic.title}
+              <ArrowLeft size={20} />
+              ทุกบท
             </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Micro-learning Steps Section */}
-      <div className="bg-white border border-[#D8E4DE] rounded-2xl p-4 space-y-3 shadow-sm">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xs font-bold text-[#17221E] flex items-center gap-1.5">
-            <HeartPulse className="w-4 h-4 text-[#0F5C4D]" />
-            สรุปขั้นตอนสำคัญ
-          </h3>
-          <span className="text-[11px] text-[#5C6B65]">8 ขั้นตอน CPR ผู้ใหญ่</span>
-        </div>
-
-        <div className="space-y-2">
-          {MICRO_LEARNING_STEPS.map((item) => (
-            <div
-              key={item.step}
-              className="flex items-start gap-3 p-3 rounded-xl bg-[#F7FAF8] border border-[#D8E4DE] hover:border-[#0F5C4D]/30 transition-colors"
-            >
-              <div className="w-7 h-7 rounded-full bg-[#DFF4EC] text-[#0F5C4D] border border-[#D8E4DE] flex items-center justify-center text-xs font-bold shrink-0">
-                {item.step}
-              </div>
-              <div className="space-y-0.5">
-                <div className="text-xs font-semibold text-[#17221E]">{item.title}</div>
-                <div className="text-xs text-[#5C6B65]">{item.detail}</div>
-              </div>
+            <div className="module-tabs" role="tablist" aria-label="บทในคู่มือ">
+              {modules.map((item) => (
+                <button
+                  key={item.id}
+                  id={`tab-${item.id}`}
+                  role="tab"
+                  aria-selected={selected === item.id}
+                  aria-controls="learning-detail"
+                  tabIndex={selected === item.id ? 0 : -1}
+                  onKeyDown={(event) => {
+                    const i = modules.findIndex((m) => m.id === selected);
+                    const next =
+                      event.key === "ArrowRight"
+                        ? (i + 1) % 4
+                        : event.key === "ArrowLeft"
+                          ? (i + 3) % 4
+                          : event.key === "Home"
+                            ? 0
+                            : event.key === "End"
+                              ? 3
+                              : -1;
+                    if (next >= 0) {
+                      event.preventDefault();
+                      setSelected(modules[next].id);
+                      document
+                        .getElementById(`tab-${modules[next].id}`)
+                        ?.focus();
+                    }
+                  }}
+                  onClick={() => setSelected(item.id)}
+                >
+                  {item.title}
+                </button>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Educational Video Cards */}
-      <div className="space-y-3">
-        <h3 className="text-xs font-bold text-[#17221E]">
-          วิดีโอสาธิตการปฏิบัติ ({filteredVideos.length})
-        </h3>
-
-        <div className="grid grid-cols-1 gap-3">
-          {filteredVideos.map((video) => (
-            <div
-              key={video.id}
-              onClick={() => setActiveVideo(video)}
-              className="group cursor-pointer bg-white border border-[#D8E4DE] rounded-2xl overflow-hidden hover:border-[#0F5C4D]/40 transition-all shadow-sm hover:shadow-md flex flex-col"
-            >
-              {/* Thumbnail Container */}
-              <div className="relative aspect-video w-full bg-gray-100 flex items-center justify-center overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg`}
-                  alt={video.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-black/10" />
-                
-                {/* Play Button Overlay */}
-                <div className="absolute w-12 h-12 rounded-full bg-[#0F5C4D]/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                  <Play className="w-5 h-5 fill-current ml-0.5" />
-                </div>
-
-                {video.duration && (
-                  <div className="absolute bottom-2 right-2 px-2 py-0.5 bg-black/70 rounded text-[11px] font-mono text-white">
-                    {video.duration}
-                  </div>
-                )}
-              </div>
-
-              {/* Video Info */}
-              <div className="p-3.5 space-y-1">
-                <h4 className="text-sm font-semibold text-[#17221E] group-hover:text-[#0F5C4D] transition-colors line-clamp-1">
-                  {video.title}
-                </h4>
-                <p className="text-xs text-[#5C6B65] line-clamp-2">{video.description}</p>
-                <div className="pt-2 flex items-center justify-between text-xs text-[#5C6B65]">
-                  <span>ผู้จัดทำ: {video.provider}</span>
-                  <span className="flex items-center gap-1 text-[#0F5C4D] font-medium group-hover:underline">
-                    รับชม <ArrowRight className="w-3 h-3" />
-                  </span>
-                </div>
-              </div>
+          </div>
+          <section
+            id="learning-detail"
+            role="tabpanel"
+            aria-labelledby={`tab-${selected}`}
+            className="page-stack"
+          >
+            <div className="detail-grid">
+              <section>
+                <p>{topic.description}</p>
+                <h2 className="section-title mt-6">ลำดับการช่วยเหลือ</h2>
+                <ol className="step-list">
+                  {topic.summarySteps.map((step) => (
+                    <li key={step}>{step}</li>
+                  ))}
+                </ol>
+              </section>
+              <section>
+                <h3 className="section-title">แหล่งอ้างอิง</h3>
+                {docs.map((doc) => (
+                  <a
+                    key={doc.id}
+                    href={doc.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="resource-row"
+                  >
+                    <FileText />
+                    <span>
+                      <span className="block">{doc.title}</span>
+                      <span className="caption block mt-1">{doc.provider}</span>
+                      <span className="caption block">
+                        เว็บไซต์หน่วยงาน · ยังไม่มีลิงก์เอกสารฉบับตรง
+                      </span>
+                    </span>
+                    <ExternalLink aria-label="เปิดแท็บใหม่" />
+                  </a>
+                ))}
+              </section>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Official Document Cards */}
-      <div className="space-y-3">
-        <h3 className="text-xs font-bold text-[#17221E]">
-          เอกสารอ้างอิงและคู่มือทางการ ({filteredDocs.length})
-        </h3>
-
-        <div className="space-y-2">
-          {filteredDocs.map((doc) => (
-            <a
-              key={doc.id}
-              href={doc.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between p-3.5 rounded-xl bg-white border border-[#D8E4DE] hover:border-[#0F5C4D]/40 transition-all text-left shadow-sm"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#DFF4EC] text-[#0F5C4D] flex items-center justify-center shrink-0">
-                  <FileText className="w-5 h-5" />
+            {videos.length > 0 && (
+              <section className="section-rule">
+                <h3 className="section-title">วิดีโอประกอบ</h3>
+                <div className="video-grid">
+                  {videos.map((item) => (
+                    <button
+                      key={item.id}
+                      className="video-resource"
+                      onClick={() => setVideo(item)}
+                    >
+                      <div className="video-thumbnail">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={`https://img.youtube.com/vi/${item.youtubeId}/hqdefault.jpg`}
+                          alt=""
+                          width={480}
+                          height={270}
+                          loading="lazy"
+                        />
+                        <span className="video-play">
+                          <Play />
+                        </span>
+                        {item.duration && (
+                          <span className="video-duration">
+                            {item.duration.replace("min", "นาที")}
+                          </span>
+                        )}
+                      </div>
+                      <h4 className="mt-3 font-semibold">{item.title}</h4>
+                      <p className="caption mt-1">{item.provider}</p>
+                      <span className="text-[var(--color-primary)] text-sm block mt-2">
+                        ดูวิดีโอ
+                      </span>
+                    </button>
+                  ))}
                 </div>
-                <div className="space-y-0.5">
-                  <h4 className="text-xs font-semibold text-[#17221E] leading-tight">{doc.title}</h4>
-                  <p className="text-[11px] text-[#5C6B65]">{doc.provider}</p>
-                </div>
-              </div>
-              <ExternalLink className="w-4 h-4 text-[#5C6B65] shrink-0" />
-            </a>
-          ))}
-        </div>
-      </div>
-
-      {/* Bottom CTA to start mission */}
-      <div className="pt-2">
-        <button
-          onClick={onStartMission}
-          className="w-full py-3.5 px-4 rounded-xl bg-[#0F5C4D] hover:bg-[#0a4a3d] text-white font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-        >
-          <span>เรียนพร้อมแล้ว? เข้าสู่ภารกิจจำลอง</span>
-          <ArrowRight className="w-4 h-4" />
+              </section>
+            )}
+          </section>
+        </>
+      )}
+      <div className="section-rule">
+        <button className="primary-button" onClick={onStartMission}>
+          เริ่มฝึกสถานการณ์
+          <ArrowRight size={20} />
         </button>
       </div>
-
-      {/* Video Modal Player */}
-      <YouTubeModal video={activeVideo} onClose={() => setActiveVideo(null)} />
+      <details className="reference-details">
+        <summary>แหล่งอ้างอิงและสถานะการตรวจทานเนื้อหา</summary>
+        <ContentMetadata />
+      </details>
+      <YouTubeModal video={video} onClose={() => setVideo(null)} />
     </div>
   );
-};
+}

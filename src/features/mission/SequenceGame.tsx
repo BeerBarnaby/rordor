@@ -1,21 +1,34 @@
-'use client';
+"use client";
 
-import React, { useState, useCallback } from 'react';
-import { INITIAL_SEQUENCE_CARDS } from '@/data/scenarios';
-import { SequenceCardItem } from '@/types';
-import { CheckCircle2, XCircle, RotateCcw, ArrowRight, ShieldCheck, Info, Sparkles, ChevronDown, ChevronUp, ListOrdered, Trash2 } from 'lucide-react';
+import React, { useState, useCallback } from "react";
+import { INITIAL_SEQUENCE_CARDS } from "@/data/scenarios";
+import { SequenceCardItem } from "@/types";
+import {
+  CircleCheck,
+  CircleX,
+  RotateCcw,
+  ArrowRight,
+  ChevronDown,
+  ChevronUp,
+  Trash2,
+  Plus,
+} from "lucide-react";
 
 interface SequenceGameProps {
   onCompleteStep: (score: number, mistakes: string[]) => void;
 }
 
-export const SequenceGame: React.FC<SequenceGameProps> = ({ onCompleteStep }) => {
+export const SequenceGame: React.FC<SequenceGameProps> = ({
+  onCompleteStep,
+}) => {
   const [availableCards, setAvailableCards] = useState<SequenceCardItem[]>(() =>
-    [...INITIAL_SEQUENCE_CARDS].sort(() => Math.random() - 0.5)
+    [...INITIAL_SEQUENCE_CARDS].sort(() => Math.random() - 0.5),
   );
   const [selectedCards, setSelectedCards] = useState<SequenceCardItem[]>([]);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-  const [feedbackList, setFeedbackList] = useState<{ isCorrect: boolean; text: string }[]>([]);
+  const [feedbackList, setFeedbackList] = useState<
+    { isCorrect: boolean; text: string }[]
+  >([]);
   const [score, setScore] = useState<number>(0);
 
   const moveCard = (index: number, direction: -1 | 1) => {
@@ -29,7 +42,9 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({ onCompleteStep }) =>
   };
 
   const resetGame = useCallback(() => {
-    const shuffled = [...INITIAL_SEQUENCE_CARDS].sort(() => Math.random() - 0.5);
+    const shuffled = [...INITIAL_SEQUENCE_CARDS].sort(
+      () => Math.random() - 0.5,
+    );
     setAvailableCards(shuffled);
     setSelectedCards([]);
     setIsSubmitted(false);
@@ -39,14 +54,14 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({ onCompleteStep }) =>
 
   const handleSelectCard = (card: SequenceCardItem) => {
     if (isSubmitted) return;
-    setAvailableCards(prev => prev.filter(c => c.id !== card.id));
-    setSelectedCards(prev => [...prev, card]);
+    setAvailableCards((prev) => prev.filter((c) => c.id !== card.id));
+    setSelectedCards((prev) => [...prev, card]);
   };
 
   const handleDeselectCard = (card: SequenceCardItem) => {
     if (isSubmitted) return;
-    setSelectedCards(prev => prev.filter(c => c.id !== card.id));
-    setAvailableCards(prev => [...prev, card]);
+    setSelectedCards((prev) => prev.filter((c) => c.id !== card.id));
+    setAvailableCards((prev) => [...prev, card]);
   };
 
   const handleSubmit = () => {
@@ -62,25 +77,40 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({ onCompleteStep }) =>
       if (!card.isCorrect) {
         feedbacks.push({
           isCorrect: false,
-          text: card.feedbackIfWrong || `เลือกขั้นตอนที่ไม่ถูกต้อง: ${card.title}`,
+          text:
+            card.feedbackIfWrong || `เลือกขั้นตอนที่ไม่ถูกต้อง: ${card.title}`,
         });
         mistakes.push(`เลือกข้อห้าม: ${card.title}`);
       } else if (card.correctOrder === expectedOrder) {
         correctCount++;
         feedbacks.push({
           isCorrect: true,
-          text: card.feedbackIfCorrect || `ลำดับที่ ${expectedOrder}: ${card.title} (ถูกต้อง)`,
+          text:
+            card.feedbackIfCorrect ||
+            `ลำดับที่ ${expectedOrder}: ${card.title} (ถูกต้อง)`,
         });
       } else {
         feedbacks.push({
           isCorrect: false,
-          text: `ลำดับที่ ${expectedOrder} ควรรวน: ${card.feedbackIfWrong}`,
+          text: `ลำดับที่ ${expectedOrder} ควรทบทวน: ${card.feedbackIfWrong}`,
         });
         mistakes.push(`ลำดับผิดสำหรับ: ${card.title}`);
       }
     });
 
-    const totalValidSteps = INITIAL_SEQUENCE_CARDS.filter(c => c.isCorrect).length;
+    INITIAL_SEQUENCE_CARDS.filter(
+      (card) =>
+        card.isCorrect &&
+        !selectedCards.some((selected) => selected.id === card.id),
+    ).forEach((card) => {
+      feedbacks.push({
+        isCorrect: false,
+        text: `ยังไม่ได้เลือก: ${card.title}`,
+      });
+    });
+    const totalValidSteps = INITIAL_SEQUENCE_CARDS.filter(
+      (c) => c.isCorrect,
+    ).length;
     const calculatedScore = Math.round((correctCount / totalValidSteps) * 100);
 
     setScore(calculatedScore);
@@ -89,195 +119,161 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({ onCompleteStep }) =>
   };
 
   const handleProceed = () => {
-    const mistakes = feedbackList.filter(f => !f.isCorrect).map(f => f.text);
+    const mistakes = feedbackList
+      .filter((f) => !f.isCorrect)
+      .map((f) => f.text);
     onCompleteStep(score, mistakes);
   };
 
   return (
-    <div className="space-y-5">
-      {/* Title Card */}
-      <div className="bg-white border border-[#D8E4DE] rounded-2xl p-4 space-y-2 shadow-sm">
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold text-[#0F5C4D] bg-[#DFF4EC] px-2.5 py-0.5 rounded-lg border border-[#D8E4DE]">
-            ภารกิจขั้นที่ 1/4
-          </span>
-          <span className="text-xs text-[#5C6B65]">ลำดับการช่วยเหลือ</span>
-        </div>
-        <h3 className="text-base font-bold text-[#17221E] leading-snug">
-          จัดลำดับขั้นตอนการเข้าช่วยเหลือผู้ป่วย
-        </h3>
-        <p className="text-xs text-[#5C6B65]">
-          เลือกเฉพาะสิ่งที่ควรทำ แล้วใช้ปุ่มลูกศรเพื่อสลับลำดับก่อนส่งคำตอบ
+    <div className="page-stack">
+      <header>
+        <h1 className="page-title">ลำดับการช่วยเหลือ</h1>
+        <p className="mt-2">เพื่อนล้มลงและไม่ตอบสนอง คุณจะทำอะไรตามลำดับ?</p>
+        <p className="caption mt-2">
+          เลือก 7 ขั้นตอนที่ควรทำ ใช้ลูกศรสลับลำดับก่อนตรวจคำตอบ
         </p>
-        <div className="flex items-center gap-2 text-[11px] text-[#0F5C4D] bg-[#DFF4EC] rounded-lg px-2.5 py-2">
-          <ListOrdered className="w-4 h-4 shrink-0" />
-          <span>เป้าหมาย: จัด 7 ขั้นตอนให้ครบและถูกลำดับ</span>
-        </div>
-      </div>
-
-      {/* Selected Sequence Slots */}
-      <div className="bg-[#F7FAF8] border border-[#D8E4DE] rounded-2xl p-4 space-y-3 min-h-[220px]">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-[#0F5C4D] flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5" />
-            ลำดับการปฏิบัติที่เลือก ({selectedCards.length})
-          </span>
-          {selectedCards.length > 0 && !isSubmitted && (
-            <button
-              onClick={() => {
-                setAvailableCards([...INITIAL_SEQUENCE_CARDS].sort(() => Math.random() - 0.5));
-                setSelectedCards([]);
-              }}
-              className="min-h-10 px-2 text-xs text-[#5C6B65] hover:text-red-700 flex items-center gap-1"
-            >
-              <Trash2 className="w-3.5 h-3.5" /> ล้าง
-            </button>
-          )}
-        </div>
-
-        <div className="flex gap-1" aria-label={`เลือกแล้ว ${selectedCards.length} จาก 7 ขั้นตอน`}>
-          {Array.from({ length: 7 }, (_, index) => (
-            <span key={index} className={`h-1.5 flex-1 rounded-full ${index < selectedCards.length ? 'bg-[#0F5C4D]' : 'bg-[#D8E4DE]'}`} />
-          ))}
-        </div>
-
-        {selectedCards.length === 0 ? (
-          <div className="h-32 border-2 border-dashed border-[#D8E4DE] rounded-xl flex flex-col gap-1 items-center justify-center text-xs text-[#5C6B65]">
-            <ListOrdered className="w-6 h-6 text-[#0F5C4D]/50" />
-            <span>เลือกการ์ดด้านล่างเพื่อเริ่มจัดลำดับ</span>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {selectedCards.map((card, idx) => (
-              <div
-                key={card.id}
-                className={`p-3 rounded-xl border flex items-center justify-between transition-all ${
-                  isSubmitted
-                    ? card.isCorrect && card.correctOrder === idx + 1
-                      ? 'bg-green-50 border-green-300 text-green-800'
-                      : 'bg-red-50 border-red-300 text-red-800'
-                    : 'bg-white border-[#D8E4DE] text-[#17221E] hover:border-[#0F5C4D]/40'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="w-7 h-7 rounded-lg bg-[#DFF4EC] text-[#0F5C4D] font-bold text-xs flex items-center justify-center shrink-0">
-                    {idx + 1}
-                  </span>
-                  <div>
-                    <div className="text-xs font-bold">{card.title}</div>
-                    {card.subtitle && <div className="text-[11px] opacity-70">{card.subtitle}</div>}
-                  </div>
-                </div>
-
-                {!isSubmitted && (
-                  <div className="flex items-center gap-1 shrink-0">
-                    <div className="flex flex-col border border-[#D8E4DE] rounded-lg overflow-hidden">
-                      <button aria-label={`เลื่อน ${card.title} ขึ้น`} onClick={() => moveCard(idx, -1)} disabled={idx === 0} className="w-9 h-6 flex items-center justify-center hover:bg-[#DFF4EC] disabled:opacity-30"><ChevronUp className="w-3.5 h-3.5" /></button>
-                      <button aria-label={`เลื่อน ${card.title} ลง`} onClick={() => moveCard(idx, 1)} disabled={idx === selectedCards.length - 1} className="w-9 h-6 flex items-center justify-center border-t border-[#D8E4DE] hover:bg-[#DFF4EC] disabled:opacity-30"><ChevronDown className="w-3.5 h-3.5" /></button>
-                    </div>
-                    <button aria-label={`นำ ${card.title} ออกจากลำดับ`} onClick={() => handleDeselectCard(card)} className="w-10 h-12 rounded-lg text-[#5C6B65] hover:bg-red-50 hover:text-red-700 flex items-center justify-center"><Trash2 className="w-4 h-4" /></button>
-                  </div>
-                )}
-                {isSubmitted && (
-                  card.isCorrect && card.correctOrder === idx + 1 ? (
-                    <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0" />
-                  ) : (
-                    <XCircle className="w-5 h-5 text-red-500 shrink-0" />
-                  )
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Available Choices Pool */}
-      {!isSubmitted && (
-        <div className="space-y-2">
-          <div className="text-xs font-semibold text-[#17221E]">ตัวเลือกการปฏิบัติ (แตะเพื่อเลือก):</div>
-          <div className="grid grid-cols-1 gap-2">
-            {availableCards.map((card) => (
-              <button
-                key={card.id}
-                onClick={() => handleSelectCard(card)}
-                className="p-3.5 rounded-xl bg-white border border-[#D8E4DE] hover:border-[#0F5C4D]/40 text-left transition-all active:scale-[0.99] flex items-center justify-between shadow-sm"
-              >
-                <div className="space-y-0.5">
-                  <div className="text-xs font-bold text-[#17221E]">{card.title}</div>
-                  {card.subtitle && <div className="text-[11px] text-[#5C6B65]">{card.subtitle}</div>}
-                </div>
-                <span className="text-xs text-[#0F5C4D] font-bold">+ เลือก</span>
+      </header>
+      <div className="sequence-grid">
+        <section>
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <h2 className="section-title !mb-0">
+              ลำดับของคุณ ({selectedCards.length}/7)
+            </h2>
+            {selectedCards.length > 0 && !isSubmitted && (
+              <button className="text-button" onClick={resetGame}>
+                ล้าง
               </button>
-            ))}
+            )}
           </div>
-
-          <div className="pt-3">
-            <button
-              onClick={handleSubmit}
-              disabled={selectedCards.length === 0}
-              className="w-full py-3.5 rounded-xl bg-[#0F5C4D] hover:bg-[#0a4a3d] disabled:opacity-40 text-white font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2"
-            >
-              <ShieldCheck className="w-4 h-4" />
-              <span>ส่งคำตอบประเมินลำดับ</span>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Educational Feedback Section */}
-      {isSubmitted && (
-        <div className="space-y-4 animate-in fade-in duration-300">
-          <div className="p-4 rounded-2xl bg-white border border-[#D8E4DE] space-y-3 shadow-sm">
-            <div className="flex items-center justify-between border-b border-[#D8E4DE] pb-2">
-              <h4 className="text-xs font-bold text-[#17221E] flex items-center gap-1.5">
-                <Info className="w-4 h-4 text-[#0F5C4D]" />
-                คำแนะนำและข้อเรียนรู้
-              </h4>
-              <span className={`text-xs font-mono font-bold px-2.5 py-0.5 rounded-lg ${
-                score >= 80 ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
-              }`}>
-                คะแนน {score}%
-              </span>
-            </div>
-
-            <div className="space-y-2 text-xs">
-              {feedbackList.map((item, i) => (
-                <div
-                  key={i}
-                  className={`p-3 rounded-xl border flex items-start gap-2.5 ${
-                    item.isCorrect
-                      ? 'bg-green-50 border-green-200 text-green-800'
-                      : 'bg-red-50 border-red-200 text-red-800'
-                  }`}
-                >
-                  {item.isCorrect ? (
-                    <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
-                  ) : (
-                    <XCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+          {selectedCards.length === 0 ? (
+            <p className="caption py-6 border-y border-[var(--color-border)]">
+              ยังไม่ได้เลือกขั้นตอน เลือกจากตัวเลือกการปฏิบัติ
+            </p>
+          ) : (
+            <ol className="sequence-list">
+              {selectedCards.map((card, index) => (
+                <li key={card.id} className="sequence-item">
+                  <div className="sequence-item-header">
+                    <span className="caption pt-1">{index + 1}.</span>
+                    <div className="flex-1">
+                      <p className="font-semibold">{card.title}</p>
+                      <p className="caption mt-1">{card.subtitle}</p>
+                    </div>
+                    {isSubmitted &&
+                      (card.isCorrect && card.correctOrder === index + 1 ? (
+                        <CircleCheck
+                          aria-label="ถูกต้อง"
+                          size={20}
+                          className="shrink-0 text-[var(--color-primary)]"
+                        />
+                      ) : (
+                        <CircleX
+                          aria-label="ควรทบทวน"
+                          size={20}
+                          className="shrink-0 text-[var(--color-error)]"
+                        />
+                      ))}
+                  </div>
+                  {!isSubmitted && (
+                    <div className="sequence-controls">
+                      <button
+                        className="icon-button"
+                        aria-label={`เลื่อน ${card.title} ขึ้น`}
+                        disabled={index === 0}
+                        onClick={() => moveCard(index, -1)}
+                      >
+                        <ChevronUp size={20} />
+                      </button>
+                      <button
+                        className="icon-button"
+                        aria-label={`เลื่อน ${card.title} ลง`}
+                        disabled={index === selectedCards.length - 1}
+                        onClick={() => moveCard(index, 1)}
+                      >
+                        <ChevronDown size={20} />
+                      </button>
+                      <button
+                        className="icon-button"
+                        aria-label={`นำ ${card.title} ออกจากลำดับ`}
+                        onClick={() => handleDeselectCard(card)}
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    </div>
                   )}
-                  <p className="text-xs leading-relaxed">{item.text}</p>
-                </div>
+                </li>
+              ))}
+            </ol>
+          )}
+        </section>
+        {!isSubmitted && (
+          <section>
+            <h2 className="section-title">ตัวเลือกการปฏิบัติ</h2>
+            <div className="sequence-list">
+              {availableCards.map((card) => (
+                <button
+                  key={card.id}
+                  className="answer-option"
+                  onClick={() => handleSelectCard(card)}
+                >
+                  <span>
+                    <span className="block font-semibold">{card.title}</span>
+                    <span className="caption block mt-1">{card.subtitle}</span>
+                  </span>
+                  <Plus size={20} className="shrink-0" />
+                </button>
               ))}
             </div>
+          </section>
+        )}
+      </div>
+      {!isSubmitted ? (
+        <button
+          className="primary-button self-start"
+          disabled={selectedCards.length === 0}
+          onClick={handleSubmit}
+        >
+          ตรวจคำตอบ
+          <ArrowRight size={20} />
+        </button>
+      ) : (
+        <section className="section-rule">
+          <div role="status" aria-live="polite">
+            <h2 className="section-title">ผลการเรียงลำดับ · {score}%</h2>
+            <p className="caption">
+              อ่านคำแนะนำ แล้วลองใหม่หรือไปฝึกการแจ้งเหตุ
+            </p>
           </div>
-
-          <div className="flex gap-3">
-            <button
-              onClick={resetGame}
-              className="flex-1 py-3 rounded-xl bg-white border border-[#D8E4DE] hover:border-[#0F5C4D]/30 text-[#17221E] font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
+          <ul className="mt-4 space-y-4">
+            {feedbackList.map((item, index) => (
+              <li key={index} className="flex items-start gap-3">
+                {item.isCorrect ? (
+                  <CircleCheck
+                    size={20}
+                    className="shrink-0 mt-1 text-[var(--color-primary)]"
+                  />
+                ) : (
+                  <CircleX
+                    size={20}
+                    className="shrink-0 mt-1 text-[var(--color-error)]"
+                  />
+                )}
+                <span>{item.text}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="actions mt-6">
+            <button className="secondary-button" onClick={resetGame}>
+              <RotateCcw size={20} />
               ลองอีกครั้ง
             </button>
-            <button
-              onClick={handleProceed}
-              className="flex-1 py-3 rounded-xl bg-[#0F5C4D] hover:bg-[#0a4a3d] text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm"
-            >
-              <span>ไปขั้นตอนแจ้ง 1669</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+            <button className="primary-button" onClick={handleProceed}>
+              ไปแจ้งเหตุ 1669
+              <ArrowRight size={20} />
             </button>
           </div>
-        </div>
+        </section>
       )}
     </div>
   );

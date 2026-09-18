@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React, { useState, useRef } from 'react';
-import { RhythmCalculator } from '@/lib/rhythmCalculator';
-import { RhythmCalculationResult } from '@/types';
-import { Heart, Activity, AlertCircle, ArrowRight, Wind, ShieldCheck } from 'lucide-react';
+import React, { useState, useRef } from "react";
+import { RhythmCalculator } from "@/lib/rhythmCalculator";
+import { RhythmCalculationResult } from "@/types";
+import { HeartPulse, ArrowRight } from "lucide-react";
 
 interface CPRGameProps {
   targetCompressions?: number;
@@ -17,18 +17,20 @@ export const CPRGame: React.FC<CPRGameProps> = ({
   const [compressions, setCompressions] = useState<number>(0);
   const [inTargetCount, setInTargetCount] = useState<number>(0);
   const [bpmHistory, setBpmHistory] = useState<number[]>([]);
-  const [calculatorResult, setCalculatorResult] = useState<RhythmCalculationResult>({
-    bpm: 0,
-    state: 'insufficient',
-    feedbackMessage: 'เริ่มกดจังหวะปั๊มหัวใจ (เป้าหมาย 100-120 ครั้ง/นาที)',
-    colorClass: 'text-[#5C6B65] border-[#D8E4DE] bg-[#F7FAF8]',
-    tapCount: 0,
-  });
+  const [calculatorResult, setCalculatorResult] =
+    useState<RhythmCalculationResult>({
+      bpm: 0,
+      state: "insufficient",
+      feedbackMessage: "เริ่มกดจังหวะปั๊มหัวใจ (เป้าหมาย 100-120 ครั้ง/นาที)",
+      colorClass: "text-[#5C6B65] border-[#D8E4DE] bg-[#F7FAF8]",
+      tapCount: 0,
+    });
 
   // Rescue breath 30:2 transition states
-  const [mode, setMode] = useState<'compressing' | 'rescuing' | 'finished'>('compressing');
+  const [mode, setMode] = useState<"compressing" | "rescuing" | "finished">(
+    "compressing",
+  );
   const [rescueStep, setRescueStep] = useState<number>(0);
-  const [isPulsing, setIsPulsing] = useState<boolean>(false);
 
   const rhythmCalcRef = useRef<RhythmCalculator>(new RhythmCalculator(6));
 
@@ -36,16 +38,13 @@ export const CPRGame: React.FC<CPRGameProps> = ({
     if (e) {
       e.preventDefault();
     }
-    if (mode !== 'compressing') return;
+    if (mode !== "compressing") return;
 
-    if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+    if (typeof window !== "undefined" && "vibrate" in navigator) {
       try {
         navigator.vibrate(45);
       } catch {}
     }
-
-    setIsPulsing(true);
-    setTimeout(() => setIsPulsing(false), 120);
 
     const now = Date.now();
     const result = rhythmCalcRef.current.addTap(now);
@@ -54,16 +53,16 @@ export const CPRGame: React.FC<CPRGameProps> = ({
     const nextCount = compressions + 1;
     setCompressions(nextCount);
 
-    if (result.state === 'good') {
-      setInTargetCount(prev => prev + 1);
+    if (result.state === "good") {
+      setInTargetCount((prev) => prev + 1);
     }
 
     if (result.bpm > 0) {
-      setBpmHistory(prev => [...prev, result.bpm]);
+      setBpmHistory((prev) => [...prev, result.bpm]);
     }
 
     if (nextCount >= targetCompressions) {
-      setMode('rescuing');
+      setMode("rescuing");
       setRescueStep(0);
     }
   };
@@ -74,15 +73,19 @@ export const CPRGame: React.FC<CPRGameProps> = ({
     } else if (rescueStep === 1) {
       setRescueStep(2);
     } else {
-      setMode('finished');
+      setMode("finished");
     }
   };
 
   const calculateFinalStats = () => {
-    const finalScore = RhythmCalculator.calculateOverallRhythmScore(inTargetCount, targetCompressions);
-    const avgBpm = bpmHistory.length > 0 
-      ? Math.round(bpmHistory.reduce((a, b) => a + b, 0) / bpmHistory.length) 
-      : 0;
+    const finalScore = RhythmCalculator.calculateOverallRhythmScore(
+      inTargetCount,
+      targetCompressions,
+    );
+    const avgBpm =
+      bpmHistory.length > 0
+        ? Math.round(bpmHistory.reduce((a, b) => a + b, 0) / bpmHistory.length)
+        : 0;
     return { finalScore, avgBpm };
   };
 
@@ -91,177 +94,100 @@ export const CPRGame: React.FC<CPRGameProps> = ({
     onCompleteStep(finalScore, avgBpm);
   };
 
-  const { finalScore, avgBpm } = calculateFinalStats();
-
   return (
-    <div className="space-y-5 select-none">
-      {/* Title Header */}
-      <div className="bg-white border border-[#D8E4DE] rounded-2xl p-4 space-y-1.5 shadow-sm">
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold text-[#0F5C4D] bg-[#DFF4EC] px-2.5 py-0.5 rounded-lg border border-[#D8E4DE]">
-            ภารกิจขั้นที่ 2/4
-          </span>
-          <span className="text-xs text-[#5C6B65]">ฝึกจังหวะ CPR</span>
-        </div>
-        <h3 className="text-base font-bold text-[#17221E]">ฝึกจังหวะปั๊มหัวใจ (CPR Compressions)</h3>
-        <p className="text-xs text-[#5C6B65]">
-          กดปุ่มตรงกลางตามจังหวะเป้าหมาย <strong className="text-[#0F5C4D] font-semibold">100–120 ครั้ง/นาที</strong>
-        </p>
-      </div>
-
-      {mode === 'compressing' && (
-        <div className="space-y-5">
-          {/* Realtime Stats Bar */}
-          <div className="grid grid-cols-2 gap-3">
-            {/* Compression Counter */}
-            <div className="p-3.5 rounded-2xl bg-white border border-[#D8E4DE] flex flex-col items-center justify-center shadow-sm">
-              <span className="text-xs text-[#5C6B65] font-medium">
-                จำนวนการกด
-              </span>
-              <div className="text-2xl font-extrabold text-[#17221E] mt-0.5 font-mono">
-                {compressions} <span className="text-sm font-normal text-[#5C6B65]">/ {targetCompressions}</span>
-              </div>
-            </div>
-
-            {/* Live Rhythm BPM */}
-            <div className="p-3.5 rounded-2xl bg-white border border-[#D8E4DE] flex flex-col items-center justify-center shadow-sm">
-              <span className="text-xs text-[#5C6B65] font-medium flex items-center gap-1">
-                <Activity className="w-3 h-3 text-[#0F5C4D]" />
-                จังหวะปัจจุบัน
-              </span>
-              <div className="text-2xl font-extrabold text-[#0F5C4D] mt-0.5 font-mono">
-                {calculatorResult.bpm > 0 ? calculatorResult.bpm : '--'}{' '}
-                <span className="text-xs font-normal text-[#5C6B65]">ครั้ง/นาที</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Feedback Status Pill */}
-          <div
-            className={`p-3.5 rounded-xl border text-center text-sm font-bold transition-all duration-200 ${calculatorResult.colorClass}`}
-          >
-            {calculatorResult.feedbackMessage}
-          </div>
-
-          {/* Main Interactive Compression Tap Button */}
-          <div className="py-4 flex flex-col items-center justify-center">
-            <button
-              onMouseDown={handleTap}
-              onTouchStart={handleTap}
-              className={`relative w-44 h-44 rounded-full bg-[#0F5C4D] border-4 border-[#DFF4EC] shadow-lg flex flex-col items-center justify-center text-white transition-transform duration-75 active:scale-95 touch-none ${
-                isPulsing ? 'scale-95 shadow-xl' : 'scale-100'
-              }`}
-            >
-              <Heart className={`w-14 h-14 text-white drop-shadow-sm transition-transform ${isPulsing ? 'scale-125' : 'scale-100'}`} />
-              <span className="mt-2 text-sm font-extrabold tracking-wider">กดปั๊มหัวใจ</span>
-            </button>
-          </div>
-
-          <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 space-y-1">
-            <div className="flex items-center gap-1.5 font-bold text-amber-700">
-              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-              <span>ดัชนีวัดผล: Compression Rhythm Score</span>
-            </div>
-            <p className="leading-relaxed">
-              คะแนนนี้วัดเฉพาะจังหวะความเร็วของเวลาในการกด ไม่ใช่การรับรองความแม่นยำในการทำ CPR (เนื่องจากโทรศัพท์มือถือไม่สามารถวัดความลึกในการกด การคืนตัวของหน้าอก หรือแรงกดจริงได้)
+    <div className="page-stack">
+      <header>
+        <h1 className="page-title">CPR</h1>
+        <p className="caption mt-2">ฝึกจังหวะกดหน้าอกผ่านการแตะหน้าจอ</p>
+      </header>
+      {mode === "compressing" && (
+        <section className="cpr-surface">
+          <p className="caption">จังหวะเป้าหมาย</p>
+          <p className="text-xl font-semibold mt-1">100–120 ครั้ง/นาที</p>
+          <div className="mt-6">
+            <p className="caption">จังหวะปัจจุบัน (ครั้ง/นาที)</p>
+            <p className="cpr-bpm">
+              {calculatorResult.bpm > 0 ? calculatorResult.bpm : "—"}
             </p>
           </div>
-        </div>
-      )}
-
-      {/* 30:2 Rescue Breath Simulation Sequence */}
-      {mode === 'rescuing' && (
-        <div className="bg-white border border-[#D8E4DE] rounded-2xl p-5 space-y-4 animate-in fade-in duration-300 shadow-sm">
-          <div className="flex items-center justify-between border-b border-[#D8E4DE] pb-3">
-            <span className="text-xs font-bold text-[#0F5C4D] flex items-center gap-1.5">
-              <Wind className="w-4 h-4" />
-              ขั้นตอนสลับการช่วยหายใจ (30:2)
-            </span>
-            <span className="text-xs text-[#0F5C4D] font-semibold bg-[#DFF4EC] px-2 py-0.5 rounded-lg border border-[#D8E4DE]">
-              ครบ 30 Compressions
-            </span>
-          </div>
-
-          <div className="space-y-3">
-            {rescueStep === 0 && (
-              <div className="p-4 rounded-xl bg-[#DFF4EC] border border-[#D8E4DE] space-y-2 text-center">
-                <div className="w-12 h-12 rounded-full bg-white text-[#0F5C4D] flex items-center justify-center mx-auto shadow-sm">
-                  <Wind className="w-6 h-6" />
-                </div>
-                <h4 className="text-sm font-bold text-[#17221E]">ขั้นตอนที่ 1: เปิดทางเดินหายใจ (Airway)</h4>
-                <p className="text-xs text-[#5C6B65]">
-                  เชิดคางและกดหน้าผากผู้ป่วยลง เพื่อเปิดทางเดินหายใจให้โล่ง
-                </p>
-              </div>
-            )}
-
-            {rescueStep === 1 && (
-              <div className="p-4 rounded-xl bg-[#DFF4EC] border border-[#D8E4DE] space-y-2 text-center">
-                <div className="w-12 h-12 rounded-full bg-white text-[#0F5C4D] flex items-center justify-center mx-auto shadow-sm">
-                  <Wind className="w-6 h-6 animate-pulse" />
-                </div>
-                <h4 className="text-sm font-bold text-[#17221E]">ขั้นตอนที่ 2: เป่าปาก ครั้งที่ 1 (Breath 1)</h4>
-                <p className="text-xs text-[#5C6B65]">
-                  บีบจมูก เป่าลมเข้าปากผู้ป่วย 1 วินาที สังเกตหน้าอกยกขึ้น
-                </p>
-              </div>
-            )}
-
-            {rescueStep === 2 && (
-              <div className="p-4 rounded-xl bg-[#DFF4EC] border border-[#D8E4DE] space-y-2 text-center">
-                <div className="w-12 h-12 rounded-full bg-white text-[#0F5C4D] flex items-center justify-center mx-auto shadow-sm">
-                  <Wind className="w-6 h-6 animate-pulse" />
-                </div>
-                <h4 className="text-sm font-bold text-[#17221E]">ขั้นตอนที่ 3: เป่าปาก ครั้งที่ 2 (Breath 2)</h4>
-                <p className="text-xs text-[#5C6B65]">
-                  ปล่อยให้ลมออก แล้วเป่าซ้ำอีก 1 ครั้ง ก่อนเตรียมกลับเข้าสู่การกดหน้าอกหรือใช้ AED
-                </p>
-              </div>
-            )}
-
-            <button
-              onClick={handleRescueStepClick}
-              className="w-full py-3.5 rounded-xl bg-[#0F5C4D] hover:bg-[#0a4a3d] text-white font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2"
-            >
-              <span>{rescueStep === 2 ? 'เสร็จสิ้นการช่วยหายใจ 30:2' : 'ถัดไป'}</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Finished Summary */}
-      {mode === 'finished' && (
-        <div className="bg-white border border-[#D8E4DE] rounded-2xl p-5 space-y-4 animate-in fade-in duration-300 shadow-sm">
-          <div className="flex items-center justify-between border-b border-[#D8E4DE] pb-3">
-            <h4 className="text-sm font-bold text-[#17221E] flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-[#0F5C4D]" />
-              สรุปผล Compression Rhythm Score
-            </h4>
-            <span className="text-xs font-bold font-mono px-2.5 py-0.5 rounded-lg bg-green-50 text-green-700 border border-green-200">
-              {finalScore}%
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 text-center">
-            <div className="p-3.5 bg-[#F7FAF8] rounded-xl border border-[#D8E4DE]">
-              <div className="text-xs text-[#5C6B65]">คะแนนจังหวะ</div>
-              <div className="text-xl font-bold text-[#0F5C4D] font-mono mt-0.5">{finalScore}%</div>
-            </div>
-            <div className="p-3.5 bg-[#F7FAF8] rounded-xl border border-[#D8E4DE]">
-              <div className="text-xs text-[#5C6B65]">ความเร็วเฉลี่ย</div>
-              <div className="text-xl font-bold text-[#0F5C4D] font-mono mt-0.5">{avgBpm} BPM</div>
-            </div>
-          </div>
-
+          <p className="text-lg">
+            {compressions} / {targetCompressions} ครั้ง
+          </p>
           <button
-            onClick={handleFinish}
-            className="w-full py-3.5 rounded-xl bg-[#0F5C4D] hover:bg-[#0a4a3d] text-white font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2"
+            className="cpr-tap"
+            onPointerDown={(event) => {
+              if (event.button === 0) {
+                event.preventDefault();
+                event.currentTarget.focus();
+                handleTap();
+              }
+            }}
+            onClick={(event) => {
+              if (event.detail === 0) handleTap();
+            }}
+            aria-label="แตะเพื่อฝึกจังหวะกดหน้าอก"
           >
-            <span>AED มาถึงแล้ว! ไปขั้นตอน AED</span>
-            <ArrowRight className="w-4 h-4" />
+            <HeartPulse size={40} strokeWidth={1.75} />
+            <span>แตะเพื่อกดหน้าอก</span>
           </button>
-        </div>
+          <p role="status" aria-live="polite">
+            {calculatorResult.state === "insufficient"
+              ? "แตะต่อเนื่องเพื่อเริ่มวัดจังหวะ"
+              : calculatorResult.feedbackMessage}
+          </p>
+          <p className="caption mt-4">
+            วัดเฉพาะจังหวะการแตะ ไม่วัดความลึกหรือแรงกดจริง
+          </p>
+        </section>
+      )}
+      {mode === "rescuing" && (
+        <section className="page-stack">
+          <div>
+            <p className="caption mb-2">
+              กดครบ {targetCompressions} ครั้ง · ขั้นตอนจำลอง 30:2
+            </p>
+            <h2 className="section-title">
+              {
+                [
+                  "เปิดทางเดินหายใจ",
+                  "ช่วยหายใจครั้งที่ 1",
+                  "ช่วยหายใจครั้งที่ 2",
+                ][rescueStep]
+              }
+            </h2>
+            <p>
+              {
+                [
+                  "เชิดคางและกดหน้าผากผู้ป่วยลง เพื่อเปิดทางเดินหายใจให้โล่ง",
+                  "บีบจมูก เป่าลมเข้าปากผู้ป่วย 1 วินาที สังเกตหน้าอกยกขึ้น",
+                  "ปล่อยให้ลมออก แล้วเป่าซ้ำอีก 1 ครั้ง ก่อนเตรียมกลับเข้าสู่การกดหน้าอกหรือใช้ AED",
+                ][rescueStep]
+              }
+            </p>
+            <p className="caption mt-4">
+              ขั้นตอนช่วยหายใจสำหรับผู้ที่ได้รับการฝึก
+            </p>
+          </div>
+          <button
+            className="primary-button self-start"
+            onClick={handleRescueStepClick}
+          >
+            {rescueStep === 2 ? "เสร็จสิ้นการช่วยหายใจ" : "ดำเนินการต่อ"}
+            <ArrowRight size={20} />
+          </button>
+        </section>
+      )}
+      {mode === "finished" && (
+        <section className="page-stack">
+          <div>
+            <h2 className="section-title">ฝึกจังหวะครบแล้ว</h2>
+          </div>
+          <p>เพื่อนนำเครื่อง AED มาถึงแล้ว ไปฝึกใช้งานในขั้นตอนถัดไป</p>
+          <button className="primary-button self-start" onClick={handleFinish}>
+            ไปขั้นตอน AED
+            <ArrowRight size={20} />
+          </button>
+        </section>
       )}
     </div>
   );
