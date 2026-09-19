@@ -64,9 +64,9 @@ export function HomeDashboard({
         <section className="home-hero">
           <p className="protocol-code">Practice before the pressure</p>
           <h1 className="display-title">
-            ถ้าเหตุฉุกเฉินเกิดขึ้น
-            <br />
-            เรา<span className="hero-accent-word">พร้อม</span>ช่วยหรือยัง?
+            <span className="hero-title-line">ถ้าเหตุฉุกเฉิน</span>
+            <span className="hero-title-line">เกิดขึ้น เรา<span className="hero-accent-word">พร้อม</span></span>
+            <span className="hero-title-line">ช่วยหรือยัง?</span>
           </h1>
           <p className="lead">
             ฝึกคิด · ฝึกตัดสินใจ · ฝึกช่วยชีวิต
