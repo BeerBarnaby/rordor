@@ -62,15 +62,15 @@ export function HomeDashboard({
     <div className="home-screen">
       <div className="home-top-grid">
         <section className="home-hero">
-          <p className="protocol-code">สถานการณ์ 01 · CPR + AED</p>
+          <p className="protocol-code">Practice before the pressure</p>
           <h1 className="display-title">
-            เพื่อนล้มลง
+            ถ้าเหตุฉุกเฉินเกิดขึ้น
             <br />
-            คุณจะช่วยอย่างไร?
+            เรา<span className="hero-accent-word">พร้อม</span>ช่วยหรือยัง?
           </h1>
           <p className="lead">
-            ฝึกตัดสินใจตั้งแต่วินาทีแรก ผ่านสถานการณ์สั้น 4 ขั้นตอน
-            พร้อมคำแนะนำหลังตอบ
+            ฝึกคิด · ฝึกตัดสินใจ · ฝึกช่วยชีวิต
+            <br />ผ่านสถานการณ์จำลอง First Aid &amp; CPR
           </p>
           <p className="mission-meta">4 ขั้น · ประมาณ 5 นาที · เปลี่ยนสถานการณ์ทุกครั้ง</p>
           <div className="hero-actions">
@@ -79,11 +79,11 @@ export function HomeDashboard({
                 ? `ทำต่อ: ${currentLabel}`
                 : progress.missionAttemptsCount
                   ? "ลองสถานการณ์ใหม่"
-                  : "เริ่มฝึกสถานการณ์"}
+                  : "เริ่มฝึกกับน้องพร้อม"}
               <ArrowRight size={20} aria-hidden="true" />
             </button>
-            <button className="text-button" onClick={onLearn}>
-              ทบทวนคู่มือก่อนฝึก
+            <button className="secondary-button" onClick={onLearn}>
+              เรียนรู้พื้นฐาน
               <ChevronRight size={18} aria-hidden="true" />
             </button>
           </div>

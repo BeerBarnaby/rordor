@@ -112,7 +112,7 @@ export const CPRGame: React.FC<CPRGameProps> = ({
   };
 
   return (
-    <div className="page-stack training-screen">
+    <div className="page-stack training-screen cpr-training" data-mode={mode}>
       <header>
         <p className="protocol-code">ขั้น 03 · จังหวะกดหน้าอก</p>
         <h1 className="page-title">CPR</h1>
@@ -185,6 +185,7 @@ export const CPRGame: React.FC<CPRGameProps> = ({
             aria-label="แตะเพื่อฝึกจังหวะกดหน้าอก"
           >
             <HeartPulse className="cpr-tap-mark" aria-hidden="true" />
+            <strong>PUSH</strong>
             <span>แตะหนึ่งครั้งต่อการกดหน้าอกหนึ่งครั้ง</span>
           </button>
           <p className="cpr-feedback" role="status" aria-live="polite">

@@ -129,7 +129,7 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({
   };
 
   return (
-    <div className="page-stack training-screen">
+    <div className="page-stack training-screen sequence-training">
       <header>
         <p className="protocol-code">ขั้น 01 · การตัดสินใจ</p>
         <h1 className="page-title">ลำดับการช่วยเหลือ</h1>

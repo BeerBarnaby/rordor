@@ -67,7 +67,7 @@ export function EmergencyCallSimulation({
     );
   }
   return (
-    <div className="page-stack training-screen">
+    <div className="page-stack training-screen call-training">
       <header>
         <p className="protocol-code">ขั้น 02 · การสื่อสาร</p>
         <h1 className="page-title">แจ้งเหตุ 1669</h1>
