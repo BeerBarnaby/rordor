@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowRight, Check, ChevronRight } from "lucide-react";
 import { UserProgress } from "@/types";
 
 const steps = [
@@ -28,10 +28,11 @@ export function TrainingSteps({ current = -1 }: { current?: number }) {
             aria-current={index === safeCurrent ? "step" : undefined}
             data-complete={index < safeCurrent}
           >
-            <span className="sr-only">
-              {index + 1}. {step.title}
-              {index < safeCurrent ? " เสร็จแล้ว" : ""}
+            <span className="progress-marker" aria-hidden="true">
+              {index < safeCurrent ? <Check /> : index + 1}
             </span>
+            <span className="progress-label">{step.title}</span>
+            <span className="sr-only">{index < safeCurrent ? " เสร็จแล้ว" : ""}</span>
           </li>
         ))}
       </ol>
@@ -71,13 +72,14 @@ export function HomeDashboard({
             ฝึกตัดสินใจตั้งแต่วินาทีแรก ผ่านสถานการณ์สั้น 4 ขั้นตอน
             พร้อมคำแนะนำหลังตอบ
           </p>
+          <p className="mission-meta">4 ขั้น · ประมาณ 5 นาที · เปลี่ยนสถานการณ์ทุกครั้ง</p>
           <div className="hero-actions">
             <button className="primary-button" onClick={onStart}>
               {continuing
                 ? `ทำต่อ: ${currentLabel}`
                 : progress.missionAttemptsCount
-                  ? "เริ่มฝึกอีกครั้ง"
-                  : "เริ่มฝึก 4 ขั้นตอน"}
+                  ? "ลองสถานการณ์ใหม่"
+                  : "เริ่มฝึกสถานการณ์"}
               <ArrowRight size={20} aria-hidden="true" />
             </button>
             <button className="text-button" onClick={onLearn}>

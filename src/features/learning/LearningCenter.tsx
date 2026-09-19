@@ -6,6 +6,10 @@ import {
   Play,
   FileText,
   ExternalLink,
+  ShieldCheck,
+  PhoneCall,
+  HeartPulse,
+  Zap,
 } from "lucide-react";
 import {
   LEARNING_TOPICS,
@@ -22,13 +26,15 @@ const modules = [
     id: "assessment",
     title: "ประเมินสถานการณ์",
     detail: "ความปลอดภัย · การตอบสนอง",
+    icon: ShieldCheck,
   },
-  { id: "call1669", title: "ขอความช่วยเหลือ", detail: "โทร 1669 · ขอ AED" },
-  { id: "cpr", title: "เริ่ม CPR", detail: "ตำแหน่งมือ · ความเร็ว · จังหวะ" },
+  { id: "call1669", title: "ขอความช่วยเหลือ", detail: "โทร 1669 · ขอ AED", icon: PhoneCall },
+  { id: "cpr", title: "เริ่ม CPR", detail: "ตำแหน่งมือ · ความเร็ว · จังหวะ", icon: HeartPulse },
   {
     id: "aed",
     title: "ใช้ AED",
     detail: "เปิดเครื่อง · ติดแผ่น · ทำตามคำสั่ง",
+    icon: Zap,
   },
 ];
 export function LearningCenter({
@@ -46,7 +52,9 @@ export function LearningCenter({
       item.topicId === selected ||
       (selected === "aed" && item.topicId === "cpr"),
   );
-  const docs = LEARNING_DOCUMENTS.filter((item) => item.topicId === selected);
+  const docs = LEARNING_DOCUMENTS.filter(
+    (item) => item.topicId === selected && item.isAvailable,
+  );
   function openModule(id: string | null) {
     setSelected(id);
     window.scrollTo({ top: 0, behavior: "instant" });
@@ -69,20 +77,24 @@ export function LearningCenter({
       {!topic ? (
         <>
           <div className="module-grid">
-            {modules.map((item, index) => (
-              <button
-                className="learning-module"
-                key={item.id}
-                onClick={() => openModule(item.id)}
-              >
-                <span>0{index + 1}</span>
-                <span className="flex-1">
-                  <strong>{item.title}</strong>
-                  <span className="caption block mt-1">{item.detail}</span>
-                </span>
-                <ArrowRight size={20} />
-              </button>
-            ))}
+            {modules.map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  className="learning-module"
+                  key={item.id}
+                  onClick={() => openModule(item.id)}
+                >
+                  <span>0{index + 1}</span>
+                  <Icon className="module-icon" aria-hidden="true" />
+                  <span className="flex-1">
+                    <strong>{item.title}</strong>
+                    <span className="caption block mt-1">{item.detail}</span>
+                  </span>
+                  <ArrowRight size={20} />
+                </button>
+              );
+            })}
           </div>
           <aside className="notice">
             <strong>ใช้ทบทวนก่อนฝึก</strong>
@@ -142,45 +154,9 @@ export function LearningCenter({
             aria-labelledby={`tab-${selected}`}
             className="page-stack"
           >
-            <div className="detail-grid">
-              <section>
-                <p>{topic.description}</p>
-                <h2 className="section-title mt-6">ลำดับการช่วยเหลือ</h2>
-                <ol className="protocol-list">
-                  {topic.summarySteps.map((step, index) => (
-                    <li key={step}>
-                      <span className="step-number">
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
-                      <span>{step}</span>
-                    </li>
-                  ))}
-                </ol>
-              </section>
-              <section>
-                <h3 className="section-title">แหล่งอ้างอิง</h3>
-                {docs.map((doc) => (
-                  <a
-                    key={doc.id}
-                    href={doc.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="resource-row"
-                  >
-                    <FileText />
-                    <span>
-                      <span className="block">{doc.title}</span>
-                      <span className="caption block mt-1">{doc.provider}</span>
-                      <span className="caption block">เอกสารทางการ</span>
-                    </span>
-                    <ExternalLink aria-label="เปิดแท็บใหม่" />
-                  </a>
-                ))}
-              </section>
-            </div>
             {videos.length > 0 && (
-              <section className="section-rule">
-                <h3 className="section-title">วิดีโอประกอบ</h3>
+              <section>
+                <h3 className="section-title">วิดีโอแนะนำ</h3>
                 <div className="video-grid">
                   {videos.map((item) => (
                     <button
@@ -197,9 +173,7 @@ export function LearningCenter({
                           height={270}
                           loading="lazy"
                         />
-                        <span className="video-play">
-                          <Play />
-                        </span>
+                        <span className="video-play"><Play /></span>
                         {item.duration && (
                           <span className="video-duration">
                             {item.duration.replace("min", "นาที")}
@@ -208,14 +182,47 @@ export function LearningCenter({
                       </div>
                       <h4 className="mt-3 font-semibold">{item.title}</h4>
                       <p className="caption mt-1">{item.provider}</p>
-                      <span className="text-[var(--color-primary)] text-sm block mt-2">
-                        ดูวิดีโอ
-                      </span>
                     </button>
                   ))}
                 </div>
               </section>
             )}
+            <div className="detail-grid">
+              <section>
+                <p>{topic.description}</p>
+                <h2 className="section-title mt-6">ลำดับการช่วยเหลือ</h2>
+                <ol className="protocol-list">
+                  {topic.summarySteps.map((step, index) => (
+                    <li key={step}>
+                      <span className="step-number">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                      <span>{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+              {docs.length > 0 && <section>
+                <h3 className="section-title">แหล่งอ้างอิง</h3>
+                {docs.map((doc) => (
+                  <a
+                    key={doc.id}
+                    href={doc.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="resource-row"
+                  >
+                    <FileText />
+                    <span>
+                      <span className="block">{doc.title}</span>
+                      <span className="caption block mt-1">{doc.provider}</span>
+                      <span className="caption block">ตรวจลิงก์ล่าสุด {doc.checkedAt}</span>
+                    </span>
+                    <ExternalLink aria-label="เปิดแท็บใหม่" />
+                  </a>
+                ))}
+              </section>}
+            </div>
           </section>
         </>
       )}

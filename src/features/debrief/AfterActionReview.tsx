@@ -1,10 +1,7 @@
 "use client";
 import { MissionResult } from "@/types";
 import { CircleCheck, RotateCcw, BookOpen } from "lucide-react";
-import {
-  EMERGENCY_CALL_FIELDS,
-  INITIAL_SEQUENCE_CARDS,
-} from "@/data/scenarios";
+import { INITIAL_SEQUENCE_CARDS } from "@/data/scenarios";
 export function AfterActionReview({
   result,
   onRetryMission,
@@ -74,13 +71,7 @@ export function AfterActionReview({
           </div>
           <div>
             <dt>การแจ้ง 1669</dt>
-            <dd>
-              {Math.round(
-                (result.callCompletenessScore * EMERGENCY_CALL_FIELDS.length) /
-                  100,
-              )}{" "}
-              / {EMERGENCY_CALL_FIELDS.length} รายการ
-            </dd>
+            <dd>{result.callCompletenessScore}%</dd>
           </div>
           <div>
             <dt>จังหวะกดในช่วงเป้าหมาย</dt>
@@ -88,6 +79,22 @@ export function AfterActionReview({
           </div>
         </dl>
       </div>
+      <section className="skill-breakdown section-rule" aria-labelledby="skill-breakdown-title">
+        <h2 id="skill-breakdown-title" className="section-title">ผลแยกตามทักษะ</h2>
+        {[
+          ["ลำดับการช่วยเหลือ", result.skillScores.sequence],
+          ["แจ้งเหตุ 1669", result.callCompletenessScore],
+          ["จังหวะ CPR", result.cprRhythmScore],
+          ["การใช้ AED", result.skillScores.aed],
+        ].map(([label, value]) => (
+          <div className="skill-row" key={label}>
+            <div><span>{label}</span><strong>{value}%</strong></div>
+            <div className="progress-track" role="progressbar" aria-label={String(label)} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Number(value)}>
+              <span style={{ width: `${value}%` }} />
+            </div>
+          </div>
+        ))}
+      </section>
       <div className="home-columns section-rule">
         <section>
           <h2 className="section-title">สิ่งที่ทำได้ดี</h2>
@@ -126,7 +133,7 @@ export function AfterActionReview({
       <div className="actions">
         <button className="primary-button" onClick={onRetryMission}>
           <RotateCcw size={20} />
-          ฝึกอีกครั้ง
+          ลองสถานการณ์ใหม่
         </button>
         <button className="secondary-button" onClick={onLearn}>
           <BookOpen size={20} />

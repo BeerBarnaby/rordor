@@ -19,6 +19,7 @@ import {
 } from "@/types";
 import { ArrowRight } from "lucide-react";
 import { SimulationNotice } from "@/components/TrainingUI";
+import { SCENARIO_VARIANTS } from "@/data/scenarios";
 
 type TabType = "home" | "learn" | "mission" | "about";
 type MissionPhase =
@@ -76,6 +77,10 @@ export default function Home() {
     null,
   );
   const [attemptKey, setAttemptKey] = useState(0);
+  const scenario =
+    SCENARIO_VARIANTS[
+      (Math.max(attemptKey, 1) - 1) % SCENARIO_VARIANTS.length
+    ];
   const inProgress = startTimeMs > 0 && missionPhase !== "debrief";
   const focusMode = activeTab === "mission" && inProgress;
   const continueTraining = () => {
@@ -189,8 +194,8 @@ export default function Home() {
 
     const result: MissionResult = {
       id: `mission_${Date.now()}`,
-      scenarioId: "SCENARIO_ROTC_01",
-      scenarioTitle: "เพื่อนล้มลงระหว่างการฝึก",
+      scenarioId: scenario.id,
+      scenarioTitle: scenario.title,
       completedAt: new Date().toLocaleDateString("th-TH"),
       totalTimeSeconds,
       overallScore,
@@ -261,15 +266,14 @@ export default function Home() {
           {missionPhase === "opening" && (
             <div className="page-stack training-screen">
               <header>
-                <p className="protocol-code">สถานการณ์ 01 · CPR + AED</p>
+                <p className="protocol-code">{scenario.code} · CPR + AED</p>
                 <h1 className="display-title">
                   เพื่อนล้มลง
                   <br />
                   คุณอยู่ใกล้ที่สุด
                 </h1>
                 <p className="lead mt-5">
-                  ระหว่างการฝึก เพื่อนคนหนึ่งล้มลงตรงหน้าคุณ เรียกแล้วไม่ตอบสนอง
-                  และไม่หายใจปกติ
+                  {scenario.opening}
                 </p>
               </header>
               <section className="conversation-prompt">
@@ -300,7 +304,10 @@ export default function Home() {
 
           {/* Phase 3: Emergency 1669 Call Simulation */}
           {missionPhase === "call1669" && (
-            <EmergencyCallSimulation onCompleteStep={handleCallComplete} />
+            <EmergencyCallSimulation
+              scenario={scenario}
+              onCompleteStep={handleCallComplete}
+            />
           )}
 
           {/* Phase 4: CPR Rhythm Game */}

@@ -1,4 +1,4 @@
-import { AEDStepItem, EmergencyCallField, SequenceCardItem } from '@/types';
+import { AEDStepItem, EmergencyCallField, ScenarioVariant, SequenceCardItem } from '@/types';
 
 export interface ProtocolMetadata {
   protocolId: string;
@@ -13,6 +13,40 @@ export const MAIN_PROTOCOL_METADATA: ProtocolMetadata = {
   reviewStatus: 'prototype_pending_expert_review',
   lastUpdated: '2026-09-19',
 };
+
+// บริบทเปลี่ยนได้ แต่ลำดับและสาระทางการแพทย์ใช้ชุดที่รอตรวจทานชุดเดิม
+export const SCENARIO_VARIANTS: ScenarioVariant[] = [
+  {
+    id: 'SCENARIO_ROTC_FIELD',
+    code: 'สถานการณ์ 01',
+    title: 'เพื่อนล้มลงระหว่างการฝึก',
+    setting: 'สนามฝึก',
+    opening: 'ระหว่างการฝึก เพื่อนคนหนึ่งล้มลงตรงหน้าคุณ เรียกแล้วไม่ตอบสนอง และไม่หายใจปกติ',
+    situationAnswer: 'นักศึกษาวิชาทหารล้มลง ไม่ตอบสนอง และไม่หายใจปกติครับ',
+    locationAnswer: 'สนามฝึกนักศึกษาวิชาทหาร โรงเรียนวิทยาศาสตร์จุฬาภรณราชวิทยาลัย เชียงรายครับ',
+    victimAnswer: 'มีผู้ประสบเหตุ 1 คนครับ เป็นนักศึกษาวิชาทหารชาย 1 ราย',
+  },
+  {
+    id: 'SCENARIO_ROTC_BUILDING',
+    code: 'สถานการณ์ 02',
+    title: 'เพื่อนล้มลงบริเวณอาคารเรียน',
+    setting: 'อาคารเรียน',
+    opening: 'บริเวณหน้าอาคารเรียน เพื่อนคนหนึ่งล้มลงต่อหน้าคุณ เรียกแล้วไม่ตอบสนอง และไม่หายใจปกติ',
+    situationAnswer: 'นักเรียนล้มลง ไม่ตอบสนอง และไม่หายใจปกติครับ',
+    locationAnswer: 'หน้าอาคารเรียน โรงเรียนวิทยาศาสตร์จุฬาภรณราชวิทยาลัย เชียงรายครับ',
+    victimAnswer: 'มีผู้ประสบเหตุ 1 คนครับ เป็นนักเรียนชาย 1 ราย',
+  },
+  {
+    id: 'SCENARIO_ROTC_ACTIVITY',
+    code: 'สถานการณ์ 03',
+    title: 'เพื่อนล้มลงในพื้นที่กิจกรรม',
+    setting: 'พื้นที่กิจกรรม',
+    opening: 'ระหว่างทำกิจกรรม เพื่อนคนหนึ่งล้มลงใกล้คุณ เรียกแล้วไม่ตอบสนอง และไม่หายใจปกติ',
+    situationAnswer: 'ผู้ร่วมกิจกรรมล้มลง ไม่ตอบสนอง และไม่หายใจปกติครับ',
+    locationAnswer: 'พื้นที่กิจกรรม โรงเรียนวิทยาศาสตร์จุฬาภรณราชวิทยาลัย เชียงรายครับ',
+    victimAnswer: 'มีผู้ประสบเหตุ 1 คนครับ เป็นผู้ร่วมกิจกรรมชาย 1 ราย',
+  },
+];
 
 export const INITIAL_SEQUENCE_CARDS: SequenceCardItem[] = [
   {
@@ -111,7 +145,15 @@ export const EMERGENCY_CALL_FIELDS: EmergencyCallField[] = [
         id: 'sit_opt_2',
         text: 'มีคนล้มอยู่ที่สนามครับ ยังไม่ทราบอาการ',
         isCorrect: false,
+        status: 'incomplete',
         feedback: 'ข้อมูลยังไม่พอ ควรแจ้งการตอบสนองและการหายใจเท่าที่ตรวจพบ',
+      },
+      {
+        id: 'sit_opt_3',
+        text: 'ยังบอกไม่ได้ครับ ช่วยส่งรถมาก่อน',
+        isCorrect: false,
+        status: 'incorrect',
+        feedback: 'ข้อมูลนี้ยังไม่ช่วยให้เจ้าหน้าที่ประเมินเหตุ ควรแจ้งสิ่งที่ตรวจพบให้ชัดเจน',
       },
     ],
   },
@@ -130,7 +172,15 @@ export const EMERGENCY_CALL_FIELDS: EmergencyCallField[] = [
         id: 'loc_opt_2',
         text: 'อยู่ในโรงเรียนที่เชียงรายครับ ใกล้สนาม',
         isCorrect: false,
+        status: 'incomplete',
         feedback: 'สถานที่คลุมเครือทำให้ทีมแพทย์เสียเวลาค้นหาพื้นที่เกิดเหตุ',
+      },
+      {
+        id: 'loc_opt_3',
+        text: 'ไม่ทราบชื่อสถานที่ครับ อยู่แถวนี้',
+        isCorrect: false,
+        status: 'incorrect',
+        feedback: 'ข้อมูลนี้ไม่ช่วยระบุตำแหน่งได้ชัดเจน ควรแจ้งชื่อสถานที่และจุดสังเกต',
       },
     ],
   },
@@ -149,6 +199,7 @@ export const EMERGENCY_CALL_FIELDS: EmergencyCallField[] = [
         id: 'haz_opt_2',
         text: 'ยังไม่ได้ตรวจพื้นที่ครับ ผมเข้าไปช่วยทันที',
         isCorrect: false,
+        status: 'incorrect',
         feedback: 'ควรตรวจอันตรายรอบตัวก่อนเข้าช่วย และแจ้งความเสี่ยงที่ยังมีอยู่',
       },
     ],
@@ -168,6 +219,7 @@ export const EMERGENCY_CALL_FIELDS: EmergencyCallField[] = [
         id: 'cnt_opt_2',
         text: 'มีคนล้มครับ แต่มีคนยืนอยู่รอบๆ หลายคน',
         isCorrect: false,
+        status: 'incomplete',
         feedback: 'ควรแยกจำนวนผู้ประสบเหตุออกจากผู้ที่อยู่ในบริเวณ แล้วแจ้งจำนวนให้ชัดเจน',
       },
     ],
@@ -187,6 +239,7 @@ export const EMERGENCY_CALL_FIELDS: EmergencyCallField[] = [
         id: 'sym_opt_2',
         text: 'ยังไม่แน่ใจครับ ยังไม่ได้ตรวจการตอบสนองหรือการหายใจ',
         isCorrect: false,
+        status: 'incomplete',
         feedback: 'รีบแจ้งสิ่งที่สังเกตได้ และทำตามคำแนะนำของเจ้าหน้าที่โดยไม่ชะลอการขอความช่วยเหลือ',
       },
     ],
@@ -206,11 +259,27 @@ export const EMERGENCY_CALL_FIELDS: EmergencyCallField[] = [
         id: 'con_opt_2',
         text: 'ผมเป็นนักศึกษาครับ เดี๋ยววางสายไปช่วยเพื่อนก่อน',
         isCorrect: false,
+        status: 'incomplete',
         feedback: 'ควรแจ้งชื่อและเบอร์ติดต่อ และถือสายไว้จนกว่าเจ้าหน้าที่จะบอกให้วาง',
       },
     ],
   },
 ];
+
+export function getEmergencyCallFields(
+  scenario: ScenarioVariant,
+): EmergencyCallField[] {
+  return EMERGENCY_CALL_FIELDS.map((field) => ({
+    ...field,
+    options: field.options.map((option) => {
+      if (!option.isCorrect) return { ...option };
+      if (field.id === 'situation') return { ...option, text: scenario.situationAnswer };
+      if (field.id === 'location') return { ...option, text: scenario.locationAnswer };
+      if (field.id === 'victim_count') return { ...option, text: scenario.victimAnswer };
+      return { ...option };
+    }),
+  }));
+}
 
 export const AED_STEPS: AEDStepItem[] = [
   {

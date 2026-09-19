@@ -16,6 +16,8 @@ export interface LearningDocument {
   url: string;
   description: string;
   type: 'pdf' | 'manual' | 'article';
+  checkedAt: string;
+  isAvailable: boolean;
 }
 
 export interface LearningTopic {
@@ -44,8 +46,20 @@ export interface EmergencyCallField {
     id: string;
     text: string;
     isCorrect: boolean;
+    status?: 'correct' | 'incomplete' | 'incorrect';
     feedback: string;
   }[];
+}
+
+export interface ScenarioVariant {
+  id: string;
+  code: string;
+  title: string;
+  setting: string;
+  opening: string;
+  locationAnswer: string;
+  situationAnswer: string;
+  victimAnswer: string;
 }
 
 export interface AEDStepItem {

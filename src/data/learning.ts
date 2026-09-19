@@ -110,6 +110,8 @@ export const LEARNING_DOCUMENTS: LearningDocument[] = [
     url: 'https://www.niems.go.th/1/UploadAttachFile/2025/EBook/410985_20250717133737.pdf',
     description: 'เอกสาร สพฉ. ปี 2568 สำหรับการประเมินเหตุและการช่วยชีวิตขั้นพื้นฐาน',
     type: 'manual',
+    checkedAt: '2026-09-19',
+    isAvailable: false,
   },
   {
     id: 'doc_02',
@@ -119,6 +121,8 @@ export const LEARNING_DOCUMENTS: LearningDocument[] = [
     url: 'https://www.niems.go.th/1/UploadAttachFile/2025/EBook/410985_20250717133737.pdf',
     description: 'เอกสาร สพฉ. ปี 2568 ครอบคลุม CPR และการใช้ AED สำหรับประชาชน',
     type: 'pdf',
+    checkedAt: '2026-09-19',
+    isAvailable: false,
   },
   {
     id: 'doc_03',
@@ -128,6 +132,8 @@ export const LEARNING_DOCUMENTS: LearningDocument[] = [
     url: 'https://www.niems.go.th/1/UploadAttachFile/2025/EBook/410634_20250717133908.pdf',
     description: 'เอกสาร สพฉ. ปี 2568 ระบุข้อมูลสำคัญและการปฏิบัติตามคำแนะนำระหว่างรอทีม',
     type: 'article',
+    checkedAt: '2026-09-19',
+    isAvailable: false,
   },
   {
     id: 'doc_04',
@@ -137,6 +143,8 @@ export const LEARNING_DOCUMENTS: LearningDocument[] = [
     url: 'https://www.niems.go.th/1/UploadAttachFile/2025/EBook/410985_20250717133737.pdf',
     description: 'เอกสาร สพฉ. ปี 2568 อธิบายขั้นตอนใช้ AED ร่วมกับ CPR อย่างปลอดภัย',
     type: 'article',
+    checkedAt: '2026-09-19',
+    isAvailable: false,
   },
 ];
 

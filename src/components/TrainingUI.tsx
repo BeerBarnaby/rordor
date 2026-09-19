@@ -1,4 +1,4 @@
-import { CircleCheck, CircleX } from "lucide-react";
+import { CircleAlert, CircleCheck, CircleX } from "lucide-react";
 import { ReactNode } from "react";
 import { MAIN_PROTOCOL_METADATA } from "@/data/scenarios";
 
@@ -23,17 +23,27 @@ export function ContentMetadata() {
   );
 }
 export function FeedbackPanel({
-  correct,
+  state,
   children,
 }: {
-  correct: boolean;
+  state: "correct" | "incomplete" | "incorrect";
   children: ReactNode;
 }) {
   return (
     <div className="feedback-panel" role="status" aria-live="polite">
-      <p className="feedback-title" data-correct={correct}>
-        {correct ? <CircleCheck size={20} /> : <CircleX size={20} />}{" "}
-        {correct ? "ข้อมูลครบถ้วน" : "มีสิ่งที่ควรทบทวน"}
+      <p className="feedback-title" data-state={state}>
+        {state === "correct" ? (
+          <CircleCheck size={20} />
+        ) : state === "incomplete" ? (
+          <CircleAlert size={20} />
+        ) : (
+          <CircleX size={20} />
+        )}{" "}
+        {state === "correct"
+          ? "ข้อมูลครบถ้วน"
+          : state === "incomplete"
+            ? "ยังขาดข้อมูลสำคัญ"
+            : "ข้อมูลยังไม่ตรงคำถาม"}
       </p>
       <div>{children}</div>
     </div>
@@ -46,7 +56,7 @@ export function AnswerOption({
   onClick,
 }: {
   children: ReactNode;
-  state?: "default" | "selected" | "correct" | "incorrect";
+  state?: "default" | "selected" | "correct" | "incomplete" | "incorrect";
   disabled?: boolean;
   onClick: () => void;
 }) {
@@ -60,6 +70,7 @@ export function AnswerOption({
     >
       <span>{children}</span>
       {state === "correct" && <CircleCheck size={20} className="shrink-0" />}
+      {state === "incomplete" && <CircleAlert size={20} className="shrink-0" />}
       {state === "incorrect" && <CircleX size={20} className="shrink-0" />}
     </button>
   );

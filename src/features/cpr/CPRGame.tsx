@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { RhythmCalculator } from "@/lib/rhythmCalculator";
 import { RhythmCalculationResult } from "@/types";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, HeartPulse, Timer } from "lucide-react";
 
 interface CPRGameProps {
   targetCompressions?: number;
@@ -28,11 +28,28 @@ export const CPRGame: React.FC<CPRGameProps> = ({
 
   // Rescue breath 30:2 transition states
   const [mode, setMode] = useState<
-    "compressing" | "breath-choice" | "rescuing" | "finished"
-  >("compressing");
+    "ready" | "countdown" | "compressing" | "breath-choice" | "rescuing" | "finished"
+  >("ready");
+  const [countdown, setCountdown] = useState(3);
   const [rescueStep, setRescueStep] = useState<number>(0);
 
   const rhythmCalcRef = useRef<RhythmCalculator>(new RhythmCalculator(6));
+
+  useEffect(() => {
+    if (mode !== "countdown") return;
+    const timer = window.setInterval(() => {
+      setCountdown((previous) => {
+        if (previous <= 1) {
+          window.clearInterval(timer);
+          rhythmCalcRef.current.reset();
+          setMode("compressing");
+          return 0;
+        }
+        return previous - 1;
+      });
+    }, 700);
+    return () => window.clearInterval(timer);
+  }, [mode]);
 
   const handleTap = (e?: React.MouseEvent | React.TouchEvent) => {
     if (e) {
@@ -103,6 +120,33 @@ export const CPRGame: React.FC<CPRGameProps> = ({
           ฝึกเฉพาะจังหวะด้วยการแตะหน้าจอ เป้าหมายคือสม่ำเสมอและหยุดให้น้อยที่สุด
         </p>
       </header>
+      {mode === "ready" && (
+        <section className="cpr-ready">
+          <span className="cpr-ready-icon" aria-hidden="true"><HeartPulse /></span>
+          <div>
+            <h2 className="section-title">ฝึกจังหวะ CPR</h2>
+            <p>เป้าหมาย 100–120 ครั้ง/นาที</p>
+            <p className="caption mt-2">
+              แตะพื้นที่ฝึก 1 ครั้งแทนการกดหน้าอก 1 ครั้ง ระบบวัดเฉพาะจังหวะการแตะ
+            </p>
+          </div>
+          <button
+            className="primary-button"
+            onClick={() => {
+              setCountdown(3);
+              setMode("countdown");
+            }}
+          >
+            <Timer size={20} /> เริ่มฝึก
+          </button>
+        </section>
+      )}
+      {mode === "countdown" && (
+        <section className="cpr-countdown" role="status" aria-live="assertive">
+          <p className="caption">เตรียมพร้อม</p>
+          <strong>{countdown || "เริ่ม"}</strong>
+        </section>
+      )}
       {mode === "compressing" && (
         <section className="cpr-surface">
           <p className="caption">จังหวะเป้าหมาย</p>
@@ -110,12 +154,22 @@ export const CPRGame: React.FC<CPRGameProps> = ({
           <div className="mt-6">
             <p className="caption">จังหวะปัจจุบัน (ครั้ง/นาที)</p>
             <p className="cpr-bpm">
-              {calculatorResult.bpm > 0 ? calculatorResult.bpm : "—"}
+              {calculatorResult.bpm > 0 ? calculatorResult.bpm : "0"}
             </p>
           </div>
           <p className="cpr-count">
             {compressions} / {targetCompressions} ครั้ง
           </p>
+          <div
+            className="cpr-progress"
+            role="progressbar"
+            aria-label="จำนวนครั้งที่แตะ"
+            aria-valuemin={0}
+            aria-valuemax={targetCompressions}
+            aria-valuenow={compressions}
+          >
+            <span style={{ width: `${(compressions / targetCompressions) * 100}%` }} />
+          </div>
           <button
             className="cpr-tap"
             onPointerDown={(event) => {
@@ -130,9 +184,7 @@ export const CPRGame: React.FC<CPRGameProps> = ({
             }}
             aria-label="แตะเพื่อฝึกจังหวะกดหน้าอก"
           >
-            <span className="cpr-tap-mark" aria-hidden="true">
-              กด
-            </span>
+            <HeartPulse className="cpr-tap-mark" aria-hidden="true" />
             <span>แตะหนึ่งครั้งต่อการกดหน้าอกหนึ่งครั้ง</span>
           </button>
           <p className="cpr-feedback" role="status" aria-live="polite">

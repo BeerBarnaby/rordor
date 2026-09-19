@@ -1,25 +1,71 @@
 "use client";
 import { useState } from "react";
-import { ArrowRight, CircleCheck, CircleX } from "lucide-react";
-import { EMERGENCY_CALL_FIELDS } from "@/data/scenarios";
+import { ArrowRight, CircleAlert, CircleCheck, CircleX, RotateCcw } from "lucide-react";
+import { getEmergencyCallFields } from "@/data/scenarios";
 import { AnswerOption, FeedbackPanel } from "@/components/TrainingUI";
+import { ScenarioVariant } from "@/types";
+
+type AnswerState = "correct" | "incomplete" | "incorrect";
+
+function shuffle<T>(items: T[]): T[] {
+  const next = [...items];
+  for (let index = next.length - 1; index > 0; index -= 1) {
+    const swapWith = Math.floor(Math.random() * (index + 1));
+    [next[index], next[swapWith]] = [next[swapWith], next[index]];
+  }
+  return next;
+}
+
 export function EmergencyCallSimulation({
   onCompleteStep,
+  scenario,
 }: {
   onCompleteStep: (score: number, mistakes: string[]) => void;
+  scenario: ScenarioVariant;
 }) {
+  const [fields] = useState(() =>
+    getEmergencyCallFields(scenario).map((field) => ({
+      ...field,
+      options: shuffle(field.options),
+    })),
+  );
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<
-    Record<string, { optionId: string; isCorrect: boolean; feedback: string }>
+    Record<string, { optionId: string; state: AnswerState; feedback: string }>
+  >({});
+  const [firstAnswers, setFirstAnswers] = useState<
+    Record<string, { state: AnswerState; feedback: string }>
   >({});
   const [finished, setFinished] = useState(false);
-  const field = EMERGENCY_CALL_FIELDS[index];
+  const field = fields[index];
   const answer = answers[field.id];
-  const correctCount = Object.values(answers).filter((a) => a.isCorrect).length;
-  const score = Math.round((correctCount / EMERGENCY_CALL_FIELDS.length) * 100);
-  const mistakes = EMERGENCY_CALL_FIELDS.filter(
-    (f) => answers[f.id] && !answers[f.id].isCorrect,
-  ).map((f) => `การแจ้ง${f.label}: ${answers[f.id].feedback}`);
+  const correctCount = Object.values(firstAnswers).filter((a) => a.state === "correct").length;
+  const score = Math.round(
+    (Object.values(firstAnswers).reduce(
+      (sum, item) => sum + (item.state === "correct" ? 1 : item.state === "incomplete" ? 0.5 : 0),
+      0,
+    ) /
+      fields.length) *
+      100,
+  );
+  const mistakes = fields
+    .filter((item) => firstAnswers[item.id]?.state !== "correct")
+    .map((item) => `การแจ้ง${item.label}: ${firstAnswers[item.id]?.feedback}`);
+
+  function chooseAnswer(option: (typeof field.options)[number]) {
+    const state: AnswerState = option.isCorrect
+      ? "correct"
+      : option.status ?? "incorrect";
+    setAnswers((previous) => ({
+      ...previous,
+      [field.id]: { optionId: option.id, state, feedback: option.feedback },
+    }));
+    setFirstAnswers((previous) =>
+      previous[field.id]
+        ? previous
+        : { ...previous, [field.id]: { state, feedback: option.feedback } },
+    );
+  }
   return (
     <div className="page-stack training-screen">
       <header>
@@ -32,7 +78,7 @@ export function EmergencyCallSimulation({
           <div className="conversation-prompt">
             <p className="operator-label">
               สายจำลอง 1669 · รายการที่ {index + 1} จาก{" "}
-              {EMERGENCY_CALL_FIELDS.length}
+              {fields.length}
             </p>
             <blockquote>
               {field.question
@@ -49,21 +95,10 @@ export function EmergencyCallSimulation({
                   disabled={!!answer}
                   state={
                     answer?.optionId === option.id
-                      ? answer.isCorrect
-                        ? "correct"
-                        : "incorrect"
+                      ? answer.state
                       : "default"
                   }
-                  onClick={() =>
-                    setAnswers((previous) => ({
-                      ...previous,
-                      [field.id]: {
-                        optionId: option.id,
-                        isCorrect: option.isCorrect,
-                        feedback: option.feedback,
-                      },
-                    }))
-                  }
+                  onClick={() => chooseAnswer(option)}
                 >
                   {option.text}
                 </AnswerOption>
@@ -72,22 +107,34 @@ export function EmergencyCallSimulation({
           </section>
           {answer && (
             <div>
-              <FeedbackPanel correct={answer.isCorrect}>
+              <FeedbackPanel state={answer.state}>
                 {answer.feedback}
               </FeedbackPanel>
-              <button
-                className="primary-button"
-                onClick={() => {
-                  if (index < EMERGENCY_CALL_FIELDS.length - 1)
-                    setIndex(index + 1);
-                  else setFinished(true);
-                }}
-              >
-                {index === EMERGENCY_CALL_FIELDS.length - 1
-                  ? "ดูสรุปการแจ้งเหตุ"
-                  : "ดำเนินการต่อ"}
-                <ArrowRight size={20} />
-              </button>
+              {answer.state === "correct" ? (
+                <button
+                  className="primary-button"
+                  onClick={() => {
+                    if (index < fields.length - 1) setIndex(index + 1);
+                    else setFinished(true);
+                  }}
+                >
+                  {index === fields.length - 1 ? "ดูสรุปการแจ้งเหตุ" : "รับสายต่อ"}
+                  <ArrowRight size={20} />
+                </button>
+              ) : (
+                <button
+                  className="secondary-button"
+                  onClick={() =>
+                    setAnswers((previous) => {
+                      const next = { ...previous };
+                      delete next[field.id];
+                      return next;
+                    })
+                  }
+                >
+                  <RotateCcw size={18} /> แก้คำตอบ
+                </button>
+              )}
             </div>
           )}
         </>
@@ -95,22 +142,28 @@ export function EmergencyCallSimulation({
         <>
           <section>
             <h2 className="section-title">
-              แจ้งข้อมูลครบ {correctCount} / {EMERGENCY_CALL_FIELDS.length}{" "}
+              แจ้งครบตั้งแต่ครั้งแรก {correctCount} / {fields.length}{" "}
               รายการ
             </h2>
             <details className="reference-details">
               <summary>ดูรายการที่แจ้งครบและจุดที่ควรทบทวน</summary>
               <ul>
-                {EMERGENCY_CALL_FIELDS.map((f) => (
+                {fields.map((f) => (
                   <li key={f.id} className="resource-row">
-                    {answers[f.id]?.isCorrect ? (
+                    {firstAnswers[f.id]?.state === "correct" ? (
                       <CircleCheck className="text-[var(--color-success)]" />
+                    ) : firstAnswers[f.id]?.state === "incomplete" ? (
+                      <CircleAlert className="text-[var(--color-warning)]" />
                     ) : (
                       <CircleX className="text-[var(--color-error)]" />
                     )}
                     <span>{f.label}</span>
                     <span className="caption !flex-none">
-                      {answers[f.id]?.isCorrect ? "ครบถ้วน" : "ควรทบทวน"}
+                      {firstAnswers[f.id]?.state === "correct"
+                        ? "ครบถ้วน"
+                        : firstAnswers[f.id]?.state === "incomplete"
+                          ? "ยังขาดข้อมูล"
+                          : "ควรทบทวน"}
                     </span>
                   </li>
                 ))}
