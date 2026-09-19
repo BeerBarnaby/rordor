@@ -1,8 +1,31 @@
 import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
 import "./globals.css";
 
+const lineSeedSansThai = localFont({
+  src: [
+    {
+      path: "./fonts/LINESeedSansTH-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/LINESeedSansTH-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "./fonts/LINESeedSansTH-ExtraBold.woff2",
+      weight: "800",
+      style: "normal",
+    },
+  ],
+  variable: "--font-line-seed",
+  display: "swap",
+});
+
 export const viewport: Viewport = {
-  themeColor: "#F5F1E8",
+  themeColor: "#F4F4F1",
   width: "device-width",
   initialScale: 1,
 };
@@ -42,7 +65,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="th" className="h-full antialiased">
+    <html
+      lang="th"
+      className={`${lineSeedSansThai.variable} h-full antialiased`}
+    >
       <body className="min-h-full font-sans">{children}</body>
     </html>
   );
