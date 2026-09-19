@@ -45,20 +45,30 @@ export function AboutModal({
         </section>
         <section>
           <h3 className="section-title">ข้อมูลโครงการ</h3>
-          <p>ROTC37 · หน่วยฝึกนักศึกษาวิชาทหาร มณฑลทหารบกที่ 37</p>
-          <p className="caption mt-2">
-            ศูนย์วันอังคาร โรงเรียนวิทยาศาสตร์จุฬาภรณราชวิทยาลัย เชียงราย
-          </p>
-          <div className="project-credits">
+          <div className="project-identity">
+            <span className="project-mark" aria-hidden="true">37</span>
             <div>
-              <h4>ที่ปรึกษา</h4>
+              <p className="project-label">ชื่อโครงการ</p>
+              <p className="project-name">น้องพร้อม (NONG PROM)</p>
+              <p className="caption">สื่อฝึกทบทวนการช่วยชีวิตขั้นพื้นฐาน</p>
+            </div>
+          </div>
+          <dl className="project-unit">
+            <div>
+              <dt>หน่วยงาน</dt>
+              <dd>หน่วยฝึกนักศึกษาวิชาทหาร มณฑลทหารบกที่ 37</dd>
+            </div>
+          </dl>
+          <div className="project-credits">
+            <section>
+              <p className="project-label">ที่ปรึกษาโครงการ</p>
               <ul>
                 <li>ร.อ.วศิน บุญกลิ่น</li>
                 <li>ส.อ.พัสกร สิทธิยศ</li>
               </ul>
-            </div>
-            <div>
-              <h4>คนทำ</h4>
+            </section>
+            <section>
+              <p className="project-label">คณะผู้จัดทำ</p>
               <ol>
                 <li>
                   <span>นศท. ปิยเชษฐ์ แสงจันทร์</span>
@@ -81,7 +91,7 @@ export function AboutModal({
                   <small>ชั้นปีที่ 2</small>
                 </li>
               </ol>
-            </div>
+            </section>
           </div>
           <p className="content-meta mt-4 break-all">
             Protocol: {MAIN_PROTOCOL_METADATA.protocolId}
