@@ -21,18 +21,17 @@ export function EmergencyCallSimulation({
     (f) => answers[f.id] && !answers[f.id].isCorrect,
   ).map((f) => `การแจ้ง${f.label}: ${answers[f.id].feedback}`);
   return (
-    <div className="page-stack">
+    <div className="page-stack training-screen">
       <header>
+        <p className="protocol-code">ขั้น 02 · การสื่อสาร</p>
         <h1 className="page-title">แจ้งเหตุ 1669</h1>
-        <p className="caption mt-2">
-          โหมดฝึกจำลอง · ไม่ได้เชื่อมต่อสายด่วนจริง
-        </p>
+        <p className="lead mt-3">ฟังคำถาม แล้วเลือกข้อมูลที่ช่วยให้เจ้าหน้าที่ประเมินเหตุได้เร็ว</p>
       </header>
       {!finished ? (
         <>
           <div className="conversation-prompt">
-            <p className="caption">
-              เจ้าหน้าที่ · ข้อมูลรายการที่ {index + 1} จาก{" "}
+            <p className="operator-label">
+              สายจำลอง 1669 · รายการที่ {index + 1} จาก{" "}
               {EMERGENCY_CALL_FIELDS.length}
             </p>
             <blockquote>
@@ -105,7 +104,7 @@ export function EmergencyCallSimulation({
                 {EMERGENCY_CALL_FIELDS.map((f) => (
                   <li key={f.id} className="resource-row">
                     {answers[f.id]?.isCorrect ? (
-                      <CircleCheck className="text-[var(--color-primary)]" />
+                      <CircleCheck className="text-[var(--color-success)]" />
                     ) : (
                       <CircleX className="text-[var(--color-error)]" />
                     )}

@@ -30,6 +30,9 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({
     { isCorrect: boolean; text: string }[]
   >([]);
   const [score, setScore] = useState<number>(0);
+  const targetStepCount = INITIAL_SEQUENCE_CARDS.filter(
+    (card) => card.isCorrect,
+  ).length;
 
   const moveCard = (index: number, direction: -1 | 1) => {
     setSelectedCards((previous) => {
@@ -65,7 +68,7 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({
   };
 
   const handleSubmit = () => {
-    if (selectedCards.length === 0) return;
+    if (selectedCards.length !== targetStepCount) return;
 
     let correctCount = 0;
     const feedbacks: { isCorrect: boolean; text: string }[] = [];
@@ -126,19 +129,20 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({
   };
 
   return (
-    <div className="page-stack">
+    <div className="page-stack training-screen">
       <header>
+        <p className="protocol-code">ขั้น 01 · การตัดสินใจ</p>
         <h1 className="page-title">ลำดับการช่วยเหลือ</h1>
         <p className="mt-2">เพื่อนล้มลงและไม่ตอบสนอง คุณจะทำอะไรตามลำดับ?</p>
         <p className="caption mt-2">
-          เลือก 7 ขั้นตอนที่ควรทำ ใช้ลูกศรสลับลำดับก่อนตรวจคำตอบ
+          เลือก {targetStepCount} ขั้นตอนที่ควรทำ แล้วใช้ลูกศรสลับลำดับก่อนตรวจคำตอบ
         </p>
       </header>
       <div className="sequence-grid">
         <section>
           <div className="flex items-center justify-between gap-3 mb-3">
             <h2 className="section-title !mb-0">
-              ลำดับของคุณ ({selectedCards.length}/7)
+              ลำดับของคุณ ({selectedCards.length}/{targetStepCount})
             </h2>
             {selectedCards.length > 0 && !isSubmitted && (
               <button className="text-button" onClick={resetGame}>
@@ -165,7 +169,7 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({
                         <CircleCheck
                           aria-label="ถูกต้อง"
                           size={20}
-                          className="shrink-0 text-[var(--color-primary)]"
+                          className="shrink-0 text-[var(--color-success)]"
                         />
                       ) : (
                         <CircleX
@@ -231,10 +235,12 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({
       {!isSubmitted ? (
         <button
           className="primary-button self-start"
-          disabled={selectedCards.length === 0}
+          disabled={selectedCards.length !== targetStepCount}
           onClick={handleSubmit}
         >
-          ตรวจคำตอบ
+          {selectedCards.length === targetStepCount
+            ? "ตรวจคำตอบ"
+            : `เลือกอีก ${targetStepCount - selectedCards.length} ขั้นตอน`}
           <ArrowRight size={20} />
         </button>
       ) : (
@@ -251,7 +257,7 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({
                 {item.isCorrect ? (
                   <CircleCheck
                     size={20}
-                    className="shrink-0 mt-1 text-[var(--color-primary)]"
+                    className="shrink-0 mt-1 text-[var(--color-success)]"
                   />
                 ) : (
                   <CircleX

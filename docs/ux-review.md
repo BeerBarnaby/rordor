@@ -1,23 +1,28 @@
 # UX review — 19 September 2026
 
-## Decisions
+## Design decisions
 
-- Keep persistent navigation consistent; remove duplicate contextual links within the same page. Home now has one guide action instead of a second guide section.
-- In guide details, use the selected module as the page title; avoid repeating the same title beneath the module tabs.
-- Put provenance and review status behind one clearly labeled disclosure. Keep the prototype warning visible on the guide index and simulation opening.
-- Keep immediate answer feedback. Collapse the call checklist after completion instead of repeating all feedback again before the final review.
-- Show scored CPR results in the final review, not another intermediate metrics panel. Keep the live rhythm feedback and AED transition.
-- Preserve the blue/white palette, Noto Sans Thai, touch navigation on phones, and top navigation on larger displays.
+- Use a mobile-first “field protocol” direction: warm paper, dark ink, deep pine focus surfaces and one red-orange signal color for primary actions.
+- Use IBM Plex Sans Thai Looped for the full interface and IBM Plex Mono only for short protocol codes and numeric progress.
+- Remove generated illustration assets and the unused mascot component. Personality comes from typography, numbered steps, rules and interaction rather than decorative imagery.
+- Make the first home viewport answer one question: what should I do next? The active scenario and one full-width action lead; the guide is secondary.
+- Keep tablets on the mobile information order and bottom navigation. Switch to a wider two-column composition and top navigation only at desktop width.
+- Hide global navigation during active training. A compact training header keeps an explicit exit action and preserves in-progress state.
+- Show only the current training step plus four progress segments on small screens, avoiding wrapped progress labels.
+- Treat modules as editorial rows, answers as interactive choices, CPR as a focused action surface and AED as a command panel. Avoid generic cards for normal content.
 
-## Scope and limitations
+## Content decisions
 
-This is a UI refactor, not clinical validation. Existing content still requires expert review; reviewer identity is not fabricated. Existing institutional links remain labeled as agency websites rather than verified direct document links. Completed results retain the existing localStorage key. In-progress state survives in-app navigation, not a full reload.
-
-## Research
-
-- Nielsen Norman Group, [Progressive Disclosure](https://www.nngroup.com/articles/progressive-disclosure/): prioritize common actions and reveal secondary details on request.
-- Nielsen Norman Group, [Reduce Redundancy](https://www.nngroup.com/articles/reduce-redundancydecrease-duplicated-design-decisions/): improve the placement of a missed action rather than duplicating it.
+- Update CPR/AED copy against AHA 2025 and NIEMS 2025 guidance: abnormal or gasping breathing, assessment within 10 seconds, 100–120 compressions per minute, 5–6 cm depth, full recoil and minimal interruptions.
+- Give trained users a 30:2 practice route and give untrained or unwilling users a continuous-compression route following 1669 instructions.
+- Replace placeholder agency-homepage links with direct NIEMS 2025 documents.
+- Make 1669 distractor answers plausible but incomplete, and include repeat hazards as a reporting field.
+- Keep expert-review status visible. The application remains a training prototype, not clinical certification.
 
 ## Verification
 
-Lint, production build and the six existing rhythm tests pass. Browser checks cover the complete sequence → call → CPR → AED → results flow, retained completed results after reload, keyboard CPR input, keyboard module tabs, dialog focus containment/restoration, and lazy video loading. Responsive checks use 375, 390, 430, 768, 1024 and 1440px widths, with no horizontal page overflow or clipped navigation; interactive training buttons meet the 44px minimum height.
+- `npm run lint`: passed.
+- `npm test`: 6 tests passed.
+- `npm run build`: production build passed.
+- Browser flow verified from sequence through 1669, the continuous-compression CPR route, AED and results, including the AED analysis delay.
+- Responsive checks cover 375, 390, 430, 768, 1024 and 1440 pixel widths with no horizontal overflow.

@@ -40,6 +40,7 @@ export function LearningCenter({
   const [video, setVideo] = useState<LearningVideo | null>(null);
   const topic = LEARNING_TOPICS.find((item) => item.id === selected);
   const activeModule = modules.find((item) => item.id === selected);
+  const activeModuleIndex = modules.findIndex((item) => item.id === selected);
   const videos = LEARNING_VIDEOS.filter(
     (item) =>
       item.topicId === selected ||
@@ -51,16 +52,22 @@ export function LearningCenter({
     window.scrollTo({ top: 0, behavior: "instant" });
   }
   return (
-    <div className="page-stack">
+    <div className="page-stack learning-screen">
       <header>
-        <h1 className="page-title">{activeModule?.title || "คู่มือก่อนฝึก"}</h1>
-        {!topic && <p className="caption mt-2">เลือกบทที่ต้องการทบทวน</p>}
+        <p className="protocol-code">
+          {topic ? `บท ${activeModuleIndex + 1} จาก 4` : "คู่มือภาคสนาม"}
+        </p>
+        <h1 className="page-title">
+          {activeModule?.title || "คู่มือ 4 ขั้นก่อนลงมือ"}
+        </h1>
+        {!topic && (
+          <p className="lead mt-3">
+            ทบทวนเฉพาะสิ่งจำเป็นก่อนเริ่มสถานการณ์ เลือกอ่านทีละบทได้
+          </p>
+        )}
       </header>
       {!topic ? (
         <>
-          <aside className="notice">
-            {PROTOTYPE_DISCLAIMER} และไม่ทดแทนการฝึกภาคปฏิบัติ
-          </aside>
           <div className="module-grid">
             {modules.map((item, index) => (
               <button
@@ -77,10 +84,14 @@ export function LearningCenter({
               </button>
             ))}
           </div>
+          <aside className="notice">
+            <strong>ใช้ทบทวนก่อนฝึก</strong>
+            {PROTOTYPE_DISCLAIMER} และไม่ทดแทนการฝึกภาคปฏิบัติ
+          </aside>
         </>
       ) : (
         <>
-          <div>
+          <div className="chapter-header">
             <button
               className="text-button !pl-0"
               onClick={() => openModule(null)}
@@ -119,7 +130,8 @@ export function LearningCenter({
                   }}
                   onClick={() => setSelected(item.id)}
                 >
-                  {item.title}
+                  0{modules.indexOf(item) + 1}
+                  <span className="sr-only"> {item.title}</span>
                 </button>
               ))}
             </div>
@@ -134,9 +146,14 @@ export function LearningCenter({
               <section>
                 <p>{topic.description}</p>
                 <h2 className="section-title mt-6">ลำดับการช่วยเหลือ</h2>
-                <ol className="step-list">
-                  {topic.summarySteps.map((step) => (
-                    <li key={step}>{step}</li>
+                <ol className="protocol-list">
+                  {topic.summarySteps.map((step, index) => (
+                    <li key={step}>
+                      <span className="step-number">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                      <span>{step}</span>
+                    </li>
                   ))}
                 </ol>
               </section>
@@ -154,9 +171,7 @@ export function LearningCenter({
                     <span>
                       <span className="block">{doc.title}</span>
                       <span className="caption block mt-1">{doc.provider}</span>
-                      <span className="caption block">
-                        เว็บไซต์หน่วยงาน · ยังไม่มีลิงก์เอกสารฉบับตรง
-                      </span>
+                      <span className="caption block">เอกสารทางการ</span>
                     </span>
                     <ExternalLink aria-label="เปิดแท็บใหม่" />
                   </a>

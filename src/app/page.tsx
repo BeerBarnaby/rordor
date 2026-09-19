@@ -77,6 +77,7 @@ export default function Home() {
   );
   const [attemptKey, setAttemptKey] = useState(0);
   const inProgress = startTimeMs > 0 && missionPhase !== "debrief";
+  const focusMode = activeTab === "mission" && inProgress;
   const continueTraining = () => {
     if (inProgress) setActiveTab("mission");
     else handleStartMission();
@@ -220,6 +221,8 @@ export default function Home() {
         }
       }}
       onOpenAbout={() => setIsAboutOpen(true)}
+      focusMode={focusMode}
+      onExitTraining={() => setActiveTab("home")}
     >
       {/* 1. HOME TAB */}
       {activeTab === "home" && (
@@ -256,27 +259,29 @@ export default function Home() {
             </div>
           )}
           {missionPhase === "opening" && (
-            <div className="page-stack">
+            <div className="page-stack training-screen">
               <header>
-                <p className="eyebrow">CPR ผู้ใหญ่ + AED</p>
-                <h1 className="page-title">เพื่อนล้มลงระหว่างการฝึก</h1>
+                <p className="protocol-code">สถานการณ์ 01 · CPR + AED</p>
+                <h1 className="display-title">
+                  เพื่อนล้มลง
+                  <br />
+                  คุณอยู่ใกล้ที่สุด
+                </h1>
+                <p className="lead mt-5">
+                  ระหว่างการฝึก เพื่อนคนหนึ่งล้มลงตรงหน้าคุณ เรียกแล้วไม่ตอบสนอง
+                  และไม่หายใจปกติ
+                </p>
               </header>
-              <SimulationNotice />
               <section className="conversation-prompt">
-                <p>
-                  ระหว่างการฝึก นักศึกษาวิชาทหารคนหนึ่งล้มลงตรงหน้าคุณ
-                  เมื่อเรียกและตบไหล่แล้วไม่ตอบสนอง
-                </p>
-                <p className="mt-4 font-semibold">
-                  คุณจะเริ่มช่วยเหลืออย่างไร?
-                </p>
+                <p className="protocol-code">โจทย์ของคุณ</p>
+                <blockquote>ตัดสินใจให้ถูก แล้วช่วยเหลือตามลำดับ</blockquote>
               </section>
               <p className="caption">
-                ฝึก 4 ขั้นตอน: ลำดับช่วยเหลือ → แจ้งเหตุ 1669 → จังหวะ CPR → ใช้
-                AED
+                ใช้เวลาประมาณ 5 นาที · มีคำแนะนำหลังทุกคำตอบ · ผลเก็บไว้ในอุปกรณ์นี้
               </p>
+              <SimulationNotice />
               <button
-                className="primary-button self-start"
+                className="primary-button"
                 onClick={() => {
                   setStartTimeMs(Date.now());
                   setMissionPhase("sequence");

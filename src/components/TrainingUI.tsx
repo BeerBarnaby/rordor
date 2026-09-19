@@ -7,7 +7,7 @@ export function SimulationNotice() {
     <aside className="notice">
       <strong className="font-semibold">โหมดฝึกจำลอง</strong>
       <p>
-        ไม่ได้เชื่อมต่อสายด่วน 1669 จริง และไม่ทดแทนการฝึกภาคปฏิบัติกับครูฝึก
+        ไม่มีการโทร 1669 จริง และไม่ทดแทนการฝึกภาคปฏิบัติกับครูฝึก
       </p>
     </aside>
   );
@@ -16,9 +16,9 @@ export function ContentMetadata() {
   return (
     <div className="content-meta section-rule">
       <p>ตรวจทานเนื้อหาโดย: ยังไม่ระบุ — รอครูฝึกและผู้เชี่ยวชาญตรวจทาน</p>
-      <p>แหล่งอ้างอิงในต้นแบบ: สพฉ. และสภากาชาดไทย</p>
+      <p>อ้างอิงหลัก: สพฉ. ปี 2568 และ AHA Guidelines 2025</p>
       <p>ปรับปรุงเนื้อหาล่าสุด: {MAIN_PROTOCOL_METADATA.lastUpdated}</p>
-      <p>วันที่ตรวจทาน: ยังไม่มีข้อมูล</p>
+      <p>สถานะ: รอครูฝึกและผู้เชี่ยวชาญรับรองก่อนนำไปใช้จริง</p>
     </div>
   );
 }

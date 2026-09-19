@@ -44,8 +44,9 @@ export function AfterActionReview({
       : []),
   ];
   return (
-    <div className="page-stack">
+    <div className="page-stack results-screen">
       <header>
+        <p className="protocol-code">สรุปหลังฝึก</p>
         <h1 className="page-title">ผลการฝึก</h1>
         <p className="caption mt-2">
           {result.scenarioTitle} · {result.completedAt}
@@ -95,7 +96,7 @@ export function AfterActionReview({
               <li key={item} className="flex gap-3">
                 <CircleCheck
                   size={20}
-                  className="shrink-0 mt-1 text-[var(--color-primary)]"
+                  className="shrink-0 mt-1 text-[var(--color-success)]"
                 />
                 {item}
               </li>

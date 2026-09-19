@@ -3,7 +3,7 @@
 import React, { useState, useRef } from "react";
 import { RhythmCalculator } from "@/lib/rhythmCalculator";
 import { RhythmCalculationResult } from "@/types";
-import { HeartPulse, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 interface CPRGameProps {
   targetCompressions?: number;
@@ -22,14 +22,14 @@ export const CPRGame: React.FC<CPRGameProps> = ({
       bpm: 0,
       state: "insufficient",
       feedbackMessage: "เริ่มกดจังหวะปั๊มหัวใจ (เป้าหมาย 100-120 ครั้ง/นาที)",
-      colorClass: "text-[#5C6B65] border-[#D8E4DE] bg-[#F7FAF8]",
+      colorClass: "text-[var(--color-ink-muted)]",
       tapCount: 0,
     });
 
   // Rescue breath 30:2 transition states
-  const [mode, setMode] = useState<"compressing" | "rescuing" | "finished">(
-    "compressing",
-  );
+  const [mode, setMode] = useState<
+    "compressing" | "breath-choice" | "rescuing" | "finished"
+  >("compressing");
   const [rescueStep, setRescueStep] = useState<number>(0);
 
   const rhythmCalcRef = useRef<RhythmCalculator>(new RhythmCalculator(6));
@@ -62,7 +62,7 @@ export const CPRGame: React.FC<CPRGameProps> = ({
     }
 
     if (nextCount >= targetCompressions) {
-      setMode("rescuing");
+      setMode("breath-choice");
       setRescueStep(0);
     }
   };
@@ -95,10 +95,13 @@ export const CPRGame: React.FC<CPRGameProps> = ({
   };
 
   return (
-    <div className="page-stack">
+    <div className="page-stack training-screen">
       <header>
+        <p className="protocol-code">ขั้น 03 · จังหวะกดหน้าอก</p>
         <h1 className="page-title">CPR</h1>
-        <p className="caption mt-2">ฝึกจังหวะกดหน้าอกผ่านการแตะหน้าจอ</p>
+        <p className="lead mt-3">
+          ฝึกเฉพาะจังหวะด้วยการแตะหน้าจอ เป้าหมายคือสม่ำเสมอและหยุดให้น้อยที่สุด
+        </p>
       </header>
       {mode === "compressing" && (
         <section className="cpr-surface">
@@ -110,7 +113,7 @@ export const CPRGame: React.FC<CPRGameProps> = ({
               {calculatorResult.bpm > 0 ? calculatorResult.bpm : "—"}
             </p>
           </div>
-          <p className="text-lg">
+          <p className="cpr-count">
             {compressions} / {targetCompressions} ครั้ง
           </p>
           <button
@@ -127,10 +130,12 @@ export const CPRGame: React.FC<CPRGameProps> = ({
             }}
             aria-label="แตะเพื่อฝึกจังหวะกดหน้าอก"
           >
-            <HeartPulse size={40} strokeWidth={1.75} />
-            <span>แตะเพื่อกดหน้าอก</span>
+            <span className="cpr-tap-mark" aria-hidden="true">
+              กด
+            </span>
+            <span>แตะหนึ่งครั้งต่อการกดหน้าอกหนึ่งครั้ง</span>
           </button>
-          <p role="status" aria-live="polite">
+          <p className="cpr-feedback" role="status" aria-live="polite">
             {calculatorResult.state === "insufficient"
               ? "แตะต่อเนื่องเพื่อเริ่มวัดจังหวะ"
               : calculatorResult.feedbackMessage}
@@ -138,6 +143,36 @@ export const CPRGame: React.FC<CPRGameProps> = ({
           <p className="caption mt-4">
             วัดเฉพาะจังหวะการแตะ ไม่วัดความลึกหรือแรงกดจริง
           </p>
+        </section>
+      )}
+      {mode === "breath-choice" && (
+        <section className="page-stack">
+          <div>
+            <p className="protocol-code">ครบ 30 ครั้ง</p>
+            <h2 className="page-title">เลือกตามระดับการฝึกของคุณ</h2>
+            <p className="lead mt-3">
+              ผู้ที่ผ่านการฝึกช่วยหายใจสามารถฝึกแบบ 30:2 ได้
+              หากยังไม่ผ่านการฝึกหรือไม่พร้อม ให้กดหน้าอกต่อเนื่องตามคำแนะนำของ 1669
+            </p>
+          </div>
+          <div className="actions">
+            <button
+              className="primary-button"
+              onClick={() => setMode("rescuing")}
+            >
+              ฝึกช่วยหายใจ 2 ครั้ง
+              <ArrowRight size={20} />
+            </button>
+            <button
+              className="secondary-button"
+              onClick={() => setMode("finished")}
+            >
+              เลือกกดหน้าอกต่อเนื่อง
+            </button>
+          </div>
+          <aside className="notice">
+            ในเหตุจริง ให้เปิดลำโพงโทรศัพท์และทำตามคำแนะนำของเจ้าหน้าที่ 1669
+          </aside>
         </section>
       )}
       {mode === "rescuing" && (
@@ -165,7 +200,7 @@ export const CPRGame: React.FC<CPRGameProps> = ({
               }
             </p>
             <p className="caption mt-4">
-              ขั้นตอนช่วยหายใจสำหรับผู้ที่ได้รับการฝึก
+              ขั้นตอนนี้สำหรับผู้ที่ผ่านการฝึกและพร้อมช่วยหายใจเท่านั้น
             </p>
           </div>
           <button
@@ -182,7 +217,10 @@ export const CPRGame: React.FC<CPRGameProps> = ({
           <div>
             <h2 className="section-title">ฝึกจังหวะครบแล้ว</h2>
           </div>
-          <p>เพื่อนนำเครื่อง AED มาถึงแล้ว ไปฝึกใช้งานในขั้นตอนถัดไป</p>
+          <p>
+            เพื่อนนำเครื่อง AED มาถึงแล้ว ในเหตุจริงให้กดหน้าอกต่อเนื่อง
+            และหยุดให้น้อยที่สุดจนเครื่องพร้อมวิเคราะห์
+          </p>
           <button className="primary-button self-start" onClick={handleFinish}>
             ไปขั้นตอน AED
             <ArrowRight size={20} />

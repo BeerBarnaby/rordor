@@ -35,10 +35,11 @@ export function AEDSimulation({
     } else setIndex(index + 1);
   }
   return (
-    <div className="page-stack">
+    <div className="page-stack training-screen">
       <header>
+        <p className="protocol-code">ขั้น 04 · เครื่อง AED</p>
         <h1 className="page-title">ใช้ AED</h1>
-        <p className="caption mt-2">
+        <p className="lead mt-3">
           เครื่อง AED มาถึงแล้ว ปฏิบัติตามคำแนะนำทีละขั้น
         </p>
       </header>
@@ -47,7 +48,7 @@ export function AEDSimulation({
           <p className="caption">
             ขั้นตอน AED {index + 1} จาก {AED_STEPS.length}
           </p>
-          <section className="conversation-prompt" aria-live="polite">
+          <section className="aed-console" aria-live="polite">
             <p className="caption">คำแนะนำจากเครื่องจำลอง</p>
             <h2 className="section-title mt-3">
               {step.title.replace(/^\d+\. /, "")}
@@ -62,6 +63,12 @@ export function AEDSimulation({
             <aside className="notice">
               ตรวจว่าไม่มีใครสัมผัสผู้ป่วย ก่อนให้เครื่องวิเคราะห์หรือช็อก
             </aside>
+          )}
+          {index === 3 && (
+            <p className="caption">
+              หากเครื่องแจ้งว่า “ไม่แนะนำให้ช็อก” ให้กลับไปกดหน้าอกทันที
+              โดยไม่ถอดแผ่น AED
+            </p>
           )}
           <button
             className="primary-button self-start"
@@ -78,7 +85,7 @@ export function AEDSimulation({
           <div role="status" className="flex items-start gap-3">
             <CircleCheck
               size={24}
-              className="text-[var(--color-primary)] shrink-0"
+              className="text-[var(--color-success)] shrink-0"
             />
             <div>
               <h2 className="section-title">ทบทวนการใช้ AED ครบแล้ว</h2>
