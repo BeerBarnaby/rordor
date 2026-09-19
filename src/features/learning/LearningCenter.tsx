@@ -82,16 +82,19 @@ export function LearningCenter({
               return (
                 <button
                   className="learning-module"
+                  data-module={item.id}
                   key={item.id}
                   onClick={() => openModule(item.id)}
                 >
-                  <span>0{index + 1}</span>
+                  <span className="module-number">0{index + 1}</span>
                   <Icon className="module-icon" aria-hidden="true" />
                   <span className="flex-1">
                     <strong>{item.title}</strong>
                     <span className="caption block mt-1">{item.detail}</span>
                   </span>
-                  <ArrowRight size={20} />
+                  <span className="module-open">
+                    เปิดบทเรียน <ArrowRight size={18} />
+                  </span>
                 </button>
               );
             })}
@@ -112,7 +115,9 @@ export function LearningCenter({
               ทุกบท
             </button>
             <div className="module-tabs" role="tablist" aria-label="บทในคู่มือ">
-              {modules.map((item) => (
+              {modules.map((item, index) => {
+                const Icon = item.icon;
+                return (
                 <button
                   key={item.id}
                   id={`tab-${item.id}`}
@@ -141,11 +146,14 @@ export function LearningCenter({
                     }
                   }}
                   onClick={() => setSelected(item.id)}
+                  data-module={item.id}
                 >
-                  0{modules.indexOf(item) + 1}
-                  <span className="sr-only"> {item.title}</span>
+                  <Icon aria-hidden="true" />
+                  <span>0{index + 1}</span>
+                  <small>{item.title}</small>
                 </button>
-              ))}
+                );
+              })}
             </div>
           </div>
           <section

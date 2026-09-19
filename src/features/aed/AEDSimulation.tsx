@@ -35,7 +35,7 @@ export function AEDSimulation({
     } else setIndex(index + 1);
   }
   return (
-    <div className="page-stack training-screen">
+    <div className="page-stack training-screen aed-training">
       <header>
         <p className="protocol-code">ขั้น 04 · เครื่อง AED</p>
         <h1 className="page-title">ใช้ AED</h1>
@@ -71,7 +71,7 @@ export function AEDSimulation({
             </p>
           )}
           <button
-            className="primary-button self-start"
+            className="primary-button aed-primary-button self-start"
             disabled={analyzing}
             onClick={advance}
           >
@@ -93,7 +93,7 @@ export function AEDSimulation({
             </div>
           </div>
           <button
-            className="primary-button self-start"
+            className="primary-button aed-primary-button self-start"
             onClick={() => onCompleteStep(100, [])}
           >
             ดูผลการฝึก

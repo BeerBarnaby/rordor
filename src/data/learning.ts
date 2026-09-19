@@ -55,6 +55,14 @@ export const LEARNING_TOPICS: LearningTopic[] = [
 
 export const LEARNING_VIDEOS: LearningVideo[] = [
   {
+    id: 'video_assessment_01',
+    topicId: 'assessment',
+    title: 'การประเมินอาการผู้บาดเจ็บก่อนถึงโรงพยาบาล',
+    provider: 'PHTLS Thailand',
+    youtubeId: 'fvx6b-msB44',
+    description: 'สาธิตแนวทางประเมินผู้บาดเจ็บก่อนถึงโรงพยาบาล เพื่อฝึกสังเกตความปลอดภัยและอาการสำคัญอย่างเป็นลำดับ',
+  },
+  {
     id: 'video_cpr_01',
     topicId: 'cpr',
     title: 'SOS ตอนที่ 2 CPR AED',

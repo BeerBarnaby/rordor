@@ -227,6 +227,7 @@ export default function Home() {
       }}
       onOpenAbout={() => setIsAboutOpen(true)}
       focusMode={focusMode}
+      trainingTone={missionPhase === "aed" ? "aed" : "standard"}
       onExitTraining={() => setActiveTab("home")}
     >
       {/* 1. HOME TAB */}

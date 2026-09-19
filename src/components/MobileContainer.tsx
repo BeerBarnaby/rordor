@@ -10,20 +10,23 @@ interface Props {
   onOpenAbout: () => void;
   focusMode?: boolean;
   onExitTraining?: () => void;
+  trainingTone?: "standard" | "aed";
 }
 export function AppHeader({
   onOpenAbout,
   focusMode = false,
   onExitTraining,
+  trainingTone = "standard",
 }: {
   onOpenAbout: () => void;
   focusMode?: boolean;
   onExitTraining?: () => void;
+  trainingTone?: "standard" | "aed";
 }) {
   return (
     <header
       className="app-header"
-      data-mode={focusMode ? "training" : "default"}
+      data-mode={focusMode ? trainingTone : "default"}
     >
       <div className="brand">
         <span className="brand-stamp" aria-hidden="true">
@@ -84,9 +87,10 @@ export function MobileContainer({
   onOpenAbout,
   focusMode = false,
   onExitTraining,
+  trainingTone = "standard",
 }: Props) {
   return (
-    <div className="app-shell">
+    <div className="app-shell" data-training-tone={focusMode ? trainingTone : undefined}>
       <a className="skip-link" href="#main-content">
         ข้ามไปเนื้อหา
       </a>
@@ -94,6 +98,7 @@ export function MobileContainer({
         onOpenAbout={onOpenAbout}
         focusMode={focusMode}
         onExitTraining={onExitTraining}
+        trainingTone={trainingTone}
       />
       {!focusMode && (
         <BottomNavigation activeTab={activeTab} onTabChange={onTabChange} />
