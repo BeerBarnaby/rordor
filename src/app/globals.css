@@ -131,6 +131,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 }
 
 .app-main { min-width: 0; padding: 26px 20px calc(104px + env(safe-area-inset-bottom)); }
+.app-main > * { animation: page-enter 520ms cubic-bezier(0.2, 0.75, 0.25, 1) both; }
 
 .bottom-nav {
   position: fixed;
@@ -175,6 +176,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .nav-item[aria-current="page"] { color: var(--color-pine); font-weight: 700; border-radius: 11px; background: var(--color-success-soft); }
 .nav-item[aria-current="page"]::before { display: none; }
 .nav-item svg { width: 23px; height: 23px; stroke-width: 1.75; }
+.nav-item[aria-current="page"] svg { animation: nav-pop 360ms cubic-bezier(0.2, 0.9, 0.3, 1.25); }
 
 .page-stack { display: flex; flex-direction: column; gap: 32px; }
 .training-screen, .learning-screen { width: 100%; max-width: 760px; margin: 0 auto; }
@@ -215,6 +217,8 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .primary-button, .secondary-button { width: 100%; padding: 13px 18px; border-radius: var(--radius-sm); }
 .primary-button { color: white; background: var(--color-pine); border: 1px solid var(--color-pine); box-shadow: 0 1px 0 rgb(255 255 255 / 0.16) inset; }
 .primary-button:hover { background: var(--color-pine-dark); border-color: var(--color-pine-dark); }
+.primary-button svg, .text-button svg, .module-open svg { transition: transform 180ms ease; }
+.primary-button:hover svg, .text-button:hover svg, .learning-module:hover .module-open svg { transform: translateX(4px); }
 .secondary-button { color: var(--color-ink); border: 1px solid var(--color-line); background: transparent; }
 .secondary-button:hover { border-color: var(--color-ink-muted); background: rgb(21 37 34 / 0.035); }
 .text-button { width: fit-content; padding: 10px 2px; color: var(--color-pine); border-bottom: 1px solid transparent; }
@@ -256,6 +260,23 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   width: 9px;
   background: var(--color-signal);
 }
+.home-hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 260px;
+  height: 260px;
+  top: -145px;
+  right: -100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 255 255 / 0.18), rgb(255 255 255 / 0) 68%);
+  animation: hero-orbit 7s ease-in-out infinite alternate;
+}
+.home-hero > * { animation: rise-in 520ms cubic-bezier(0.2, 0.75, 0.25, 1) both; }
+.home-hero > :nth-child(2) { animation-delay: 60ms; }
+.home-hero > :nth-child(3) { animation-delay: 120ms; }
+.home-hero > :nth-child(4) { animation-delay: 180ms; }
+.home-hero > :nth-child(5) { animation-delay: 240ms; }
 .home-hero .protocol-code { color: #ffae9f; }
 .home-hero .lead { margin-top: 20px; color: rgb(255 255 255 / 0.76); }
 .mission-meta { margin-top: 14px; color: #fff; font-size: 14px; line-height: 22px; font-weight: 700; }
@@ -273,7 +294,11 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   gap: 12px;
   min-height: 66px;
   border-top: 1px solid var(--color-line);
+  animation: rise-in 420ms ease both;
 }
+.training-rail li:nth-child(2) { animation-delay: 70ms; }
+.training-rail li:nth-child(3) { animation-delay: 140ms; }
+.training-rail li:nth-child(4) { animation-delay: 210ms; }
 .training-rail .rail-number { color: var(--color-signal); font: 700 13px/20px var(--font-line-seed), system-ui, sans-serif; font-variant-numeric: tabular-nums; }
 .training-rail strong { display: block; font-size: 15px; font-weight: 600; }
 .training-rail small { display: block; color: var(--color-ink-muted); font-size: 13px; line-height: 20px; }
@@ -328,12 +353,18 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   text-align: left;
   background: var(--module-bg, var(--color-panel));
   box-shadow: 0 8px 22px rgb(23 23 22 / 0.045);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  animation: card-enter 460ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
 }
+.learning-module:nth-child(2) { animation-delay: 70ms; }
+.learning-module:nth-child(3) { animation-delay: 140ms; }
+.learning-module:nth-child(4) { animation-delay: 210ms; }
 .learning-module[data-module="assessment"] { --module-bg: #edf5f1; --module-border: #c7ded4; --module-color: #17614f; }
 .learning-module[data-module="call1669"] { --module-bg: #fff4d9; --module-border: #ebd39c; --module-color: #805600; }
 .learning-module[data-module="cpr"] { --module-bg: #eaf3f6; --module-border: #c8dce2; --module-color: #18546a; }
 .learning-module[data-module="aed"] { --module-bg: #fce9e6; --module-border: #edc1bb; --module-color: #a92f27; }
-.learning-module:hover { border-color: var(--module-color); transform: translateY(-2px); }
+.learning-module:hover { border-color: var(--module-color); transform: translateY(-4px); box-shadow: 0 14px 28px color-mix(in srgb, var(--module-color) 14%, transparent); }
+.learning-module:active { transform: scale(0.965); box-shadow: 0 5px 12px rgb(23 23 22 / 0.08); }
 .learning-module .module-number { color: var(--module-color); font: 800 13px/18px var(--font-line-seed), system-ui, sans-serif; font-variant-numeric: tabular-nums; }
 .learning-module .module-icon { width: 29px; height: 29px; color: var(--module-color); stroke-width: 1.8; }
 .learning-module strong { display: block; font-size: 16px; line-height: 23px; font-weight: 700; }
@@ -389,6 +420,8 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   background: #ddd9cf;
 }
 .video-thumbnail img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.82) contrast(1.04); }
+.video-resource .video-thumbnail { transition: transform 200ms ease, box-shadow 200ms ease; }
+.video-resource:hover .video-thumbnail { transform: translateY(-3px); box-shadow: 0 14px 28px rgb(23 23 22 / 0.15); }
 .video-play {
   position: absolute;
   inset: 0;
@@ -490,6 +523,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .progress-marker svg { width: 17px; height: 17px; }
 .simulation-progress li[data-complete="true"] .progress-marker { color: white; border-color: var(--color-success); background: var(--color-success); }
 .simulation-progress li[aria-current="step"] .progress-marker { color: white; border-color: var(--color-pine); background: var(--color-pine); box-shadow: 0 0 0 4px var(--color-success-soft); }
+.simulation-progress li[aria-current="step"] .progress-marker { animation: current-step 1.8s ease-in-out infinite; }
 .progress-label { display: none; font-size: 12px; line-height: 18px; text-align: center; }
 
 .conversation-prompt {
@@ -608,10 +642,45 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .aed-console .section-title { color: white; }
 .aed-training .protocol-code { color: #b7352b; }
 .aed-training .aed-console { background: #9f2e27; box-shadow: 0 14px 34px rgb(159 46 39 / 0.16); }
+.aed-training .aed-console { animation: aed-console-enter 440ms cubic-bezier(0.2, 0.8, 0.25, 1) both; }
 .aed-training .aed-primary-button { background: #b7352b; border-color: #b7352b; }
 .aed-training .aed-primary-button:hover { background: #95271f; border-color: #95271f; }
 .app-shell[data-training-tone="aed"] .progress-count { color: #b7352b; }
-.app-shell[data-training-tone="aed"] .simulation-progress li[aria-current="step"] .progress-marker { border-color: #b7352b; background: #b7352b; box-shadow: 0 0 0 4px var(--color-danger-soft); }
+.app-shell[data-training-tone="aed"] .simulation-progress li[aria-current="step"] .progress-marker { border-color: #b7352b; background: #b7352b; box-shadow: 0 0 0 4px var(--color-danger-soft); animation-name: aed-current-step; }
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(18px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes hero-orbit {
+  from { transform: translate3d(-10px, 0, 0) scale(0.9); opacity: 0.65; }
+  to { transform: translate3d(18px, 20px, 0) scale(1.12); opacity: 1; }
+}
+@keyframes nav-pop {
+  0% { transform: scale(0.72); }
+  65% { transform: scale(1.14); }
+  100% { transform: scale(1); }
+}
+@keyframes current-step {
+  0%, 100% { box-shadow: 0 0 0 4px var(--color-success-soft); }
+  50% { box-shadow: 0 0 0 8px rgb(23 113 88 / 0.08); }
+}
+@keyframes aed-current-step {
+  0%, 100% { box-shadow: 0 0 0 4px var(--color-danger-soft); }
+  50% { box-shadow: 0 0 0 8px rgb(183 53 43 / 0.09); }
+}
+@keyframes aed-console-enter {
+  from { opacity: 0; transform: translateX(14px); }
+  to { opacity: 1; transform: translateX(0); }
+}
 .home-columns { display: grid; gap: 32px; }
 .progress-track { height: 4px; margin-top: 12px; background: var(--color-line); }
 .progress-track > span { display: block; height: 100%; background: var(--color-signal); }
