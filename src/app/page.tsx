@@ -286,7 +286,7 @@ export default function Home() {
               </p>
               <SimulationNotice />
               <button
-                className="primary-button"
+                className="primary-button self-start"
                 onClick={() => {
                   setStartTimeMs(Date.now());
                   setMissionPhase("sequence");
