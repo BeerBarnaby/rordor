@@ -1,17 +1,14 @@
 import type { LeaderboardEntry, MissionResult, PlayerProfile } from "@/types";
-import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const PLAYER_SESSION_KEY = "nong_prom_player_session_v1";
 
 type PlayerSession = {
-  token: string;
   profile: PlayerProfile;
 };
 
 type RpcEnvelope = {
   ok?: boolean;
   error?: string;
-  session_token?: string;
   player?: {
     id?: string;
     display_name?: string;
@@ -34,20 +31,10 @@ function toProfile(value: RpcEnvelope["player"]): PlayerProfile | null {
   };
 }
 
-function saveSession(session: PlayerSession | null) {
+function clearLegacyBrowserSession() {
   if (typeof window === "undefined") return;
-  if (session) localStorage.setItem(PLAYER_SESSION_KEY, JSON.stringify(session));
-  else localStorage.removeItem(PLAYER_SESSION_KEY);
-}
-
-export function getStoredPlayerSession(): PlayerSession | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = localStorage.getItem(PLAYER_SESSION_KEY);
-    return raw ? (JSON.parse(raw) as PlayerSession) : null;
-  } catch {
-    return null;
-  }
+  localStorage.removeItem(PLAYER_SESSION_KEY);
+  sessionStorage.removeItem(PLAYER_SESSION_KEY);
 }
 
 function rpcError(code?: string): Error {
@@ -59,28 +46,30 @@ function rpcError(code?: string): Error {
     invalid_pin: "PIN ต้องเป็นตัวเลข 4–8 หลัก",
     invalid_display_name: "ชื่อที่แสดงต้องมี 2–24 ตัวอักษร",
     invalid_session: "เซสชันหมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง",
+    invalid_attempt: "ข้อมูลผลการฝึกไม่ถูกต้อง กรุณาลองฝึกใหม่",
+    attempt_too_fast: "ระบบยังไม่รับคะแนนที่จบเร็วผิดปกติ กรุณาลองฝึกใหม่",
+    attempt_rate_limited: "ส่งคะแนนถี่เกินไป กรุณารอสักครู่แล้วลองใหม่",
+    daily_attempt_limit: "ส่งคะแนนครบ 100 ครั้งของวันนี้แล้ว ลองใหม่พรุ่งนี้",
   };
   return new Error(messages[code ?? ""] ?? "เชื่อมต่อระบบคะแนนไม่สำเร็จ กรุณาลองอีกครั้ง");
 }
 
 async function createSession(
-  functionName: "register_game_player" | "login_game_player",
-  params: Record<string, string>,
+  mode: "register" | "login",
+  values: Record<string, string>,
 ): Promise<PlayerSession> {
-  const client = getSupabaseBrowserClient();
-  if (!client) throw new Error("ระบบคะแนนออนไลน์ยังไม่พร้อมใช้งาน");
-
-  const { data, error } = await client.rpc(functionName, params);
-  if (error) throw new Error("เชื่อมต่อระบบคะแนนไม่สำเร็จ กรุณาลองอีกครั้ง");
-
-  const envelope = data as RpcEnvelope;
+  const response = await fetch("/api/player/auth", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ mode, ...values }),
+  });
+  const envelope = (await response.json().catch(() => ({}))) as RpcEnvelope;
   if (!envelope.ok) throw rpcError(envelope.error);
   const profile = toProfile(envelope.player);
-  if (!profile || !envelope.session_token) throw rpcError();
+  if (!profile) throw rpcError();
 
-  const session = { token: envelope.session_token, profile };
-  saveSession(session);
-  return session;
+  clearLegacyBrowserSession();
+  return { profile };
 }
 
 export function registerPlayer(
@@ -88,54 +77,35 @@ export function registerPlayer(
   displayName: string,
   pin: string,
 ) {
-  return createSession("register_game_player", {
-    p_phone: phone,
-    p_display_name: displayName,
-    p_pin: pin,
+  return createSession("register", {
+    phone,
+    displayName,
+    pin,
   });
 }
 
 export function loginPlayer(phone: string, pin: string) {
-  return createSession("login_game_player", { p_phone: phone, p_pin: pin });
+  return createSession("login", { phone, pin });
 }
 
 export async function restorePlayerSession(): Promise<PlayerSession | null> {
-  const stored = getStoredPlayerSession();
-  const client = getSupabaseBrowserClient();
-  if (!stored || !client) return stored;
-
-  const { data, error } = await client.rpc("get_game_player", {
-    p_session_token: stored.token,
-  });
-  if (error) return stored;
-
-  const envelope = data as RpcEnvelope;
+  clearLegacyBrowserSession();
+  const response = await fetch("/api/player/session", { cache: "no-store" });
+  if (response.status === 401) return null;
+  const envelope = (await response.json().catch(() => ({}))) as RpcEnvelope;
   const profile = envelope.ok ? toProfile(envelope.player) : null;
-  if (!profile) {
-    saveSession(null);
-    return null;
-  }
-
-  const session = { token: stored.token, profile };
-  saveSession(session);
-  return session;
+  return profile ? { profile } : null;
 }
 
 export async function logoutPlayer() {
-  const stored = getStoredPlayerSession();
-  saveSession(null);
-  const client = getSupabaseBrowserClient();
-  if (!stored || !client) return;
-  await client.rpc("logout_game_player", { p_session_token: stored.token });
+  clearLegacyBrowserSession();
+  await fetch("/api/player/session", { method: "DELETE" });
 }
 
 export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
-  const client = getSupabaseBrowserClient();
-  if (!client) return [];
-  const { data, error } = await client.rpc("get_public_leaderboard", {
-    p_limit: 20,
-  });
-  if (error || !Array.isArray(data)) return [];
+  const response = await fetch("/api/player/leaderboard", { cache: "no-store" });
+  const data = await response.json().catch(() => []);
+  if (!response.ok || !Array.isArray(data)) return [];
   return data.map((row) => ({
     rank: Number(row.rank),
     displayName: String(row.display_name),
@@ -147,22 +117,20 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
 }
 
 export async function submitMissionToLeaderboard(result: MissionResult) {
-  const client = getSupabaseBrowserClient();
-  const session = getStoredPlayerSession();
-  if (!client || !session) return null;
-
-  const { data, error } = await client.rpc("submit_game_attempt", {
-    p_session_token: session.token,
-    p_client_attempt_id: result.id,
-    p_scenario_id: result.scenarioId,
-    p_overall_score: result.overallScore,
-    p_cpr_rhythm_score: result.cprRhythmScore,
-    p_total_time_seconds: result.totalTimeSeconds,
+  const response = await fetch("/api/player/attempt", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      clientAttemptId: result.id,
+      scenarioId: result.scenarioId,
+      overallScore: result.overallScore,
+      cprRhythmScore: result.cprRhythmScore,
+      totalTimeSeconds: result.totalTimeSeconds,
+    }),
   });
-  if (error) return null;
-  const envelope = data as RpcEnvelope;
+  if (response.status === 401) return null;
+  const envelope = (await response.json().catch(() => ({}))) as RpcEnvelope;
+  if (!response.ok || !envelope.ok) return null;
   const profile = envelope.ok ? toProfile(envelope.player) : null;
-  if (!profile) return null;
-  saveSession({ token: session.token, profile });
   return profile;
 }

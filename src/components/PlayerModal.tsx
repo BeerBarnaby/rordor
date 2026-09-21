@@ -166,7 +166,7 @@ export function PlayerModal({
                   />
                 </label>
                 <p className="content-meta">
-                  PIN ถูกแฮชก่อนเก็บและเบอร์โทรจะไม่แสดงต่อผู้อื่น ระบบนี้ไม่ยืนยันเจ้าของเบอร์และไม่สามารถกู้ PIN ได้
+                  PIN ถูกแฮชก่อนเก็บและเบอร์โทรจะไม่แสดงต่อผู้อื่น ระบบนี้ไม่ยืนยันเจ้าของเบอร์ ไม่สามารถกู้ PIN ได้ และเซสชันจะหมดอายุภายใน 7 วัน
                 </p>
                 <button className="primary-button" disabled={submitting}>
                   <ShieldCheck size={18} />

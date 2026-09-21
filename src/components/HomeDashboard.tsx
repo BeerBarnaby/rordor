@@ -194,6 +194,9 @@ export function HomeDashboard({
             {player ? `โปรไฟล์ของ ${player.displayName}` : "เก็บคะแนนบนลีดเดอร์บอร์ด"}
             <ChevronRight size={18} />
           </button>
+          <p className="content-meta mt-2">
+            อันดับเพื่อแรงจูงใจในการฝึกเท่านั้น ไม่ใช่ผลประเมินภาคปฏิบัติอย่างเป็นทางการ
+          </p>
         </div>
       </section>
 
