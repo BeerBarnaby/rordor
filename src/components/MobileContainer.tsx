@@ -1,6 +1,6 @@
 "use client";
 import { ReactNode } from "react";
-import { House, BookOpen, ShieldCheck, Info, X } from "lucide-react";
+import { House, BookOpen, ShieldCheck, Info, X, UserRound } from "lucide-react";
 
 type Tab = "home" | "learn" | "mission" | "about";
 interface Props {
@@ -8,17 +8,23 @@ interface Props {
   activeTab: Tab;
   onTabChange: (tab: Tab) => void;
   onOpenAbout: () => void;
+  onOpenPlayer: () => void;
+  playerName?: string;
   focusMode?: boolean;
   onExitTraining?: () => void;
   trainingTone?: "standard" | "aed";
 }
 export function AppHeader({
   onOpenAbout,
+  onOpenPlayer,
+  playerName,
   focusMode = false,
   onExitTraining,
   trainingTone = "standard",
 }: {
   onOpenAbout: () => void;
+  onOpenPlayer: () => void;
+  playerName?: string;
   focusMode?: boolean;
   onExitTraining?: () => void;
   trainingTone?: "standard" | "aed";
@@ -43,13 +49,23 @@ export function AppHeader({
           <X size={19} aria-hidden="true" />
         </button>
       ) : (
-        <button
-          className="icon-button"
-          aria-label="เกี่ยวกับน้องพร้อม"
-          onClick={onOpenAbout}
-        >
-          <Info size={20} />
-        </button>
+        <div className="header-actions">
+          <button
+            className="icon-button player-button"
+            data-connected={Boolean(playerName)}
+            aria-label={playerName ? `โปรไฟล์ผู้เล่น ${playerName}` : "สร้างหรือเข้าสู่โปรไฟล์ผู้เล่น"}
+            onClick={onOpenPlayer}
+          >
+            <UserRound size={20} />
+          </button>
+          <button
+            className="icon-button"
+            aria-label="เกี่ยวกับน้องพร้อม"
+            onClick={onOpenAbout}
+          >
+            <Info size={20} />
+          </button>
+        </div>
       )}
     </header>
   );
@@ -63,7 +79,7 @@ export function BottomNavigation({
       {(
         [
           { id: "home", label: "หน้าแรก", icon: House },
-          { id: "learn", label: "คู่มือ", icon: BookOpen },
+          { id: "learn", label: "บทเรียน", icon: BookOpen },
           { id: "mission", label: "ฝึกสถานการณ์", icon: ShieldCheck },
         ] as const
       ).map(({ id, label, icon: Icon }) => (
@@ -85,6 +101,8 @@ export function MobileContainer({
   activeTab,
   onTabChange,
   onOpenAbout,
+  onOpenPlayer,
+  playerName,
   focusMode = false,
   onExitTraining,
   trainingTone = "standard",
@@ -96,6 +114,8 @@ export function MobileContainer({
       </a>
       <AppHeader
         onOpenAbout={onOpenAbout}
+        onOpenPlayer={onOpenPlayer}
+        playerName={playerName}
         focusMode={focusMode}
         onExitTraining={onExitTraining}
         trainingTone={trainingTone}

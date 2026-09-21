@@ -137,7 +137,7 @@ export function AfterActionReview({
         </button>
         <button className="secondary-button" onClick={onLearn}>
           <BookOpen size={20} />
-          ดูคู่มือ
+          ดูบทเรียน
         </button>
         <button className="text-button" onClick={onGoHome}>
           กลับหน้าแรก

@@ -28,6 +28,7 @@ export class ProgressService {
     if (typeof window === 'undefined') return;
     try {
       localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+      window.dispatchEvent(new Event('training-progress'));
     } catch (e) {
       console.error('Failed to save progress to localStorage', e);
     }
@@ -37,6 +38,15 @@ export class ProgressService {
     const progress = this.getProgress();
     if (!progress.completedVideoIds.includes(videoId)) {
       progress.completedVideoIds.push(videoId);
+      this.saveProgress(progress);
+    }
+    return progress;
+  }
+
+  public static markTopicCompleted(topicId: string): UserProgress {
+    const progress = this.getProgress();
+    if (!progress.completedTopicIds.includes(topicId)) {
+      progress.completedTopicIds.push(topicId);
       this.saveProgress(progress);
     }
     return progress;

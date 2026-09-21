@@ -4,6 +4,7 @@ import React, { useEffect, useState, useSyncExternalStore } from "react";
 import { MobileContainer } from "@/components/MobileContainer";
 import { HomeDashboard, TrainingSteps } from "@/components/HomeDashboard";
 import { AboutModal } from "@/components/AboutModal";
+import { PlayerModal } from "@/components/PlayerModal";
 import { LearningCenter } from "@/features/learning/LearningCenter";
 import { SequenceGame } from "@/features/mission/SequenceGame";
 import { EmergencyCallSimulation } from "@/features/emergency-call/EmergencyCallSimulation";
@@ -16,10 +17,17 @@ import {
   UserProgress,
   SkillScores,
   TimelineEntry,
+  LeaderboardEntry,
+  PlayerProfile,
 } from "@/types";
 import { ArrowRight } from "lucide-react";
 import { SimulationNotice } from "@/components/TrainingUI";
 import { SCENARIO_VARIANTS } from "@/data/scenarios";
+import {
+  getLeaderboard,
+  restorePlayerSession,
+  submitMissionToLeaderboard,
+} from "@/lib/player";
 
 type TabType = "home" | "learn" | "mission" | "about";
 type MissionPhase =
@@ -43,6 +51,9 @@ function progressSnapshot() {
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabType>("home");
   const [isAboutOpen, setIsAboutOpen] = useState<boolean>(false);
+  const [isPlayerOpen, setIsPlayerOpen] = useState<boolean>(false);
+  const [player, setPlayer] = useState<PlayerProfile | null>(null);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const savedProgress = useSyncExternalStore(
     subscribeProgress,
     progressSnapshot,
@@ -82,6 +93,8 @@ export default function Home() {
       (Math.max(attemptKey, 1) - 1) % SCENARIO_VARIANTS.length
     ];
   const inProgress = startTimeMs > 0 && missionPhase !== "debrief";
+  const playerId = player?.id;
+  const latestMissionResult = userProgress.lastMissionResult;
   const focusMode = activeTab === "mission" && inProgress;
   const continueTraining = () => {
     if (inProgress) setActiveTab("mission");
@@ -91,6 +104,29 @@ export default function Home() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [activeTab, missionPhase]);
+
+  useEffect(() => {
+    let active = true;
+    Promise.all([restorePlayerSession(), getLeaderboard()]).then(
+      ([session, entries]) => {
+        if (!active) return;
+        setPlayer(session?.profile ?? null);
+        setLeaderboard(entries);
+      },
+    );
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!playerId || !latestMissionResult) return;
+    void submitMissionToLeaderboard(latestMissionResult).then(async (updatedPlayer) => {
+      if (!updatedPlayer) return;
+      setPlayer(updatedPlayer);
+      setLeaderboard(await getLeaderboard());
+    });
+  }, [playerId, latestMissionResult]);
 
   const handleStartMission = () => {
     setActiveTab("mission");
@@ -209,7 +245,6 @@ export default function Home() {
 
     setCurrentResult(result);
     ProgressService.recordMissionResult(result);
-    window.dispatchEvent(new Event("training-progress"));
     setMissionPhase("debrief");
   };
 
@@ -226,6 +261,8 @@ export default function Home() {
         }
       }}
       onOpenAbout={() => setIsAboutOpen(true)}
+      onOpenPlayer={() => setIsPlayerOpen(true)}
+      playerName={player?.displayName}
       focusMode={focusMode}
       trainingTone={missionPhase === "aed" ? "aed" : "standard"}
       onExitTraining={() => setActiveTab("home")}
@@ -236,6 +273,9 @@ export default function Home() {
           progress={userProgress}
           onLearn={() => setActiveTab("learn")}
           onStart={continueTraining}
+          leaderboard={leaderboard}
+          player={player}
+          onOpenPlayer={() => setIsPlayerOpen(true)}
           currentStep={
             inProgress
               ? Math.max(
@@ -249,7 +289,7 @@ export default function Home() {
 
       {/* 2. LEARN TAB */}
       {activeTab === "learn" && (
-        <LearningCenter onStartMission={continueTraining} />
+        <LearningCenter progress={userProgress} onStartMission={continueTraining} />
       )}
 
       {/* 3. MISSION TAB / FLOW */}
@@ -335,6 +375,14 @@ export default function Home() {
 
       {/* About Modal */}
       <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
+      <PlayerModal
+        open={isPlayerOpen}
+        onClose={() => setIsPlayerOpen(false)}
+        player={player}
+        onPlayerChange={(nextPlayer) => {
+          setPlayer(nextPlayer);
+        }}
+      />
     </MobileContainer>
   );
 }

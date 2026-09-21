@@ -16,7 +16,10 @@ export function ContentMetadata() {
   return (
     <div className="content-meta section-rule">
       <p>ตรวจทานเนื้อหาโดย: ยังไม่ระบุ — รอครูฝึกและผู้เชี่ยวชาญตรวจทาน</p>
-      <p>อ้างอิงหลัก: สพฉ. ปี 2568 และ AHA Guidelines 2025</p>
+      <p>
+        อ้างอิงหลัก: สภากาชาดไทย, สพฉ., เอกสารนักศึกษาวิชาทหาร
+        หน่วยบัญชาการรักษาดินแดน และ AHA Guidelines 2025
+      </p>
       <p>ปรับปรุงเนื้อหาล่าสุด: {MAIN_PROTOCOL_METADATA.lastUpdated}</p>
       <p>สถานะ: รอครูฝึกและผู้เชี่ยวชาญรับรองก่อนนำไปใช้จริง</p>
     </div>

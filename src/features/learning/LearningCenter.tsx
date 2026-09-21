@@ -10,6 +10,8 @@ import {
   PhoneCall,
   HeartPulse,
   Zap,
+  LockKeyhole,
+  Check,
 } from "lucide-react";
 import {
   LEARNING_TOPICS,
@@ -17,9 +19,11 @@ import {
   LEARNING_DOCUMENTS,
   PROTOTYPE_DISCLAIMER,
 } from "@/data/learning";
-import { LearningVideo } from "@/types";
+import { LearningVideo, UserProgress } from "@/types";
 import { YouTubeModal } from "@/components/YouTubeModal";
 import { ContentMetadata } from "@/components/TrainingUI";
+import { isTopicUnlocked } from "@/lib/gameProgress";
+import { ProgressService } from "@/lib/progress";
 
 const modules = [
   {
@@ -39,8 +43,10 @@ const modules = [
 ];
 export function LearningCenter({
   onStartMission,
+  progress,
 }: {
   onStartMission: () => void;
+  progress: UserProgress;
 }) {
   const [selected, setSelected] = useState<string | null>(null);
   const [video, setVideo] = useState<LearningVideo | null>(null);
@@ -59,14 +65,20 @@ export function LearningCenter({
     setSelected(id);
     window.scrollTo({ top: 0, behavior: "instant" });
   }
+  function completeModule() {
+    if (!selected) return;
+    ProgressService.markTopicCompleted(selected);
+    const next = activeModuleIndex + 1;
+    if (next < modules.length) openModule(modules[next].id);
+  }
   return (
     <div className="page-stack learning-screen">
       <header>
         <p className="protocol-code">
-          {topic ? `บท ${activeModuleIndex + 1} จาก 4` : "คู่มือภาคสนาม"}
+          {topic ? `บท ${activeModuleIndex + 1} จาก 4` : "บทเรียนภาคสนาม"}
         </p>
         <h1 className="page-title">
-          {activeModule?.title || "คู่มือ 4 ขั้นก่อนลงมือ"}
+          {activeModule?.title || "บทเรียน 4 ขั้นก่อนลงมือ"}
         </h1>
         {!topic && (
           <p className="lead mt-3">
@@ -79,21 +91,36 @@ export function LearningCenter({
           <div className="module-grid">
             {modules.map((item, index) => {
               const Icon = item.icon;
+              const unlocked = isTopicUnlocked(item.id, progress.completedTopicIds);
+              const completed = progress.completedTopicIds.includes(item.id);
               return (
                 <button
                   className="learning-module"
                   data-module={item.id}
+                  data-locked={!unlocked}
+                  data-complete={completed}
                   key={item.id}
-                  onClick={() => openModule(item.id)}
+                  disabled={!unlocked}
+                  onClick={() => unlocked && openModule(item.id)}
                 >
                   <span className="module-number">0{index + 1}</span>
-                  <Icon className="module-icon" aria-hidden="true" />
+                  {unlocked ? (
+                    <Icon className="module-icon" aria-hidden="true" />
+                  ) : (
+                    <LockKeyhole className="module-icon" aria-hidden="true" />
+                  )}
                   <span className="flex-1">
                     <strong>{item.title}</strong>
                     <span className="caption block mt-1">{item.detail}</span>
                   </span>
                   <span className="module-open">
-                    เปิดบทเรียน <ArrowRight size={18} />
+                    {completed ? (
+                      <>ทบทวนอีกครั้ง <Check size={18} /></>
+                    ) : unlocked ? (
+                      <>เปิดบทเรียน <ArrowRight size={18} /></>
+                    ) : (
+                      <>จบบท {String(index).padStart(2, "0")} เพื่อปลดล็อก <LockKeyhole size={16} /></>
+                    )}
                   </span>
                 </button>
               );
@@ -114,9 +141,10 @@ export function LearningCenter({
               <ArrowLeft size={20} />
               ทุกบท
             </button>
-            <div className="module-tabs" role="tablist" aria-label="บทในคู่มือ">
+            <div className="module-tabs" role="tablist" aria-label="รายการบทเรียน">
               {modules.map((item, index) => {
                 const Icon = item.icon;
+                const unlocked = isTopicUnlocked(item.id, progress.completedTopicIds);
                 return (
                 <button
                   key={item.id}
@@ -125,28 +153,33 @@ export function LearningCenter({
                   aria-selected={selected === item.id}
                   aria-controls="learning-detail"
                   tabIndex={selected === item.id ? 0 : -1}
+                  disabled={!unlocked}
                   onKeyDown={(event) => {
-                    const i = modules.findIndex((m) => m.id === selected);
+                    const available = modules.filter((m) =>
+                      isTopicUnlocked(m.id, progress.completedTopicIds),
+                    );
+                    const i = available.findIndex((m) => m.id === selected);
                     const next =
                       event.key === "ArrowRight"
-                        ? (i + 1) % 4
+                        ? (i + 1) % available.length
                         : event.key === "ArrowLeft"
-                          ? (i + 3) % 4
+                          ? (i + available.length - 1) % available.length
                           : event.key === "Home"
                             ? 0
                             : event.key === "End"
-                              ? 3
+                              ? available.length - 1
                               : -1;
                     if (next >= 0) {
                       event.preventDefault();
-                      setSelected(modules[next].id);
+                      setSelected(available[next].id);
                       document
-                        .getElementById(`tab-${modules[next].id}`)
+                        .getElementById(`tab-${available[next].id}`)
                         ?.focus();
                     }
                   }}
-                  onClick={() => setSelected(item.id)}
+                  onClick={() => unlocked && setSelected(item.id)}
                   data-module={item.id}
+                  data-locked={!unlocked}
                 >
                   <Icon aria-hidden="true" />
                   <span>0{index + 1}</span>
@@ -211,7 +244,7 @@ export function LearningCenter({
                 </ol>
               </section>
               {docs.length > 0 && <section>
-                <h3 className="section-title">แหล่งอ้างอิง</h3>
+                <h3 className="section-title">แหล่งอ้างอิงทางการ</h3>
                 {docs.map((doc) => (
                   <a
                     key={doc.id}
@@ -231,6 +264,27 @@ export function LearningCenter({
                 ))}
               </section>}
             </div>
+            <section className="chapter-complete">
+              <div>
+                <p className="protocol-code">
+                  {progress.completedTopicIds.includes(selected ?? "") ? "ทบทวนแล้ว" : "ปลดล็อกบทถัดไป"}
+                </p>
+                <h3 className="section-title !mb-1">
+                  {activeModuleIndex === modules.length - 1
+                    ? "พร้อมเข้าสู่สถานการณ์จำลอง"
+                    : `จบบท ${String(activeModuleIndex + 1).padStart(2, "0")}`}
+                </h3>
+                <p className="caption">
+                  {activeModuleIndex === modules.length - 1
+                    ? "คุณเปิดครบทั้ง 4 บทแล้ว"
+                    : `ทำเครื่องหมายบทนี้เพื่อเปิด ${modules[activeModuleIndex + 1].title}`}
+                </p>
+              </div>
+              <button className="primary-button" onClick={completeModule}>
+                {activeModuleIndex === modules.length - 1 ? "จบบทนี้" : "จบบทและไปต่อ"}
+                <ArrowRight size={18} />
+              </button>
+            </section>
           </section>
         </>
       )}

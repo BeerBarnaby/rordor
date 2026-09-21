@@ -1,7 +1,8 @@
 "use client";
 
-import { ArrowRight, Check, ChevronRight } from "lucide-react";
-import { UserProgress } from "@/types";
+import { ArrowRight, Check, ChevronRight, LockKeyhole, Trophy } from "lucide-react";
+import { LeaderboardEntry, PlayerProfile, UserProgress } from "@/types";
+import { getGameProgress, TOPIC_ORDER } from "@/lib/gameProgress";
 
 const steps = [
   { title: "ลำดับช่วยเหลือ", detail: "ประเมินเหตุและลงมือให้ถูกลำดับ" },
@@ -45,6 +46,9 @@ interface Props {
   onLearn: () => void;
   onStart: () => void;
   currentStep?: number;
+  leaderboard: LeaderboardEntry[];
+  player: PlayerProfile | null;
+  onOpenPlayer: () => void;
 }
 
 export function HomeDashboard({
@@ -52,11 +56,15 @@ export function HomeDashboard({
   onLearn,
   onStart,
   currentStep,
+  leaderboard,
+  player,
+  onOpenPlayer,
 }: Props) {
   const continuing = currentStep !== undefined;
   const currentLabel = continuing
     ? steps[Math.min(currentStep, steps.length - 1)].title
     : null;
+  const game = getGameProgress(progress);
 
   return (
     <div className="home-screen">
@@ -112,6 +120,82 @@ export function HomeDashboard({
           </ol>
         </section>
       </div>
+
+      <section className="game-hub" aria-labelledby="game-hub-title">
+        <div className="game-progress-card">
+          <div className="game-heading">
+            <div>
+              <p className="protocol-code">เส้นทางผู้ช่วยชีวิต</p>
+              <h2 id="game-hub-title" className="section-title !mb-1">
+                Level {game.level}
+              </h2>
+              <p className="caption">
+                ปลดล็อกแล้ว {game.unlockedTopicCount} จาก 4 บท
+              </p>
+            </div>
+            <span className="level-badge">LV.{game.level}</span>
+          </div>
+          <div
+            className="xp-track"
+            role="progressbar"
+            aria-label="ความคืบหน้าไปยังเลเวลถัดไป"
+            aria-valuemin={0}
+            aria-valuemax={game.xpForNextLevel}
+            aria-valuenow={game.xpInLevel}
+          >
+            <span style={{ width: `${(game.xpInLevel / game.xpForNextLevel) * 100}%` }} />
+          </div>
+          <p className="content-meta mt-2">
+            {game.level === 10
+              ? "ถึงเลเวลสูงสุดแล้ว"
+              : `${game.xpInLevel} / ${game.xpForNextLevel} XP ไปยัง Level ${game.level + 1}`}
+          </p>
+          <ol className="unlock-path" aria-label="บทเรียนที่ปลดล็อก">
+            {TOPIC_ORDER.map((topicId, index) => {
+              const unlocked = index < game.unlockedTopicCount;
+              const completed = progress.completedTopicIds.includes(topicId);
+              return (
+                <li key={topicId} data-unlocked={unlocked} data-complete={completed}>
+                  <span>{completed ? <Check /> : unlocked ? index + 1 : <LockKeyhole />}</span>
+                  <small>{steps[index].title}</small>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+
+        <div className="leaderboard-card">
+          <div className="game-heading">
+            <div>
+              <p className="protocol-code">อันดับผู้ฝึก</p>
+              <h2 className="section-title !mb-1">Leaderboard</h2>
+            </div>
+            <Trophy className="leaderboard-trophy" aria-hidden="true" />
+          </div>
+          {leaderboard.length > 0 ? (
+            <ol className="leaderboard-list">
+              {leaderboard.slice(0, 5).map((entry, index) => (
+                <li key={`${entry.rank}-${entry.displayName}-${index}`}>
+                  <span className="leaderboard-rank">#{entry.rank}</span>
+                  <span>
+                    <strong>{entry.displayName}</strong>
+                    <small>Level {entry.level} · ฝึก {entry.attemptsCount} ครั้ง</small>
+                  </span>
+                  <b>{entry.bestScore}</b>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p className="caption leaderboard-empty">
+              ยังไม่มีคะแนนบนลีดเดอร์บอร์ด เป็นคนแรกที่ทำภารกิจให้จบได้เลย
+            </p>
+          )}
+          <button className="text-button" onClick={onOpenPlayer}>
+            {player ? `โปรไฟล์ของ ${player.displayName}` : "เก็บคะแนนบนลีดเดอร์บอร์ด"}
+            <ChevronRight size={18} />
+          </button>
+        </div>
+      </section>
 
       <section className="home-result" aria-labelledby="latest-result-title">
         {progress.lastMissionResult ? (

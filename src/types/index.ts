@@ -121,3 +121,21 @@ export interface UserProgress {
   lastMissionResult: MissionResult | null;
   history: MissionResult[];
 }
+
+export interface PlayerProfile {
+  id: string;
+  displayName: string;
+  bestScore: number;
+  bestRhythmScore: number;
+  attemptsCount: number;
+  rank: number | null;
+}
+
+export interface LeaderboardEntry {
+  rank: number;
+  displayName: string;
+  bestScore: number;
+  bestRhythmScore: number;
+  attemptsCount: number;
+  level: number;
+}
