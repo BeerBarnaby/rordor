@@ -10,7 +10,6 @@ import {
   PhoneCall,
   HeartPulse,
   Zap,
-  LockKeyhole,
   Check,
 } from "lucide-react";
 import {
@@ -22,7 +21,6 @@ import {
 import { LearningVideo, UserProgress } from "@/types";
 import { YouTubeModal } from "@/components/YouTubeModal";
 import { ContentMetadata } from "@/components/TrainingUI";
-import { isTopicUnlocked } from "@/lib/gameProgress";
 import { ProgressService } from "@/lib/progress";
 
 const modules = [
@@ -68,8 +66,7 @@ export function LearningCenter({
   function completeModule() {
     if (!selected) return;
     ProgressService.markTopicCompleted(selected);
-    const next = activeModuleIndex + 1;
-    if (next < modules.length) openModule(modules[next].id);
+    openModule(null);
   }
   return (
     <div className="page-stack learning-screen">
@@ -91,24 +88,17 @@ export function LearningCenter({
           <div className="module-grid">
             {modules.map((item, index) => {
               const Icon = item.icon;
-              const unlocked = isTopicUnlocked(item.id, progress.completedTopicIds);
               const completed = progress.completedTopicIds.includes(item.id);
               return (
                 <button
                   className="learning-module"
                   data-module={item.id}
-                  data-locked={!unlocked}
                   data-complete={completed}
                   key={item.id}
-                  disabled={!unlocked}
-                  onClick={() => unlocked && openModule(item.id)}
+                  onClick={() => openModule(item.id)}
                 >
                   <span className="module-number">0{index + 1}</span>
-                  {unlocked ? (
-                    <Icon className="module-icon" aria-hidden="true" />
-                  ) : (
-                    <LockKeyhole className="module-icon" aria-hidden="true" />
-                  )}
+                  <Icon className="module-icon" aria-hidden="true" />
                   <span className="flex-1">
                     <strong>{item.title}</strong>
                     <span className="caption block mt-1">{item.detail}</span>
@@ -116,10 +106,8 @@ export function LearningCenter({
                   <span className="module-open">
                     {completed ? (
                       <>ทบทวนอีกครั้ง <Check size={18} /></>
-                    ) : unlocked ? (
-                      <>เปิดบทเรียน <ArrowRight size={18} /></>
                     ) : (
-                      <>จบบท {String(index).padStart(2, "0")} เพื่อปลดล็อก <LockKeyhole size={16} /></>
+                      <>เปิดบทเรียน <ArrowRight size={18} /></>
                     )}
                   </span>
                 </button>
@@ -144,7 +132,6 @@ export function LearningCenter({
             <div className="module-tabs" role="tablist" aria-label="รายการบทเรียน">
               {modules.map((item, index) => {
                 const Icon = item.icon;
-                const unlocked = isTopicUnlocked(item.id, progress.completedTopicIds);
                 return (
                 <button
                   key={item.id}
@@ -153,33 +140,28 @@ export function LearningCenter({
                   aria-selected={selected === item.id}
                   aria-controls="learning-detail"
                   tabIndex={selected === item.id ? 0 : -1}
-                  disabled={!unlocked}
                   onKeyDown={(event) => {
-                    const available = modules.filter((m) =>
-                      isTopicUnlocked(m.id, progress.completedTopicIds),
-                    );
-                    const i = available.findIndex((m) => m.id === selected);
+                    const i = modules.findIndex((m) => m.id === selected);
                     const next =
                       event.key === "ArrowRight"
-                        ? (i + 1) % available.length
+                        ? (i + 1) % modules.length
                         : event.key === "ArrowLeft"
-                          ? (i + available.length - 1) % available.length
+                          ? (i + modules.length - 1) % modules.length
                           : event.key === "Home"
                             ? 0
                             : event.key === "End"
-                              ? available.length - 1
+                              ? modules.length - 1
                               : -1;
                     if (next >= 0) {
                       event.preventDefault();
-                      setSelected(available[next].id);
+                      setSelected(modules[next].id);
                       document
-                        .getElementById(`tab-${available[next].id}`)
+                        .getElementById(`tab-${modules[next].id}`)
                         ?.focus();
                     }
                   }}
-                  onClick={() => unlocked && setSelected(item.id)}
+                  onClick={() => setSelected(item.id)}
                   data-module={item.id}
-                  data-locked={!unlocked}
                 >
                   <Icon aria-hidden="true" />
                   <span>0{index + 1}</span>
@@ -272,7 +254,7 @@ export function LearningCenter({
             <section className="chapter-complete">
               <div>
                 <p className="protocol-code">
-                  {progress.completedTopicIds.includes(selected ?? "") ? "ทบทวนแล้ว" : "ปลดล็อกบทถัดไป"}
+                  {progress.completedTopicIds.includes(selected ?? "") ? "ทบทวนแล้ว" : "บันทึกความคืบหน้า"}
                 </p>
                 <h3 className="section-title !mb-1">
                   {activeModuleIndex === modules.length - 1
@@ -281,12 +263,12 @@ export function LearningCenter({
                 </h3>
                 <p className="caption">
                   {activeModuleIndex === modules.length - 1
-                    ? "คุณเปิดครบทั้ง 4 บทแล้ว"
-                    : `ทำเครื่องหมายบทนี้เพื่อเปิด ${modules[activeModuleIndex + 1].title}`}
+                    ? "เรียนจบบทนี้แล้วกลับไปเลือกบทอื่นได้"
+                    : "เลือกเรียนบทอื่นต่อได้ทุกลำดับ"}
                 </p>
               </div>
               <button className="primary-button" onClick={completeModule}>
-                {activeModuleIndex === modules.length - 1 ? "จบบทนี้" : "จบบทและไปต่อ"}
+                เรียนจบบทนี้
                 <ArrowRight size={18} />
               </button>
             </section>

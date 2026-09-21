@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getGameProgress, getUnlockedTopicCount, isTopicUnlocked } from "../gameProgress";
+import { getGameProgress } from "../gameProgress";
 import type { UserProgress } from "@/types";
 
 const baseProgress: UserProgress = {
@@ -13,20 +13,7 @@ const baseProgress: UserProgress = {
 };
 
 describe("game progression", () => {
-  it("starts with only the first topic unlocked", () => {
-    expect(getUnlockedTopicCount([])).toBe(1);
-    expect(isTopicUnlocked("assessment", [])).toBe(true);
-    expect(isTopicUnlocked("call1669", [])).toBe(false);
-  });
-
-  it("unlocks topics in order", () => {
-    const completed = ["assessment", "call1669"];
-    expect(getUnlockedTopicCount(completed)).toBe(3);
-    expect(isTopicUnlocked("cpr", completed)).toBe(true);
-    expect(isTopicUnlocked("aed", completed)).toBe(false);
-  });
-
-  it("calculates xp and level from learning and missions", () => {
+  it("calculates xp with the same mission formula as the leaderboard", () => {
     expect(
       getGameProgress({
         ...baseProgress,
@@ -34,6 +21,38 @@ describe("game progression", () => {
         missionAttemptsCount: 2,
         bestOverallScore: 85,
       }),
-    ).toMatchObject({ xp: 785, level: 3, xpInLevel: 185 });
+    ).toMatchObject({
+      xp: 585,
+      level: 2,
+      xpInLevel: 285,
+      completedTopicCount: 2,
+    });
+  });
+
+  it("counts only unique known lessons", () => {
+    expect(
+      getGameProgress({
+        ...baseProgress,
+        completedTopicIds: ["aed", "aed", "unknown"],
+      }).completedTopicCount,
+    ).toBe(1);
+  });
+
+  it("clamps invalid progress and caps the level", () => {
+    expect(
+      getGameProgress({
+        ...baseProgress,
+        missionAttemptsCount: 99,
+        bestOverallScore: 999,
+      }),
+    ).toMatchObject({ level: 10, xpInLevel: 300 });
+
+    expect(
+      getGameProgress({
+        ...baseProgress,
+        missionAttemptsCount: Number.NaN,
+        bestOverallScore: -50,
+      }),
+    ).toMatchObject({ xp: 0, level: 1, xpInLevel: 0 });
   });
 });

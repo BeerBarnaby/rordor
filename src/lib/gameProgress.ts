@@ -2,37 +2,33 @@ import type { UserProgress } from "@/types";
 
 export const TOPIC_ORDER = ["assessment", "call1669", "cpr", "aed"] as const;
 
-export function isTopicUnlocked(
-  topicId: string,
-  completedTopicIds: string[],
-): boolean {
-  const index = TOPIC_ORDER.indexOf(topicId as (typeof TOPIC_ORDER)[number]);
-  if (index <= 0) return index === 0;
-  return completedTopicIds.includes(TOPIC_ORDER[index - 1]);
-}
+export const XP_PER_MISSION = 250;
+export const XP_PER_LEVEL = 300;
+export const MAX_LEVEL = 10;
 
-export function getUnlockedTopicCount(completedTopicIds: string[]): number {
-  let unlocked = 1;
-  for (let index = 1; index < TOPIC_ORDER.length; index += 1) {
-    if (!completedTopicIds.includes(TOPIC_ORDER[index - 1])) break;
-    unlocked += 1;
-  }
-  return unlocked;
+function safeNonNegativeInteger(value: number, maximum = Number.MAX_SAFE_INTEGER) {
+  if (!Number.isFinite(value)) return 0;
+  return Math.min(maximum, Math.max(0, Math.floor(value)));
 }
 
 export function getGameProgress(progress: UserProgress) {
-  const xp =
-    progress.completedTopicIds.length * 100 +
-    progress.missionAttemptsCount * 250 +
-    progress.bestOverallScore;
-  const level = Math.min(10, Math.floor(xp / 300) + 1);
-  const xpInLevel = level === 10 ? 300 : xp % 300;
+  const attempts = safeNonNegativeInteger(progress.missionAttemptsCount);
+  const bestScore = safeNonNegativeInteger(progress.bestOverallScore, 100);
+  const completedTopicCount = new Set(
+    (progress.completedTopicIds ?? []).filter((topicId) =>
+      TOPIC_ORDER.includes(topicId as (typeof TOPIC_ORDER)[number]),
+    ),
+  ).size;
+  // Keep this formula aligned with get_public_leaderboard() in Supabase.
+  const xp = attempts * XP_PER_MISSION + bestScore;
+  const level = Math.min(MAX_LEVEL, Math.floor(xp / XP_PER_LEVEL) + 1);
+  const xpInLevel = level === MAX_LEVEL ? XP_PER_LEVEL : xp % XP_PER_LEVEL;
 
   return {
     xp,
     level,
     xpInLevel,
-    xpForNextLevel: 300,
-    unlockedTopicCount: getUnlockedTopicCount(progress.completedTopicIds),
+    xpForNextLevel: XP_PER_LEVEL,
+    completedTopicCount,
   };
 }

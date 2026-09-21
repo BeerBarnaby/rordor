@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Check, ChevronRight, LockKeyhole, Trophy } from "lucide-react";
+import { ArrowRight, Check, ChevronRight, Trophy } from "lucide-react";
 import { LeaderboardEntry, PlayerProfile, UserProgress } from "@/types";
 import { getGameProgress, TOPIC_ORDER } from "@/lib/gameProgress";
 
@@ -130,7 +130,7 @@ export function HomeDashboard({
                 Level {game.level}
               </h2>
               <p className="caption">
-                ปลดล็อกแล้ว {game.unlockedTopicCount} จาก 4 บท
+                เรียนจบแล้ว {game.completedTopicCount} จาก 4 บท · ทุกบทเปิดให้เรียน
               </p>
             </div>
             <span className="level-badge">LV.{game.level}</span>
@@ -150,13 +150,13 @@ export function HomeDashboard({
               ? "ถึงเลเวลสูงสุดแล้ว"
               : `${game.xpInLevel} / ${game.xpForNextLevel} XP ไปยัง Level ${game.level + 1}`}
           </p>
-          <ol className="unlock-path" aria-label="บทเรียนที่ปลดล็อก">
+          <p className="content-meta mt-1">ภารกิจละ 250 XP · คะแนนดีที่สุดเป็นโบนัส</p>
+          <ol className="lesson-progress" aria-label="ความคืบหน้าบทเรียน">
             {TOPIC_ORDER.map((topicId, index) => {
-              const unlocked = index < game.unlockedTopicCount;
               const completed = progress.completedTopicIds.includes(topicId);
               return (
-                <li key={topicId} data-unlocked={unlocked} data-complete={completed}>
-                  <span>{completed ? <Check /> : unlocked ? index + 1 : <LockKeyhole />}</span>
+                <li key={topicId} data-complete={completed}>
+                  <span>{completed ? <Check /> : index + 1}</span>
                   <small>{steps[index].title}</small>
                 </li>
               );
