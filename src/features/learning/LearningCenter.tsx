@@ -215,6 +215,11 @@ export function LearningCenter({
                           loading="lazy"
                         />
                         <span className="video-play"><Play /></span>
+                        {item.contextLabel && (
+                          <span className="video-context-label">
+                            {item.contextLabel}
+                          </span>
+                        )}
                         {item.duration && (
                           <span className="video-duration">
                             {item.duration.replace("min", "นาที")}

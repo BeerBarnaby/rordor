@@ -5,6 +5,7 @@ export interface LearningVideo {
   provider: string;
   youtubeId: string;
   duration?: string;
+  contextLabel?: string;
   description: string;
 }
 

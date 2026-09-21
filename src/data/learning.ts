@@ -55,6 +55,26 @@ export const LEARNING_TOPICS: LearningTopic[] = [
 
 export const LEARNING_VIDEOS: LearningVideo[] = [
   {
+    id: 'video_assessment_army_01',
+    topicId: 'assessment',
+    title: 'ฝึกภาคสนามของเหล่าทหารแพทย์',
+    provider: 'กรมกิจการพลเรือนทหารบก',
+    youtubeId: 'C3V6Eax3pGQ',
+    duration: '6:03 min',
+    contextLabel: 'บริบทการฝึกทหาร',
+    description: 'ชมการจำลองสถานการณ์ การประเมินพื้นที่ การเข้าช่วยเหลือ และการเคลื่อนย้ายผู้บาดเจ็บของเหล่าทหารแพทย์ ใช้เพื่อเห็นภาพการทำงานเป็นทีมในสนาม ส่วนขั้นตอนช่วยชีวิตให้ยึดบทเรียน CPR และคำแนะนำของครูฝึกเป็นหลัก',
+  },
+  {
+    id: 'video_assessment_army_02',
+    topicId: 'assessment',
+    title: 'การประเมินผู้บาดเจ็บจากการรบ (CCA)',
+    provider: 'PHTLS Thailand',
+    youtubeId: 'G8y-vrkqPa0',
+    duration: '17:46 min',
+    contextLabel: 'บริบทการฝึกทหาร',
+    description: 'ตัวอย่างการประเมินและจัดลำดับการช่วยเหลือผู้บาดเจ็บในบริบททางทหาร เหมาะสำหรับฝึกสังเกตอันตรายและการตัดสินใจก่อนเข้าช่วย ไม่ใช้แทนแนวทาง CPR สำหรับประชาชนหรือการฝึกภาคปฏิบัติ',
+  },
+  {
     id: 'video_assessment_01',
     topicId: 'assessment',
     title: 'การประเมินอาการผู้บาดเจ็บก่อนถึงโรงพยาบาล',
