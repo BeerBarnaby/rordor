@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useSyncExternalStore } from "react";
+import React, { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { MobileContainer } from "@/components/MobileContainer";
 import { HomeDashboard, TrainingSteps } from "@/components/HomeDashboard";
 import { AboutModal } from "@/components/AboutModal";
@@ -12,6 +12,7 @@ import { CPRGame } from "@/features/cpr/CPRGame";
 import { AEDSimulation } from "@/features/aed/AEDSimulation";
 import { AfterActionReview } from "@/features/debrief/AfterActionReview";
 import { ProgressService } from "@/lib/progress";
+import { measuredMissionScore, type AEDRecommendation } from "@/lib/aedTraining";
 import {
   MissionResult,
   UserProgress,
@@ -88,6 +89,11 @@ export default function Home() {
     null,
   );
   const [attemptKey, setAttemptKey] = useState(0);
+  const actualTimeline = useRef<TimelineEntry[]>([]);
+  function recordEvent(title: string, isSuccess: boolean, note?: string) {
+    const elapsed = Math.max(0, Math.round((Date.now() - startTimeMs) / 1000));
+    actualTimeline.current.push({ timestamp: `${String(Math.floor(elapsed / 60)).padStart(2, '0')}:${String(elapsed % 60).padStart(2, '0')}`, title, isSuccess, note });
+  }
   const scenario =
     SCENARIO_VARIANTS[
       (Math.max(attemptKey, 1) - 1) % SCENARIO_VARIANTS.length
@@ -120,7 +126,8 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (!playerId || !latestMissionResult) return;
+    // Keep v2 results local until the leaderboard supports separate scoring versions.
+    if (!playerId || !latestMissionResult || latestMissionResult.scoringVersion) return;
     void submitMissionToLeaderboard(latestMissionResult).then(async (updatedPlayer) => {
       if (!updatedPlayer) return;
       setPlayer(updatedPlayer);
@@ -137,10 +144,12 @@ export default function Home() {
     setCprRhythmScore(0);
     setCprAvgBpm(0);
     setCollectedMistakes([]);
+    actualTimeline.current = [];
     setStartTimeMs(Date.now());
   };
 
   const handleSequenceComplete = (score: number, mistakes: string[]) => {
+    recordEvent('จบแบบฝึกจัดลำดับ', score >= 80);
     setSequenceScore(score);
     if (mistakes.length > 0) {
       setCollectedMistakes((prev) => [...prev, ...mistakes]);
@@ -149,6 +158,7 @@ export default function Home() {
   };
 
   const handleCallComplete = (score: number, mistakes: string[]) => {
+    recordEvent('จบการแจ้งเหตุจำลอง 1669', score >= 80, `ข้อมูลครบ ${score}%`);
     setCallScore(score);
     if (mistakes.length > 0) {
       setCollectedMistakes((prev) => [...prev, ...mistakes]);
@@ -157,15 +167,14 @@ export default function Home() {
   };
 
   const handleCprComplete = (rhythmScore: number, avgBpm: number) => {
+    recordEvent('จบการฝึกจังหวะด้วยการแตะ', rhythmScore >= 70, `จังหวะเฉลี่ย ${avgBpm} ครั้ง/นาที`);
     setCprRhythmScore(rhythmScore);
     setCprAvgBpm(avgBpm);
     setMissionPhase("aed");
   };
 
-  const handleAedComplete = (score: number, mistakes: string[]) => {
-    if (mistakes.length > 0) {
-      setCollectedMistakes((prev) => [...prev, ...mistakes]);
-    }
+  const handleAedComplete = (recommendation: AEDRecommendation) => {
+    recordEvent('ทบทวน AED ครบ', true, recommendation === 'shock' ? 'เครื่องจำลองแนะนำช็อก' : 'เครื่องจำลองไม่แนะนำช็อก');
 
     // Build Final Mission Result & Save Progress
     const totalTimeSeconds = Math.max(
@@ -174,61 +183,21 @@ export default function Home() {
     );
 
     const skillScores: SkillScores = {
-      assessment: sequenceScore >= 80 ? 95 : 70,
+      assessment: null,
       sequence: sequenceScore,
       cprRhythm: cprRhythmScore,
       call1669: callScore,
-      aed: score,
-      responseTime: totalTimeSeconds <= 120 ? 90 : 75,
+      aed: null,
+      responseTime: null,
     };
 
-    const overallScore = Math.round(
-      (skillScores.assessment +
-        skillScores.sequence +
-        skillScores.cprRhythm +
-        skillScores.call1669 +
-        skillScores.aed +
-        skillScores.responseTime) /
-        6,
-    );
+    const overallScore = measuredMissionScore(sequenceScore, callScore, cprRhythmScore);
 
-    const timeline: TimelineEntry[] = [
-      { timestamp: "00:00", title: "พบผู้ประสบเหตุหมดสติ", isSuccess: true },
-      {
-        timestamp: "00:04",
-        title: "ตรวจความปลอดภัยพื้นที่",
-        isSuccess: sequenceScore >= 80,
-      },
-      {
-        timestamp: "00:09",
-        title: "ตรวจการตอบสนอง & เรียกขอความช่วยเหลือ",
-        isSuccess: sequenceScore >= 80,
-      },
-      {
-        timestamp: "00:22",
-        title: "โทรแจ้งเหตุฉุกเฉิน 1669",
-        isSuccess: callScore >= 80,
-        note: `สื่อสารครบ ${callScore}%`,
-      },
-      {
-        timestamp: "00:35",
-        title: "เริ่ม CPR กดหน้าอก 30 ครั้ง",
-        isSuccess: cprRhythmScore >= 70,
-        note: `BPM เฉลี่ย ${cprAvgBpm}`,
-      },
-      {
-        timestamp: "01:15",
-        title: "เครื่อง AED มาถึงและเปิดใช้งาน",
-        isSuccess: true,
-      },
-      {
-        timestamp: "01:30",
-        title: "วิเคราะห์และช็อกไฟฟ้าสำเร็จ",
-        isSuccess: score >= 90,
-      },
-    ];
+    const timeline = [...actualTimeline.current];
 
     const result: MissionResult = {
+      scoringVersion: 'measured-v2',
+      aedRecommendation: recommendation,
       id: `mission_${Date.now()}`,
       scenarioId: scenario.id,
       scenarioTitle: scenario.title,
@@ -240,7 +209,7 @@ export default function Home() {
       cprAverageBpm: cprAvgBpm,
       cprRhythmScore,
       callCompletenessScore: callScore,
-      mistakes: [...collectedMistakes, ...mistakes],
+      mistakes: [...collectedMistakes],
     };
 
     setCurrentResult(result);
@@ -329,6 +298,7 @@ export default function Home() {
                 className="primary-button self-start"
                 onClick={() => {
                   setStartTimeMs(Date.now());
+                  actualTimeline.current = [{ timestamp: '00:00', title: 'เริ่มสถานการณ์จำลอง', isSuccess: true }];
                   setMissionPhase("sequence");
                 }}
               >
@@ -358,7 +328,7 @@ export default function Home() {
 
           {/* Phase 5: AED Simulation */}
           {missionPhase === "aed" && (
-            <AEDSimulation onCompleteStep={handleAedComplete} />
+            <AEDSimulation onCompleteStep={handleAedComplete} active={activeTab === 'mission'} recommendation={attemptKey % 2 === 0 ? 'no-shock' : 'shock'} />
           )}
 
           {/* Phase 6: After Action Review (AAR) */}

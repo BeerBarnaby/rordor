@@ -90,15 +90,17 @@ export interface TimelineEntry {
 }
 
 export interface SkillScores {
-  assessment: number; // 0 - 100
+  assessment: number | null; // null = not independently measured
   sequence: number;
   cprRhythm: number;
   call1669: number;
-  aed: number;
-  responseTime: number;
+  aed: number | null;
+  responseTime: number | null;
 }
 
 export interface MissionResult {
+  scoringVersion?: 'measured-v2';
+  aedRecommendation?: 'shock' | 'no-shock';
   id: string;
   scenarioId: string;
   scenarioTitle: string;
@@ -114,6 +116,7 @@ export interface MissionResult {
 }
 
 export interface UserProgress {
+  measuredBestOverallScore?: number;
   completedVideoIds: string[];
   completedTopicIds: string[];
   missionAttemptsCount: number;

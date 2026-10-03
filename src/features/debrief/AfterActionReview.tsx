@@ -30,7 +30,7 @@ export function AfterActionReview({
     ...(result.cprRhythmScore >= 70
       ? ["รักษาจังหวะกดในช่วงเป้าหมายได้ดี"]
       : []),
-    ...(result.skillScores.aed === 100
+    ...(result.scoringVersion === 'measured-v2'
       ? ["ทบทวนตามลำดับการใช้ AED ครบทุกขั้นตอน"]
       : []),
   ];
@@ -51,7 +51,7 @@ export function AfterActionReview({
       </header>
       <div className="home-columns">
         <section>
-          <p className="caption">คะแนนรวม</p>
+          <p className="caption">{result.scoringVersion ? 'คะแนนแบบฝึก 3 ส่วน' : 'คะแนนเดิม (สูตรก่อนปรับปรุง)'}</p>
           <p className="mt-2">
             <span className="score-number">{result.overallScore}</span>
             <span className="caption ml-2">/ 100</span>
@@ -85,7 +85,6 @@ export function AfterActionReview({
           ["ลำดับการช่วยเหลือ", result.skillScores.sequence],
           ["แจ้งเหตุ 1669", result.callCompletenessScore],
           ["จังหวะ CPR", result.cprRhythmScore],
-          ["การใช้ AED", result.skillScores.aed],
         ].map(([label, value]) => (
           <div className="skill-row" key={label}>
             <div><span>{label}</span><strong>{value}%</strong></div>
@@ -95,6 +94,12 @@ export function AfterActionReview({
           </div>
         ))}
       </section>
+      <section className="aed-review-status">
+        <h2 className="section-title">AED · {result.scoringVersion ? 'ทบทวนครบ' : 'ผลเดิมเป็นการกดผ่านขั้น'}</h2>
+        <p>ไม่ได้ประเมินทักษะการใช้เครื่องจริง และไม่นำการกดผ่านขั้นตอนมาคิดคะแนน</p>
+        {result.aedRecommendation && <p className="caption mt-2">สถานการณ์นี้: เครื่องจำลอง{result.aedRecommendation === 'shock' ? 'แนะนำให้ช็อก' : 'ไม่แนะนำให้ช็อก'}</p>}
+      </section>
+      {result.scoringVersion && <details className="reference-details"><summary>วิธีคิดคะแนนและลำดับกิจกรรม</summary><p className="caption">เฉลี่ยจากการจัดลำดับ การแจ้ง 1669 และจังหวะการแตะเท่านั้น ไม่ให้โบนัสจากความเร็ว เวลาเป็นเวลารวมตั้งแต่เริ่ม รวมช่วงที่ออกจากหน้าฝึก ผลสูตรใหม่เก็บในเครื่อง ยังไม่ส่งปนกับอันดับสูตรเดิม</p><ol className="space-y-3 mt-4">{result.timeline.map((event, index) => <li key={index}><span className="caption">{event.timestamp} · </span>{event.title}</li>)}</ol></details>}
       <div className="home-columns section-rule">
         <section>
           <h2 className="section-title">สิ่งที่ทำได้ดี</h2>

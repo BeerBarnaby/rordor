@@ -150,7 +150,7 @@ export function HomeDashboard({
               ? "ถึงเลเวลสูงสุดแล้ว"
               : `${game.xpInLevel} / ${game.xpForNextLevel} XP ไปยัง Level ${game.level + 1}`}
           </p>
-          <p className="content-meta mt-1">ภารกิจละ 250 XP · คะแนนดีที่สุดเป็นโบนัส</p>
+          <p className="content-meta mt-1">ภารกิจละ 250 XP · โบนัสคะแนนเดิมคงไว้ ไม่ใช่ระดับทักษะภาคปฏิบัติ</p>
           <ol className="lesson-progress" aria-label="ความคืบหน้าบทเรียน">
             {TOPIC_ORDER.map((topicId, index) => {
               const completed = progress.completedTopicIds.includes(topicId);
@@ -187,15 +187,15 @@ export function HomeDashboard({
             </ol>
           ) : (
             <p className="caption leaderboard-empty">
-              ยังไม่มีคะแนนบนลีดเดอร์บอร์ด เป็นคนแรกที่ทำภารกิจให้จบได้เลย
+              ยังไม่มีคะแนนสูตรเดิมบนลีดเดอร์บอร์ด
             </p>
           )}
           <button className="text-button" onClick={onOpenPlayer}>
-            {player ? `โปรไฟล์ของ ${player.displayName}` : "เก็บคะแนนบนลีดเดอร์บอร์ด"}
+            {player ? `โปรไฟล์ของ ${player.displayName}` : "โปรไฟล์ผู้เล่น (ไม่บังคับ)"}
             <ChevronRight size={18} />
           </button>
           <p className="content-meta mt-2">
-            อันดับเพื่อแรงจูงใจในการฝึกเท่านั้น ไม่ใช่ผลประเมินภาคปฏิบัติอย่างเป็นทางการ
+            อันดับนี้ใช้คะแนนสูตรเดิม ผลแบบฝึกสูตรใหม่เก็บในเครื่องระหว่างปรับระบบอันดับ ไม่ใช่ผลประเมินภาคปฏิบัติ
           </p>
         </div>
       </section>
@@ -215,6 +215,7 @@ export function HomeDashboard({
                 </span>
                 <span className="caption">/ 100 คะแนน</span>
               </p>
+              <p className="caption">{progress.lastMissionResult.scoringVersion ? 'เฉลี่ย 3 แบบฝึก · บันทึกในเครื่อง' : 'ผลจากสูตรเดิม'}</p>
             </div>
             <dl className="metric-list">
               <div>
@@ -222,8 +223,8 @@ export function HomeDashboard({
                 <dd>{progress.lastMissionResult.cprRhythmScore}%</dd>
               </div>
               <div>
-                <dt>คะแนนดีที่สุด</dt>
-                <dd>{progress.bestOverallScore}</dd>
+                <dt>คะแนนดีที่สุด ({progress.lastMissionResult.scoringVersion ? 'สูตรใหม่' : 'สูตรเดิม'})</dt>
+                <dd>{progress.lastMissionResult.scoringVersion ? progress.measuredBestOverallScore ?? progress.lastMissionResult.overallScore : progress.bestOverallScore}</dd>
               </div>
               <div>
                 <dt>ฝึกแล้ว</dt>

@@ -127,8 +127,8 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   font: 700 14px/1 var(--font-line-seed), system-ui, sans-serif;
 }
 .app-header[data-mode="standard"] .brand-stamp { color: var(--color-pine); background: white; border-color: white; }
-.app-header[data-mode="aed"] { color: white; background: #a92f27; border-bottom-color: transparent; }
-.app-header[data-mode="aed"] .brand-stamp { color: #a92f27; background: white; border-color: white; }
+.app-header[data-mode="aed"] { color: var(--color-ink); background: var(--color-surface); border-bottom-color: var(--color-line); }
+.app-header[data-mode="aed"] .brand-stamp { color: white; background: #c82d3a; border-color: #c82d3a; }
 .brand-copy { min-width: 0; }
 .brand strong, .brand small { display: block; }
 .brand strong { font-size: 17px; line-height: 22px; font-weight: 700; letter-spacing: -0.01em; }
@@ -138,8 +138,8 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   font: 700 11px/15px var(--font-line-seed), system-ui, sans-serif;
   letter-spacing: 0.025em;
 }
-.app-header[data-mode="standard"] .brand small,
-.app-header[data-mode="aed"] .brand small { color: rgb(255 255 255 / 0.72); }
+.app-header[data-mode="standard"] .brand small { color: rgb(255 255 255 / 0.72); }
+.app-header[data-mode="aed"] .brand small { color: var(--color-ink-muted); }
 
 .header-exit {
   min-height: 44px;
@@ -768,6 +768,20 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .cpr-surface .cpr-feedback { color: white; }
 
 .aed-console { padding: 22px 20px; border-radius: var(--radius-md); background: var(--color-pine); color: white; }
+.aed-task { display: grid; gap: 24px; padding-top: 20px; }
+.aed-current-task { display: grid; gap: 20px; }
+.aed-device-panel { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 20px; padding: 18px; border: 1px solid var(--color-line); border-radius: 12px; background: var(--color-panel); }
+.aed-device-label { display: grid; gap: 2px; color: var(--color-ink-muted); }
+.aed-device-label > span { font-size: 21px; font-weight: 700; letter-spacing: .03em; }
+.aed-device-label small { font-size: 12px; line-height: 18px; }
+.aed-device-display { display: grid; gap: 4px; padding: 12px; border-radius: 6px; background: var(--color-surface); }
+.aed-device-display strong { font-size: 16px; line-height: 24px; font-weight: 700; }
+.aed-device-panel[data-state="analyzing"] .aed-device-display { background: var(--color-warning-soft); }
+.aed-instruction { margin: 0; max-width: 580px; font-size: 18px; line-height: 29px; }
+.aed-safety { display: flex; align-items: flex-start; gap: 12px; padding: 16px; border-radius: 12px; background: var(--color-warning-soft); color: var(--color-warning); }
+.aed-safety svg { flex-shrink: 0; margin-top: 3px; }
+.aed-task-action { background: #c82d3a; border-color: #c82d3a; width: 100%; }
+.aed-review-status { padding: 20px; background: var(--color-panel); border-radius: 14px; }
 .aed-console .caption { color: rgb(255 255 255 / 0.68); }
 .aed-console .section-title { color: white; }
 .aed-training .protocol-code { color: #b7352b; }
@@ -776,7 +790,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .aed-training .aed-primary-button { background: #b7352b; border-color: #b7352b; }
 .aed-training .aed-primary-button:hover { background: #95271f; border-color: #95271f; }
 .app-shell[data-training-tone="aed"] .progress-count { color: #b7352b; }
-.app-shell[data-training-tone="aed"] .simulation-progress li[aria-current="step"] .progress-marker { border-color: #b7352b; background: #b7352b; box-shadow: 0 0 0 4px var(--color-danger-soft); animation-name: aed-current-step; }
+.app-shell[data-training-tone="aed"] .simulation-progress li[aria-current="step"] .progress-marker { border-color: #c82d3a; background: #c82d3a; box-shadow: none; animation: none; }
 
 @keyframes page-enter {
   from { opacity: 0; transform: translateY(8px); }

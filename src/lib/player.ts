@@ -117,6 +117,7 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
 }
 
 export async function submitMissionToLeaderboard(result: MissionResult) {
+  if (result.scoringVersion) return null;
   const response = await fetch("/api/player/attempt", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

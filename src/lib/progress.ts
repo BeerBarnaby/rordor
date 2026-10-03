@@ -14,13 +14,13 @@ const defaultProgress: UserProgress = {
 
 export class ProgressService {
   public static getProgress(): UserProgress {
-    if (typeof window === 'undefined') return defaultProgress;
+    if (typeof window === 'undefined') return structuredClone(defaultProgress);
     try {
       const data = localStorage.getItem(PROGRESS_KEY);
-      if (!data) return defaultProgress;
+      if (!data) return structuredClone(defaultProgress);
       return JSON.parse(data) as UserProgress;
     } catch {
-      return defaultProgress;
+      return structuredClone(defaultProgress);
     }
   }
 
@@ -54,7 +54,7 @@ export class ProgressService {
 
   public static recordMissionResult(result: MissionResult): UserProgress {
     const progress = this.getProgress();
-    
+    if (progress.history.some(item => item.id === result.id)) return progress;
     progress.missionAttemptsCount += 1;
     progress.lastMissionResult = result;
     progress.history.unshift(result); // latest first
@@ -64,7 +64,9 @@ export class ProgressService {
       progress.history = progress.history.slice(0, 20);
     }
 
-    if (result.overallScore > progress.bestOverallScore) {
+    if (result.scoringVersion === 'measured-v2') {
+      progress.measuredBestOverallScore = Math.max(progress.measuredBestOverallScore ?? 0, result.overallScore);
+    } else if (result.overallScore > progress.bestOverallScore) {
       progress.bestOverallScore = result.overallScore;
     }
 
@@ -80,6 +82,6 @@ export class ProgressService {
     if (typeof window !== 'undefined') {
       localStorage.removeItem(PROGRESS_KEY);
     }
-    return defaultProgress;
+    return structuredClone(defaultProgress);
   }
 }
