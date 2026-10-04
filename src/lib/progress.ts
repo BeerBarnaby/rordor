@@ -1,5 +1,4 @@
 import { MissionResult, UserProgress } from '@/types';
-import { parseProgress } from './progressValidation';
 
 const PROGRESS_KEY = 'nong_prom_user_progress_v1';
 
@@ -19,7 +18,7 @@ export class ProgressService {
     try {
       const data = localStorage.getItem(PROGRESS_KEY);
       if (!data) return structuredClone(defaultProgress);
-      return parseProgress(data);
+      return JSON.parse(data) as UserProgress;
     } catch {
       return structuredClone(defaultProgress);
     }
@@ -55,10 +54,7 @@ export class ProgressService {
 
   public static recordMissionResult(result: MissionResult): UserProgress {
     const progress = this.getProgress();
-    const recorded = new Set(progress.recordedMissionIds ?? progress.history.map(item => item.id));
-    if (recorded.has(result.id)) return progress;
-    recorded.add(result.id);
-    progress.recordedMissionIds = [...recorded];
+    if (progress.history.some(item => item.id === result.id)) return progress;
     progress.missionAttemptsCount += 1;
     progress.lastMissionResult = result;
     progress.history.unshift(result); // latest first

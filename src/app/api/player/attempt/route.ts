@@ -7,7 +7,6 @@ import {
 } from "@/lib/playerServer";
 
 type AttemptPayload = {
-  scoringVersion?: unknown;
   clientAttemptId?: unknown;
   scenarioId?: unknown;
   overallScore?: unknown;
@@ -24,13 +23,6 @@ export async function POST(request: Request) {
 
   try {
     const body = (await request.json()) as AttemptPayload;
-    // This RPC ranks legacy scores only. Never silently mix incompatible rubrics.
-    if (body.scoringVersion !== undefined) {
-      return noStoreJson({ ok: false, error: 'unsupported_scoring_version' }, 409);
-    }
-    if (typeof body.overallScore !== 'number' || typeof body.cprRhythmScore !== 'number' || typeof body.totalTimeSeconds !== 'number') {
-      return noStoreJson({ ok: false, error: 'invalid_attempt' }, 400);
-    }
     const overallScore = Number(body.overallScore);
     const cprRhythmScore = Number(body.cprRhythmScore);
     const totalTimeSeconds = Number(body.totalTimeSeconds);

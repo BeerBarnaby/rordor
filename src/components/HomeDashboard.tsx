@@ -2,7 +2,7 @@
 
 import { ArrowRight, Check, ChevronRight, Trophy } from "lucide-react";
 import { LeaderboardEntry, PlayerProfile, UserProgress } from "@/types";
-import { getGameProgress } from "@/lib/gameProgress";
+import { getGameProgress, TOPIC_ORDER } from "@/lib/gameProgress";
 
 const steps = [
   { title: "ลำดับช่วยเหลือ", detail: "ประเมินเหตุและลงมือให้ถูกลำดับ" },
@@ -44,14 +44,9 @@ export function TrainingSteps({ current = -1 }: { current?: number }) {
 interface Props {
   progress: UserProgress;
   onLearn: () => void;
-  onOpenLesson?: (id: string) => void;
   onStart: () => void;
-  hasSavedMission?: boolean;
-  onNewMission?: () => void;
   currentStep?: number;
   leaderboard: LeaderboardEntry[];
-  leaderboardStatus?: 'loading' | 'ready' | 'error';
-  onRetryLeaderboard?: () => void;
   player: PlayerProfile | null;
   onOpenPlayer: () => void;
 }
@@ -59,14 +54,9 @@ interface Props {
 export function HomeDashboard({
   progress,
   onLearn,
-  onOpenLesson,
   onStart,
-  hasSavedMission = false,
-  onNewMission,
   currentStep,
   leaderboard,
-  leaderboardStatus = 'ready',
-  onRetryLeaderboard,
   player,
   onOpenPlayer,
 }: Props) {
@@ -80,48 +70,54 @@ export function HomeDashboard({
     <div className="home-screen">
       <div className="home-top-grid">
         <section className="home-hero">
-          <p className="field-label">สถานการณ์ฝึก {continuing || hasSavedMission ? '· รอบที่ค้างไว้' : '· เริ่มได้ทันที'}</p>
-          <h1 className="display-title home-title">
-            เจอคนหมดสติ
-            <span className="home-question">เราจะทำอะไรก่อน?</span>
+          <p className="protocol-code">Practice before the pressure</p>
+          <h1 className="display-title">
+            <span className="hero-title-line">ถ้าเหตุฉุกเฉิน</span>
+            <span className="hero-title-line">เกิดขึ้น เรา<span className="hero-accent-word">พร้อม</span></span>
+            <span className="hero-title-line">ช่วยหรือยัง?</span>
           </h1>
-          <p className="mission-meta">First Aid & CPR · 4 ขั้น · ประมาณ 5 นาที</p>
+          <p className="lead">
+            ฝึกคิด · ฝึกตัดสินใจ · ฝึกช่วยชีวิต
+            <br />ผ่านสถานการณ์จำลอง First Aid &amp; CPR
+          </p>
+          <p className="mission-meta">4 ขั้น · ประมาณ 5 นาที · เปลี่ยนสถานการณ์ทุกครั้ง</p>
           <div className="hero-actions">
             <button className="primary-button" onClick={onStart}>
-              {hasSavedMission ? 'กลับมาฝึกต่อ' : continuing
+              {continuing
                 ? `ทำต่อ: ${currentLabel}`
                 : progress.missionAttemptsCount
                   ? "ลองสถานการณ์ใหม่"
-                  : "เริ่มฝึกสถานการณ์"}
+                  : "เริ่มฝึกกับน้องพร้อม"}
               <ArrowRight size={20} aria-hidden="true" />
             </button>
-            <button className="text-button" onClick={onLearn}>
-              เปิดบทเรียน
+            <button className="secondary-button" onClick={onLearn}>
+              เรียนรู้พื้นฐาน
               <ChevronRight size={18} aria-hidden="true" />
             </button>
           </div>
-          <p className="caption mt-3">ไม่ต้องเข้าสู่ระบบ · เป็นการฝึกจำลอง ไม่ใช่สายฉุกเฉินจริง</p>
-          {hasSavedMission && <details className="checkpoint-note"><summary>บันทึกไว้ที่ขั้น {(currentStep ?? 0) + 1}/4 · ดูรายละเอียด</summary><p className="caption">กลับมาเริ่มต้นกิจกรรมที่ค้าง ไม่เก็บคำตอบย่อยหรือจังหวะแตะค้างไว้</p><button className="text-button" onClick={onNewMission}>เริ่มภารกิจใหม่แทน</button></details>}
-          {continuing && !hasSavedMission && (
+          {continuing && (
             <p className="caption mt-3">
-                ค้างอยู่ที่ขั้น {currentStep + 1} จาก 4 · หลังรีเฟรชกลับมาเริ่มต้นกิจกรรมที่ค้างได้
+              บันทึกไว้ที่ขั้น {currentStep + 1} จาก 4
             </p>
           )}
         </section>
 
         <section className="training-plan" aria-labelledby="training-plan-title">
-          <h2 id="training-plan-title" className="section-title">กิจกรรมในรอบนี้</h2>
-          <ol className="field-route">
-            {steps.map((step, index) => {
-              const state = currentStep === undefined ? 'pending' : index < currentStep ? 'complete' : index === currentStep ? 'current' : 'pending';
-              return <li key={step.title} data-state={state}>
-                <span className="field-step-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-                <button className="field-lesson-link" onClick={() => onOpenLesson ? onOpenLesson(['assessment','call1669','cpr','aed'][index]) : onLearn()}><span>{step.title}</span><small>เปิดบทเรียน <ChevronRight size={14} aria-hidden="true" /></small></button>
-                <span className="field-step-state">{state === 'complete' ? 'ทำจบแล้ว' : state === 'current' ? 'ฝึกค้างไว้' : 'ยังไม่เริ่ม'}</span>
-              </li>;
-            })}
+          <h2 id="training-plan-title" className="section-title">
+            เส้นทางการฝึก
+          </h2>
+          <ol className="training-rail">
+            {steps.map((step, index) => (
+              <li key={step.title}>
+                <span className="rail-number">0{index + 1}</span>
+                <span>
+                  <strong>{step.title}</strong>
+                  <small>{step.detail}</small>
+                </span>
+                <ChevronRight aria-hidden="true" />
+              </li>
+            ))}
           </ol>
-          <p className="caption mt-3">สถานะบอกกิจกรรมที่จบ ไม่ใช่การรับรองทักษะ · เปิดบทเรียนได้ทุกลำดับ</p>
         </section>
       </div>
 
@@ -129,12 +125,12 @@ export function HomeDashboard({
         <div className="game-progress-card">
           <div className="game-heading">
             <div>
-              <p className="field-label">บันทึกการฝึกในอุปกรณ์นี้</p>
+              <p className="protocol-code">เส้นทางผู้ช่วยชีวิต</p>
               <h2 id="game-hub-title" className="section-title !mb-1">
                 Level {game.level}
               </h2>
               <p className="caption">
-                บันทึกว่าอ่านแล้ว {game.completedTopicCount} จาก 4 บท · ทุกบทเปิดให้เรียน
+                เรียนจบแล้ว {game.completedTopicCount} จาก 4 บท · ทุกบทเปิดให้เรียน
               </p>
             </div>
             <span className="level-badge">LV.{game.level}</span>
@@ -155,6 +151,17 @@ export function HomeDashboard({
               : `${game.xpInLevel} / ${game.xpForNextLevel} XP ไปยัง Level ${game.level + 1}`}
           </p>
           <p className="content-meta mt-1">ภารกิจละ 250 XP · โบนัสคะแนนเดิมคงไว้ ไม่ใช่ระดับทักษะภาคปฏิบัติ</p>
+          <ol className="lesson-progress" aria-label="ความคืบหน้าบทเรียน">
+            {TOPIC_ORDER.map((topicId, index) => {
+              const completed = progress.completedTopicIds.includes(topicId);
+              return (
+                <li key={topicId} data-complete={completed}>
+                  <span>{completed ? <Check /> : index + 1}</span>
+                  <small>{steps[index].title}</small>
+                </li>
+              );
+            })}
+          </ol>
         </div>
 
         <div className="leaderboard-card">
@@ -165,9 +172,7 @@ export function HomeDashboard({
             </div>
             <Trophy className="leaderboard-trophy" aria-hidden="true" />
           </div>
-          {leaderboardStatus === 'loading' ? <p className="caption" role="status">กำลังโหลดอันดับ… คุณเรียนและฝึกต่อได้</p> : leaderboardStatus === 'error' ? (
-            <div><p className="caption" role="status">โหลดอันดับไม่สำเร็จ ผลฝึกในเครื่องยังอยู่ คุณเรียนและฝึกต่อได้</p><button className="secondary-button mt-3" onClick={onRetryLeaderboard}>ลองโหลดอันดับอีกครั้ง</button></div>
-          ) : leaderboard.length > 0 ? (
+          {leaderboard.length > 0 ? (
             <ol className="leaderboard-list">
               {leaderboard.slice(0, 5).map((entry, index) => (
                 <li key={`${entry.rank}-${entry.displayName}-${index}`}>

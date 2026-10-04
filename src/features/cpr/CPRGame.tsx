@@ -4,17 +4,14 @@ import React, { useEffect, useState, useRef } from "react";
 import { RhythmCalculator } from "@/lib/rhythmCalculator";
 import { RhythmCalculationResult } from "@/types";
 import { ArrowRight, HeartPulse, Timer } from "lucide-react";
-import { experienceSnapshot, readExperience } from '@/lib/experiencePreferences';
 
 interface CPRGameProps {
-  active?: boolean;
   targetCompressions?: number;
   onCompleteStep: (rhythmScore: number, averageBpm: number) => void;
 }
 
 export const CPRGame: React.FC<CPRGameProps> = ({
   targetCompressions = 30,
-  active = true,
   onCompleteStep,
 }) => {
   const [compressions, setCompressions] = useState<number>(0);
@@ -39,7 +36,7 @@ export const CPRGame: React.FC<CPRGameProps> = ({
   const rhythmCalcRef = useRef<RhythmCalculator>(new RhythmCalculator(6));
 
   useEffect(() => {
-    if (mode !== "countdown" || !active) return;
+    if (mode !== "countdown") return;
     const timer = window.setInterval(() => {
       setCountdown((previous) => {
         if (previous <= 1) {
@@ -52,20 +49,15 @@ export const CPRGame: React.FC<CPRGameProps> = ({
       });
     }, 700);
     return () => window.clearInterval(timer);
-  }, [mode, active]);
-
-  useEffect(() => {
-    // A pause must not become an artificially slow tap interval.
-    if (!active) rhythmCalcRef.current.reset();
-  }, [active]);
+  }, [mode]);
 
   const handleTap = (e?: React.MouseEvent | React.TouchEvent) => {
     if (e) {
       e.preventDefault();
     }
-    if (mode !== "compressing" || !active) return;
+    if (mode !== "compressing") return;
 
-    if (typeof window !== "undefined" && readExperience(experienceSnapshot()).haptics && "vibrate" in navigator) {
+    if (typeof window !== "undefined" && "vibrate" in navigator) {
       try {
         navigator.vibrate(45);
       } catch {}
