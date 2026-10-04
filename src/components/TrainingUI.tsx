@@ -1,6 +1,7 @@
 import { CircleAlert, CircleCheck, CircleX } from "lucide-react";
 import { ReactNode } from "react";
 import { MAIN_PROTOCOL_METADATA } from "@/data/scenarios";
+import { CONTENT_REVIEW } from "@/data/contentReview";
 
 export function SimulationNotice() {
   return (
@@ -15,13 +16,14 @@ export function SimulationNotice() {
 export function ContentMetadata() {
   return (
     <div className="content-meta section-rule">
-      <p>ตรวจทานเนื้อหาโดย: ยังไม่ระบุ — รอครูฝึกและผู้เชี่ยวชาญตรวจทาน</p>
+      <p>สถานะ: ครูฝึกตรวจเนื้อหาและให้ผ่านแล้ว ตามข้อมูลจากผู้ดูแลโครงการ</p>
+      <p>บันทึกการแจ้งอนุมัติ: {CONTENT_REVIEW.reportedAt} · เนื้อหารุ่น {CONTENT_REVIEW.baselineCommit}</p>
       <p>
         อ้างอิงหลัก: สภากาชาดไทย, สพฉ., เอกสารนักศึกษาวิชาทหาร
         หน่วยบัญชาการรักษาดินแดน และ AHA Guidelines 2025
       </p>
       <p>ปรับปรุงเนื้อหาล่าสุด: {MAIN_PROTOCOL_METADATA.lastUpdated}</p>
-      <p>สถานะ: รอครูฝึกและผู้เชี่ยวชาญรับรองก่อนนำไปใช้จริง</p>
+      <p>ยังไม่ระบุชื่อผู้ตรวจ การอนุมัติเนื้อหาไม่ใช่การรับรองทักษะของผู้เรียน และไม่ทดแทนการฝึกภาคปฏิบัติ</p>
     </div>
   );
 }

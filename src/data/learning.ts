@@ -1,7 +1,7 @@
 import { LearningDocument, LearningTopic, LearningVideo } from '@/types';
 
 export const PROTOTYPE_DISCLAIMER =
-  'เนื้อหาต้นแบบต้องผ่านการตรวจทานจากครูฝึกและผู้เชี่ยวชาญก่อนนำไปใช้จริง';
+  'ครูฝึกตรวจเนื้อหาและให้ผ่านแล้ว ตามข้อมูลที่ผู้ดูแลโครงการแจ้ง';
 
 export const LEARNING_TOPICS: LearningTopic[] = [
   {

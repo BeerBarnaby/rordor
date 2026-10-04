@@ -12,6 +12,9 @@ import { CPRGame } from "@/features/cpr/CPRGame";
 import { AEDSimulation } from "@/features/aed/AEDSimulation";
 import { AfterActionReview } from "@/features/debrief/AfterActionReview";
 import { ProgressService } from "@/lib/progress";
+import { parseProgress } from '@/lib/progressValidation';
+import { DRAFT_KEY, parseMissionDraft } from '@/lib/missionDraft';
+import { readNavigation, navigationSnapshot, subscribeNavigation, navigateTo } from '@/lib/lessonNavigation';
 import { measuredMissionScore, type AEDRecommendation } from "@/lib/aedTraining";
 import {
   MissionResult,
@@ -49,33 +52,33 @@ function progressSnapshot() {
     return null;
   }
 }
+function draftSnapshot() {
+  try { return localStorage.getItem(DRAFT_KEY); } catch { return null; }
+}
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<TabType>("home");
+  const navigationHash = useSyncExternalStore(subscribeNavigation, navigationSnapshot, () => '');
+  const { tab: activeTab, selectedLesson } = readNavigation(navigationHash);
+  function setActiveTab(tab: TabType) {
+    navigateTo(tab === 'learn' ? '#lessons' : tab === 'mission' ? '#practice' : '#home');
+  }
   const [isAboutOpen, setIsAboutOpen] = useState<boolean>(false);
   const [isPlayerOpen, setIsPlayerOpen] = useState<boolean>(false);
   const [player, setPlayer] = useState<PlayerProfile | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [leaderboardStatus, setLeaderboardStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+  async function refreshLeaderboard() {
+    setLeaderboardStatus('loading');
+    try { setLeaderboard(await getLeaderboard()); setLeaderboardStatus('ready'); }
+    catch { setLeaderboardStatus('error'); }
+  }
   const savedProgress = useSyncExternalStore(
     subscribeProgress,
     progressSnapshot,
     () => null,
   );
-  const userProgress: UserProgress = React.useMemo(() => {
-    if (savedProgress) {
-      try {
-        return JSON.parse(savedProgress);
-      } catch {}
-    }
-    return {
-      completedVideoIds: [],
-      completedTopicIds: [],
-      missionAttemptsCount: 0,
-      bestOverallScore: 0,
-      bestRhythmScore: 0,
-      lastMissionResult: null,
-      history: [],
-    };
-  }, [savedProgress]);
+  const userProgress: UserProgress = React.useMemo(() => parseProgress(savedProgress), [savedProgress]);
+  const savedDraft = useSyncExternalStore(subscribeProgress, draftSnapshot, () => null);
+  const checkpoint = React.useMemo(() => parseMissionDraft(savedDraft), [savedDraft]);
 
   // Mission State
   const [missionPhase, setMissionPhase] = useState<MissionPhase>("opening");
@@ -102,8 +105,40 @@ export default function Home() {
   const playerId = player?.id;
   const latestMissionResult = userProgress.lastMissionResult;
   const focusMode = activeTab === "mission" && inProgress;
+  const [pageVisible, setPageVisible] = useState(true);
+  useEffect(() => {
+    const update = () => setPageVisible(document.visibilityState === 'visible');
+    document.addEventListener('visibilitychange', update);
+    return () => document.removeEventListener('visibilitychange', update);
+  }, []);
+  useEffect(() => {
+    if (!startTimeMs) return;
+    try {
+      if (missionPhase === 'debrief') localStorage.removeItem(DRAFT_KEY);
+      else localStorage.setItem(DRAFT_KEY, JSON.stringify({
+        version: 1, phase: missionPhase, attemptKey, sequenceScore, callScore,
+        cprRhythmScore, cprAvgBpm, mistakes: collectedMistakes,
+        elapsedSeconds: Math.min(86400, Math.max(0, (Date.now() - startTimeMs) / 1000)),
+      }));
+      window.dispatchEvent(new Event('training-progress'));
+    } catch { /* Private browsing/storage limits must not stop training. */ }
+  }, [missionPhase, attemptKey, sequenceScore, callScore, cprRhythmScore, cprAvgBpm, collectedMistakes, startTimeMs]);
+  function resumeCheckpoint() {
+    if (!checkpoint) return;
+    setAttemptKey(checkpoint.attemptKey);
+    setSequenceScore(checkpoint.sequenceScore);
+    setCallScore(checkpoint.callScore);
+    setCprRhythmScore(checkpoint.cprRhythmScore);
+    setCprAvgBpm(checkpoint.cprAvgBpm);
+    setCollectedMistakes(checkpoint.mistakes);
+    setStartTimeMs(Date.now() - checkpoint.elapsedSeconds * 1000);
+    actualTimeline.current = [{timestamp: '—', title: 'กลับมาฝึกต่อจากต้นกิจกรรมที่บันทึกไว้', isSuccess: true, note: 'เวลาและคำตอบย่อยของกิจกรรมที่ค้างไม่ถูกกู้คืน'}];
+    setMissionPhase(checkpoint.phase);
+    setActiveTab('mission');
+  }
   const continueTraining = () => {
     if (inProgress) setActiveTab("mission");
+    else if (checkpoint) resumeCheckpoint();
     else handleStartMission();
   };
 
@@ -113,11 +148,12 @@ export default function Home() {
 
   useEffect(() => {
     let active = true;
-    Promise.all([restorePlayerSession(), getLeaderboard()]).then(
+    Promise.allSettled([restorePlayerSession(), getLeaderboard()]).then(
       ([session, entries]) => {
         if (!active) return;
-        setPlayer(session?.profile ?? null);
-        setLeaderboard(entries);
+        setPlayer(session.status === 'fulfilled' ? session.value?.profile ?? null : null);
+        if (entries.status === 'fulfilled') { setLeaderboard(entries.value); setLeaderboardStatus('ready'); }
+        else setLeaderboardStatus('error');
       },
     );
     return () => {
@@ -131,8 +167,8 @@ export default function Home() {
     void submitMissionToLeaderboard(latestMissionResult).then(async (updatedPlayer) => {
       if (!updatedPlayer) return;
       setPlayer(updatedPlayer);
-      setLeaderboard(await getLeaderboard());
-    });
+      await refreshLeaderboard();
+    }).catch(() => { /* Results remain in local progress if the network fails. */ });
   }, [playerId, latestMissionResult]);
 
   const handleStartMission = () => {
@@ -241,8 +277,13 @@ export default function Home() {
         <HomeDashboard
           progress={userProgress}
           onLearn={() => setActiveTab("learn")}
+          onOpenLesson={id => navigateTo(`#lessons/${id}`)}
           onStart={continueTraining}
+          hasSavedMission={!inProgress && Boolean(checkpoint)}
+          onNewMission={() => { if (window.confirm('เริ่มภารกิจใหม่แทนกิจกรรมที่ค้างไว้? ผลกิจกรรมที่จบแล้วและประวัติเดิมจะไม่ถูกลบ')) handleStartMission(); }}
           leaderboard={leaderboard}
+          leaderboardStatus={leaderboardStatus}
+          onRetryLeaderboard={refreshLeaderboard}
           player={player}
           onOpenPlayer={() => setIsPlayerOpen(true)}
           currentStep={
@@ -251,18 +292,18 @@ export default function Home() {
                   0,
                   ["sequence", "call1669", "cpr", "aed"].indexOf(missionPhase),
                 )
-              : undefined
+              : checkpoint ? Math.max(0, ['sequence','call1669','cpr','aed'].indexOf(checkpoint.phase)) : undefined
           }
         />
       )}
 
       {/* 2. LEARN TAB */}
       {activeTab === "learn" && (
-        <LearningCenter progress={userProgress} onStartMission={continueTraining} />
+        <LearningCenter progress={userProgress} onStartMission={continueTraining} selected={selectedLesson} onSelect={id => navigateTo(id ? `#lessons/${id}` : '#lessons')} />
       )}
 
       {/* 3. MISSION TAB / FLOW */}
-      {startTimeMs > 0 && (
+      {(startTimeMs > 0 || activeTab === 'mission') && (
         <div key={attemptKey} hidden={activeTab !== "mission"}>
           {missionPhase !== "opening" && missionPhase !== "debrief" && (
             <div>
@@ -275,6 +316,7 @@ export default function Home() {
           )}
           {missionPhase === "opening" && (
             <div className="page-stack training-screen">
+              {!startTimeMs && checkpoint && <button className="secondary-button" onClick={resumeCheckpoint}>กลับมาฝึกต่อจากกิจกรรมที่บันทึกไว้</button>}
               <header>
                 <p className="protocol-code">{scenario.code} · CPR + AED</p>
                 <h1 className="display-title">
@@ -323,12 +365,12 @@ export default function Home() {
 
           {/* Phase 4: CPR Rhythm Game */}
           {missionPhase === "cpr" && (
-            <CPRGame onCompleteStep={handleCprComplete} />
+            <CPRGame onCompleteStep={handleCprComplete} active={activeTab === 'mission' && pageVisible} />
           )}
 
           {/* Phase 5: AED Simulation */}
           {missionPhase === "aed" && (
-            <AEDSimulation onCompleteStep={handleAedComplete} active={activeTab === 'mission'} recommendation={attemptKey % 2 === 0 ? 'no-shock' : 'shock'} />
+            <AEDSimulation onCompleteStep={handleAedComplete} active={activeTab === 'mission' && pageVisible} recommendation={attemptKey % 2 === 0 ? 'no-shock' : 'shock'} />
           )}
 
           {/* Phase 6: After Action Review (AAR) */}

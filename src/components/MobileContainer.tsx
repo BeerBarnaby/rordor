@@ -1,6 +1,7 @@
 "use client";
-import { ReactNode } from "react";
-import { House, BookOpen, ShieldCheck, Info, X, UserRound } from "lucide-react";
+import { ReactNode, useSyncExternalStore } from "react";
+import { experienceSnapshot, readExperience, subscribeExperience } from '@/lib/experiencePreferences';
+import { House, BookOpen, ShieldCheck, HeartPulse, Info, X, UserRound } from "lucide-react";
 
 type Tab = "home" | "learn" | "mission" | "about";
 interface Props {
@@ -36,7 +37,7 @@ export function AppHeader({
     >
       <div className="brand">
         <span className="brand-stamp" aria-hidden="true">
-          37
+          <HeartPulse size={22} strokeWidth={2} />
         </span>
         <span className="brand-copy">
           <strong>{focusMode ? "โหมดฝึก" : "น้องพร้อม"}</strong>
@@ -107,9 +108,15 @@ export function MobileContainer({
   onExitTraining,
   trainingTone = "standard",
 }: Props) {
+  const experience = readExperience(useSyncExternalStore(subscribeExperience, experienceSnapshot, () => ''));
   return (
-    <div className="app-shell" data-training-tone={focusMode ? trainingTone : undefined}>
-      <a className="skip-link" href="#main-content">
+    <div className="app-shell" data-reduce-motion={experience.reduceMotion || undefined} data-training-tone={focusMode ? trainingTone : undefined}>
+      <a className="skip-link" href="#main-content" onClick={event => {
+        event.preventDefault();
+        const main = document.getElementById('main-content');
+        main?.focus();
+        main?.scrollIntoView({ block: 'start' });
+      }}>
         ข้ามไปเนื้อหา
       </a>
       <AppHeader

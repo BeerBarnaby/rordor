@@ -116,6 +116,7 @@ export interface MissionResult {
 }
 
 export interface UserProgress {
+  recordedMissionIds?: string[];
   measuredBestOverallScore?: number;
   completedVideoIds: string[];
   completedTopicIds: string[];

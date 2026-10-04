@@ -2,6 +2,7 @@
 import { AppDialog } from "./AppDialog";
 import { ContentMetadata } from "./TrainingUI";
 import { MAIN_PROTOCOL_METADATA } from "@/data/scenarios";
+import { ExperienceSettings } from './ExperienceSettings';
 export function AboutModal({
   isOpen,
   onClose,
@@ -12,6 +13,7 @@ export function AboutModal({
   return (
     <AppDialog open={isOpen} onClose={onClose} title="เกี่ยวกับน้องพร้อม">
       <div className="dialog-body page-stack">
+        <ExperienceSettings />
         <section>
           <h3 className="section-title">น้องพร้อมคืออะไร</h3>
           <p>

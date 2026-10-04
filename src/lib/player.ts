@@ -105,7 +105,7 @@ export async function logoutPlayer() {
 export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
   const response = await fetch("/api/player/leaderboard", { cache: "no-store" });
   const data = await response.json().catch(() => []);
-  if (!response.ok || !Array.isArray(data)) return [];
+  if (!response.ok || !Array.isArray(data)) throw new Error('leaderboard_unavailable');
   return data.map((row) => ({
     rank: Number(row.rank),
     displayName: String(row.display_name),

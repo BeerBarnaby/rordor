@@ -26,14 +26,16 @@ import { ProgressService } from "@/lib/progress";
 const modules = [
   {
     id: "assessment",
+    shortTitle: "ประเมิน",
     title: "ประเมินสถานการณ์",
     detail: "ความปลอดภัย · การตอบสนอง",
     icon: ShieldCheck,
   },
-  { id: "call1669", title: "ขอความช่วยเหลือ", detail: "โทร 1669 · ขอ AED", icon: PhoneCall },
-  { id: "cpr", title: "เริ่ม CPR", detail: "ตำแหน่งมือ · ความเร็ว · จังหวะ", icon: HeartPulse },
+  { id: "call1669", shortTitle: "แจ้งเหตุ", title: "ขอความช่วยเหลือ", detail: "โทร 1669 · ขอ AED", icon: PhoneCall },
+  { id: "cpr", shortTitle: "CPR", title: "เริ่ม CPR", detail: "ตำแหน่งมือ · ความเร็ว · จังหวะ", icon: HeartPulse },
   {
     id: "aed",
+    shortTitle: "AED",
     title: "ใช้ AED",
     detail: "เปิดเครื่อง · ติดแผ่น · ทำตามคำสั่ง",
     icon: Zap,
@@ -42,11 +44,14 @@ const modules = [
 export function LearningCenter({
   onStartMission,
   progress,
+  selected,
+  onSelect,
 }: {
   onStartMission: () => void;
   progress: UserProgress;
+  selected: string | null;
+  onSelect: (id: string | null) => void;
 }) {
-  const [selected, setSelected] = useState<string | null>(null);
   const [video, setVideo] = useState<LearningVideo | null>(null);
   const topic = LEARNING_TOPICS.find((item) => item.id === selected);
   const activeModule = modules.find((item) => item.id === selected);
@@ -55,12 +60,12 @@ export function LearningCenter({
     (item) =>
       item.topicId === selected ||
       (selected === "aed" && item.topicId === "cpr"),
-  );
+  ).sort((a, b) => Number(Boolean(a.contextLabel)) - Number(Boolean(b.contextLabel)));
   const docs = LEARNING_DOCUMENTS.filter(
     (item) => item.topicId === selected && item.isAvailable,
   );
   function openModule(id: string | null) {
-    setSelected(id);
+    onSelect(id);
     window.scrollTo({ top: 0, behavior: "instant" });
   }
   function completeModule() {
@@ -86,7 +91,7 @@ export function LearningCenter({
       {!topic ? (
         <>
           <div className="module-grid">
-            {modules.map((item, index) => {
+            {modules.map((item) => {
               const Icon = item.icon;
               const completed = progress.completedTopicIds.includes(item.id);
               return (
@@ -97,7 +102,6 @@ export function LearningCenter({
                   key={item.id}
                   onClick={() => openModule(item.id)}
                 >
-                  <span className="module-number">0{index + 1}</span>
                   <Icon className="module-icon" aria-hidden="true" />
                   <span className="flex-1">
                     <strong>{item.title}</strong>
@@ -130,13 +134,13 @@ export function LearningCenter({
               ทุกบท
             </button>
             <div className="module-tabs" role="tablist" aria-label="รายการบทเรียน">
-              {modules.map((item, index) => {
-                const Icon = item.icon;
+              {modules.map((item) => {
                 return (
                 <button
                   key={item.id}
                   id={`tab-${item.id}`}
                   role="tab"
+                  aria-label={item.title}
                   aria-selected={selected === item.id}
                   aria-controls="learning-detail"
                   tabIndex={selected === item.id ? 0 : -1}
@@ -154,18 +158,16 @@ export function LearningCenter({
                               : -1;
                     if (next >= 0) {
                       event.preventDefault();
-                      setSelected(modules[next].id);
+                      onSelect(modules[next].id);
                       document
                         .getElementById(`tab-${modules[next].id}`)
                         ?.focus();
                     }
                   }}
-                  onClick={() => setSelected(item.id)}
+                  onClick={() => openModule(item.id)}
                   data-module={item.id}
                 >
-                  <Icon aria-hidden="true" />
-                  <span>0{index + 1}</span>
-                  <small>{item.title}</small>
+                  <span>{item.shortTitle}</span>
                 </button>
                 );
               })}
@@ -177,11 +179,18 @@ export function LearningCenter({
             aria-labelledby={`tab-${selected}`}
             className="page-stack"
           >
+            <section className="lesson-essentials" aria-labelledby="lesson-essentials-title">
+              <h2 id="lesson-essentials-title" className="section-title">สิ่งที่ต้องจำ</h2>
+              <p className="caption">{topic.description}</p>
+              <ol className="protocol-list mt-4">
+                {topic.summarySteps.map((step, index) => <li key={step}><span className="step-number">{index + 1}</span><span>{step}</span></li>)}
+              </ol>
+            </section>
             {videos.length > 0 && (
               <section>
                 <h3 className="section-title">วิดีโอแนะนำ</h3>
                 <div className="video-grid">
-                  {videos.map((item) => (
+                  {videos.slice(0, 1).map((item) => (
                     <button
                       key={item.id}
                       className="video-resource"
@@ -208,28 +217,20 @@ export function LearningCenter({
                           </span>
                         )}
                       </div>
-                      <h4 className="mt-3 font-semibold">{item.title}</h4>
+                      <h4 className="mt-3 font-bold">{item.title}</h4>
                       <p className="caption mt-1">{item.provider}</p>
                     </button>
                   ))}
                 </div>
+                {videos.length > 1 && <details className="reference-details mt-4" key={selected}>
+                  <summary>ดูคลิปเพิ่มเติม ({videos.length - 1})</summary>
+                  <div className="lesson-extra-videos">
+                    {videos.slice(1).map(item => <button key={item.id} className="resource-row" onClick={() => setVideo(item)}><Play size={20} aria-hidden="true" /><span><strong>{item.title}</strong><span className="caption block">{item.provider} · {item.duration?.replace('min', 'นาที')}</span>{item.contextLabel && <span className="caption block">{item.contextLabel}</span>}</span><ArrowRight size={18} aria-hidden="true" /></button>)}
+                  </div>
+                </details>}
               </section>
             )}
             <div className="detail-grid">
-              <section>
-                <p>{topic.description}</p>
-                <h2 className="section-title mt-6">ลำดับการช่วยเหลือ</h2>
-                <ol className="protocol-list">
-                  {topic.summarySteps.map((step, index) => (
-                    <li key={step}>
-                      <span className="step-number">
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
-                      <span>{step}</span>
-                    </li>
-                  ))}
-                </ol>
-              </section>
               {docs.length > 0 && <section>
                 <h3 className="section-title">แหล่งอ้างอิงทางการ</h3>
                 {docs.map((doc) => (
@@ -257,9 +258,7 @@ export function LearningCenter({
                   {progress.completedTopicIds.includes(selected ?? "") ? "ทบทวนแล้ว" : "บันทึกความคืบหน้า"}
                 </p>
                 <h3 className="section-title !mb-1">
-                  {activeModuleIndex === modules.length - 1
-                    ? "พร้อมเข้าสู่สถานการณ์จำลอง"
-                    : `จบบท ${String(activeModuleIndex + 1).padStart(2, "0")}`}
+                  อ่านแล้ว บันทึกไว้ทบทวน
                 </h3>
                 <p className="caption">
                   {activeModuleIndex === modules.length - 1
@@ -267,8 +266,8 @@ export function LearningCenter({
                     : "เลือกเรียนบทอื่นต่อได้ทุกลำดับ"}
                 </p>
               </div>
-              <button className="primary-button" onClick={completeModule}>
-                เรียนจบบทนี้
+              <button className="secondary-button" onClick={completeModule}>
+                บันทึกว่าอ่านแล้ว
                 <ArrowRight size={18} />
               </button>
             </section>
