@@ -1,15 +1,16 @@
 "use client";
 
 import { ArrowRight, Check, ChevronRight, Trophy } from "lucide-react";
+import Image from 'next/image';
 import { LeaderboardEntry, PlayerProfile, UserProgress } from "@/types";
-import { getGameProgress, TOPIC_ORDER } from "@/lib/gameProgress";
+import { getGameProgress, getLevelProgress, TOPIC_ORDER } from "@/lib/gameProgress";
 
 const steps = [
   { title: "ลำดับช่วยเหลือ", detail: "ประเมินเหตุและลงมือให้ถูกลำดับ" },
   { title: "แจ้งเหตุ 1669", detail: "บอกข้อมูลสำคัญให้ครบ" },
   { title: "จังหวะ CPR", detail: "รักษาจังหวะ 100–120 ครั้ง/นาที" },
-  { title: "ใช้ AED", detail: "ฟังคำสั่ง เคลียร์พื้นที่ แล้วทำต่อ" },
 ];
+const lessonSteps = [...steps, { title: 'AED · บทเสริม', detail: 'สำหรับผู้สนใจ' }];
 
 export function TrainingSteps({ current = -1 }: { current?: number }) {
   const safeCurrent = Math.min(Math.max(current, 0), steps.length - 1);
@@ -19,7 +20,7 @@ export function TrainingSteps({ current = -1 }: { current?: number }) {
       <div className="progress-heading">
         <strong>{steps[safeCurrent].title}</strong>
         <span className="progress-count">
-          {String(safeCurrent + 1).padStart(2, "0")} / 04
+          {String(safeCurrent + 1).padStart(2, "0")} / 03
         </span>
       </div>
       <ol>
@@ -49,6 +50,14 @@ interface Props {
   leaderboard: LeaderboardEntry[];
   player: PlayerProfile | null;
   onOpenPlayer: () => void;
+  leaderboardGuided: boolean;
+  onLeaderboardMode: (guided: boolean) => void;
+  leaderboardLoading: boolean;
+  leaderboardError: string;
+  onReloadLeaderboard: () => void;
+  syncMessage: string;
+  pendingCount: number;
+  onRetrySync: () => void;
 }
 
 export function HomeDashboard({
@@ -59,28 +68,29 @@ export function HomeDashboard({
   leaderboard,
   player,
   onOpenPlayer,
+  leaderboardGuided, onLeaderboardMode, leaderboardLoading, leaderboardError, onReloadLeaderboard,
+  syncMessage, pendingCount, onRetrySync,
 }: Props) {
   const continuing = currentStep !== undefined;
   const currentLabel = continuing
     ? steps[Math.min(currentStep, steps.length - 1)].title
     : null;
-  const game = getGameProgress(progress);
+  const localGame = getGameProgress(progress);
+  const game = player?.xp == null ? localGame : getLevelProgress(player.xp, localGame.completedTopicCount);
 
   return (
     <div className="home-screen">
       <div className="home-top-grid">
         <section className="home-hero">
-          <p className="protocol-code">Practice before the pressure</p>
+          <p className="protocol-code">สถานการณ์ฝึก · ช่วยเพื่อนหมดสติ</p>
           <h1 className="display-title">
-            <span className="hero-title-line">ถ้าเหตุฉุกเฉิน</span>
-            <span className="hero-title-line">เกิดขึ้น เรา<span className="hero-accent-word">พร้อม</span></span>
-            <span className="hero-title-line">ช่วยหรือยัง?</span>
+            <span className="hero-title-line">เจอคนหมดสติ</span>
+            <span className="hero-title-line">เราจะทำอะไรก่อน?</span>
           </h1>
           <p className="lead">
-            ฝึกคิด · ฝึกตัดสินใจ · ฝึกช่วยชีวิต
-            <br />ผ่านสถานการณ์จำลอง First Aid &amp; CPR
+            ฝึกประเมินเหตุ แจ้ง 1669 และรักษาจังหวะ CPR
           </p>
-          <p className="mission-meta">4 ขั้น · ประมาณ 5 นาที · เปลี่ยนสถานการณ์ทุกครั้ง</p>
+          <p className="mission-meta">3 ขั้น · ประมาณ 5 นาที · ไม่ต้องเข้าสู่ระบบ</p>
           <div className="hero-actions">
             <button className="primary-button" onClick={onStart}>
               {continuing
@@ -97,9 +107,13 @@ export function HomeDashboard({
           </div>
           {continuing && (
             <p className="caption mt-3">
-              บันทึกไว้ที่ขั้น {currentStep + 1} จาก 4
+              บันทึกไว้ที่ขั้น {currentStep + 1} จาก 3
             </p>
           )}
+          <div className="home-companion">
+            <div><strong>ฝึกไปกับน้องพร้อม</strong><p>ค่อย ๆ คิด ตัดสินใจ แล้วลองลงมือ<br />มีคำแนะนำหลังฝึก</p></div>
+            <Image src="/images/training/prom-companion-home-v1.png" width={1024} height={1536} sizes="(min-width: 640px) 160px, 110px" alt="น้องพร้อม ตัวละครนักศึกษาวิชาทหาร ยิ้มต้อนรับพร้อมสมุดฝึก" />
+          </div>
         </section>
 
         <section className="training-plan" aria-labelledby="training-plan-title">
@@ -114,7 +128,6 @@ export function HomeDashboard({
                   <strong>{step.title}</strong>
                   <small>{step.detail}</small>
                 </span>
-                <ChevronRight aria-hidden="true" />
               </li>
             ))}
           </ol>
@@ -130,7 +143,7 @@ export function HomeDashboard({
                 Level {game.level}
               </h2>
               <p className="caption">
-                เรียนจบแล้ว {game.completedTopicCount} จาก 4 บท · ทุกบทเปิดให้เรียน
+                3 บทเรียนหลัก + AED บทเสริม · ทุกบทเปิดให้เรียน
               </p>
             </div>
             <span className="level-badge">LV.{game.level}</span>
@@ -150,14 +163,16 @@ export function HomeDashboard({
               ? "ถึงเลเวลสูงสุดแล้ว"
               : `${game.xpInLevel} / ${game.xpForNextLevel} XP ไปยัง Level ${game.level + 1}`}
           </p>
-          <p className="content-meta mt-1">ภารกิจละ 250 XP · โบนัสคะแนนเดิมคงไว้ ไม่ใช่ระดับทักษะภาคปฏิบัติ</p>
+          <p className="content-meta mt-1">ภารกิจละ 250 XP + โบนัสคะแนนดีที่สุด · {player ? 'XP ที่บันทึกออนไลน์ของโปรไฟล์นี้' : 'XP ในเครื่อง'} · ไม่ใช่ระดับทักษะภาคปฏิบัติ</p>
+          {syncMessage && <p className="caption mt-2" role="status">{syncMessage}</p>}
+          {pendingCount > 0 && <button className="text-button" onClick={onRetrySync}>ลองส่งคะแนนที่รออีกครั้ง ({pendingCount})</button>}
           <ol className="lesson-progress" aria-label="ความคืบหน้าบทเรียน">
             {TOPIC_ORDER.map((topicId, index) => {
               const completed = progress.completedTopicIds.includes(topicId);
               return (
                 <li key={topicId} data-complete={completed}>
                   <span>{completed ? <Check /> : index + 1}</span>
-                  <small>{steps[index].title}</small>
+                  <small>{lessonSteps[index].title}</small>
                 </li>
               );
             })}
@@ -172,7 +187,9 @@ export function HomeDashboard({
             </div>
             <Trophy className="leaderboard-trophy" aria-hidden="true" />
           </div>
-          {leaderboard.length > 0 ? (
+          <div className="leaderboard-modes" role="group" aria-label="แยกอันดับตามตัวช่วยเสียง"><button className="secondary-button" aria-pressed={!leaderboardGuided} onClick={() => onLeaderboardMode(false)}>ฝึกเอง</button><button className="secondary-button" aria-pressed={leaderboardGuided} onClick={() => onLeaderboardMode(true)}>ใช้เสียงนำ</button></div>
+          <p className="caption mt-2">คะแนนสูตรใหม่ · เฉลี่ยลำดับ / 1669 / จังหวะ</p>
+          {leaderboardLoading ? <p className="caption" role="status">กำลังโหลดอันดับ…</p> : leaderboardError ? <div><p className="caption" role="status">{leaderboardError}</p><button className="text-button" onClick={onReloadLeaderboard}>โหลดอันดับอีกครั้ง</button></div> : leaderboard.length > 0 ? (
             <ol className="leaderboard-list">
               {leaderboard.slice(0, 5).map((entry, index) => (
                 <li key={`${entry.rank}-${entry.displayName}-${index}`}>
@@ -187,7 +204,7 @@ export function HomeDashboard({
             </ol>
           ) : (
             <p className="caption leaderboard-empty">
-              ยังไม่มีคะแนนสูตรเดิมบนลีดเดอร์บอร์ด
+              ยังไม่มีคะแนนสูตรใหม่ในหมวดนี้
             </p>
           )}
           <button className="text-button" onClick={onOpenPlayer}>
@@ -195,7 +212,7 @@ export function HomeDashboard({
             <ChevronRight size={18} />
           </button>
           <p className="content-meta mt-2">
-            อันดับนี้ใช้คะแนนสูตรเดิม ผลแบบฝึกสูตรใหม่เก็บในเครื่องระหว่างปรับระบบอันดับ ไม่ใช่ผลประเมินภาคปฏิบัติ
+            แยกจากคะแนนสูตรเดิมและแยกผลที่ใช้เสียงนำ เรียงจากคะแนนดีที่สุด ตามด้วยจังหวะ และจำนวนครั้งที่ฝึก ไม่ใช่ผลประเมินภาคปฏิบัติ
           </p>
         </div>
       </section>

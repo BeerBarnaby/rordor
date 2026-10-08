@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Image from 'next/image';
 import {
   ArrowLeft,
   ArrowRight,
@@ -29,24 +30,32 @@ const modules = [
     title: "ประเมินสถานการณ์",
     detail: "ความปลอดภัย · การตอบสนอง",
     icon: ShieldCheck,
+    cover: '/images/training/lesson-assessment-v1.png',
+    goal: 'รู้ว่าพื้นที่ปลอดภัยหรือไม่ ก่อนเข้าช่วย',
   },
-  { id: "call1669", title: "ขอความช่วยเหลือ", detail: "โทร 1669 · ขอ AED", icon: PhoneCall },
-  { id: "cpr", title: "เริ่ม CPR", detail: "ตำแหน่งมือ · ความเร็ว · จังหวะ", icon: HeartPulse },
+  { id: "call1669", title: "แจ้งเหตุ 1669", detail: "ข้อมูลที่ต้องบอก · การตอบคำถาม", icon: PhoneCall, cover: '/images/training/lesson-call1669-v1.png', goal: 'บอกเหตุ สถานที่ และอาการให้เจ้าหน้าที่เข้าใจ' },
+  { id: "cpr", title: "เริ่ม CPR", detail: "ตำแหน่งมือ · ความเร็ว · จังหวะ", icon: HeartPulse, cover: '/images/training/lesson-cpr-v1.png', goal: 'ทบทวนหลักการกดหน้าอก แล้วฝึกจังหวะด้วยการแตะ' },
   {
     id: "aed",
-    title: "ใช้ AED",
-    detail: "เปิดเครื่อง · ติดแผ่น · ทำตามคำสั่ง",
+    title: "AED · บทเรียนเสริม",
+    detail: "สำหรับผู้สนใจ · ไม่บังคับในภารกิจหลัก",
     icon: Zap,
+    cover: '/images/training/prom-aed-clear-v1.png',
+    goal: 'ทบทวนการใช้เครื่องตามคำแนะนำทีละขั้น',
   },
 ];
 export function LearningCenter({
   onStartMission,
+  onPracticeAED,
   progress,
+  initialTopic = null,
 }: {
   onStartMission: () => void;
+  onPracticeAED: () => void;
   progress: UserProgress;
+  initialTopic?: string | null;
 }) {
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(initialTopic);
   const [video, setVideo] = useState<LearningVideo | null>(null);
   const topic = LEARNING_TOPICS.find((item) => item.id === selected);
   const activeModule = modules.find((item) => item.id === selected);
@@ -72,37 +81,35 @@ export function LearningCenter({
     <div className="page-stack learning-screen">
       <header>
         <p className="protocol-code">
-          {topic ? `บท ${activeModuleIndex + 1} จาก 4` : "บทเรียนภาคสนาม"}
+          {selected === 'aed' ? 'บทเรียนเสริม · สำหรับผู้สนใจ' : topic ? `บทเรียนหลัก ${activeModuleIndex + 1} จาก 3` : "บทเรียนภาคสนาม"}
         </p>
         <h1 className="page-title">
-          {activeModule?.title || "บทเรียน 4 ขั้นก่อนลงมือ"}
+          {activeModule?.title || "เลือกบทเรียนที่อยากทบทวน"}
         </h1>
         {!topic && (
           <p className="lead mt-3">
-            ทบทวนเฉพาะสิ่งจำเป็นก่อนเริ่มสถานการณ์ เลือกอ่านทีละบทได้
+            ทุกบทเปิดให้เรียน เลือกเริ่มจากเรื่องที่ต้องการได้เลย
           </p>
         )}
       </header>
       {!topic ? (
         <>
           <div className="module-grid">
-            {modules.map((item, index) => {
-              const Icon = item.icon;
+            {modules.filter(item => item.id !== 'aed').map((item, index) => {
               const completed = progress.completedTopicIds.includes(item.id);
               return (
                 <button
-                  className="learning-module"
+                  className="learning-module lesson-card"
                   data-module={item.id}
                   data-complete={completed}
                   key={item.id}
                   onClick={() => openModule(item.id)}
                 >
-                  <span className="module-number">0{index + 1}</span>
-                  <Icon className="module-icon" aria-hidden="true" />
-                  <span className="flex-1">
+                  <span className="lesson-cover"><Image src={item.cover} alt="" width={1536} height={1024} sizes="(min-width: 1024px) 280px, 110px" /></span>
+                  <span className="lesson-card-copy">
+                    <span className="module-number">บทเรียน {index + 1} · {completed ? 'ทบทวนแล้ว' : 'พร้อมเรียน'}</span>
                     <strong>{item.title}</strong>
                     <span className="caption block mt-1">{item.detail}</span>
-                  </span>
                   <span className="module-open">
                     {completed ? (
                       <>ทบทวนอีกครั้ง <Check size={18} /></>
@@ -110,10 +117,16 @@ export function LearningCenter({
                       <>เปิดบทเรียน <ArrowRight size={18} /></>
                     )}
                   </span>
+                  </span>
                 </button>
               );
             })}
           </div>
+          <section className="section-rule" aria-label="บทเรียนเสริม">
+            <h2 className="section-title">เรียนเพิ่มเติมเมื่อสนใจ</h2>
+            <p className="caption mb-3">AED แยกจากภารกิจหลัก ไม่ต้องเรียนบทนี้เพื่อดูผลการฝึก CPR และการแจ้งเหตุ</p>
+            <button className="learning-module lesson-card" data-module="aed" onClick={() => openModule('aed')}><span className="lesson-cover"><Image src={modules[3].cover} alt="" width={1536} height={1024} sizes="110px" /></span><span className="lesson-card-copy"><span className="module-number">เลือกเรียนเพิ่มเติม</span><strong>AED · บทเรียนเสริม</strong><span className="caption">เปิดเครื่อง ติดแผ่น และทำตามผลวิเคราะห์</span><span className="module-open">เปิดบทเรียน <ArrowRight size={18} aria-hidden="true" /></span></span></button>
+          </section>
           <aside className="notice">
             <strong>ใช้ทบทวนก่อนฝึก</strong>
             {PROTOTYPE_DISCLAIMER} และไม่ทดแทนการฝึกภาคปฏิบัติ
@@ -137,6 +150,7 @@ export function LearningCenter({
                   key={item.id}
                   id={`tab-${item.id}`}
                   role="tab"
+                  aria-label={item.title}
                   aria-selected={selected === item.id}
                   aria-controls="learning-detail"
                   tabIndex={selected === item.id ? 0 : -1}
@@ -165,7 +179,7 @@ export function LearningCenter({
                 >
                   <Icon aria-hidden="true" />
                   <span>0{index + 1}</span>
-                  <small>{item.title}</small>
+                  <small>{['ประเมินเหตุ', '1669', 'CPR', 'AED เสริม'][index]}</small>
                 </button>
                 );
               })}
@@ -177,6 +191,18 @@ export function LearningCenter({
             aria-labelledby={`tab-${selected}`}
             className="page-stack"
           >
+            <section className="lesson-intro">
+              <Image src={activeModule!.cover} alt="" width={1536} height={1024} sizes="(min-width: 768px) 240px, 160px" />
+              <div><p className="content-meta">เมื่ออ่านบทนี้แล้ว</p><h2 className="section-title">{activeModule!.goal}</h2><p className="caption">ภาพประกอบหัวข้อ ไม่ใช่ภาพสาธิตการรักษา</p></div>
+            </section>
+            <section>
+              <p>{topic.description}</p>
+              <h2 className="section-title mt-6">จำขั้นตอนสำคัญ</h2>
+              <ol className="protocol-list">
+                {topic.summarySteps.map((step, index) => <li key={step}><span className="step-number">{String(index + 1).padStart(2, '0')}</span><span>{step}</span></li>)}
+              </ol>
+            </section>
+            {selected === 'aed' && <section className="page-stack"><button className="primary-button" onClick={onPracticeAED}>ทบทวน AED ทีละขั้น <ArrowRight size={20} aria-hidden="true" /></button><p className="caption">ลองผลช็อกและไม่ช็อกได้ · ไม่เพิ่ม XP หรือคะแนนทักษะ</p></section>}
             {videos.length > 0 && (
               <section>
                 <h3 className="section-title">วิดีโอแนะนำ</h3>
@@ -216,20 +242,6 @@ export function LearningCenter({
               </section>
             )}
             <div className="detail-grid">
-              <section>
-                <p>{topic.description}</p>
-                <h2 className="section-title mt-6">ลำดับการช่วยเหลือ</h2>
-                <ol className="protocol-list">
-                  {topic.summarySteps.map((step, index) => (
-                    <li key={step}>
-                      <span className="step-number">
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
-                      <span>{step}</span>
-                    </li>
-                  ))}
-                </ol>
-              </section>
               {docs.length > 0 && <section>
                 <h3 className="section-title">แหล่งอ้างอิงทางการ</h3>
                 {docs.map((doc) => (
@@ -257,9 +269,7 @@ export function LearningCenter({
                   {progress.completedTopicIds.includes(selected ?? "") ? "ทบทวนแล้ว" : "บันทึกความคืบหน้า"}
                 </p>
                 <h3 className="section-title !mb-1">
-                  {activeModuleIndex === modules.length - 1
-                    ? "พร้อมเข้าสู่สถานการณ์จำลอง"
-                    : `จบบท ${String(activeModuleIndex + 1).padStart(2, "0")}`}
+                  {selected === 'aed' ? 'จบบทเรียนเสริม AED' : `จบบทเรียน ${activeModuleIndex + 1}`}
                 </h3>
                 <p className="caption">
                   {activeModuleIndex === modules.length - 1

@@ -13,14 +13,19 @@ function safeNonNegativeInteger(value: number, maximum = Number.MAX_SAFE_INTEGER
 
 export function getGameProgress(progress: UserProgress) {
   const attempts = safeNonNegativeInteger(progress.missionAttemptsCount);
-  const bestScore = safeNonNegativeInteger(progress.bestOverallScore, 100);
+  const bestScore = Math.max(safeNonNegativeInteger(progress.bestOverallScore, 100), safeNonNegativeInteger(progress.measuredBestOverallScore ?? 0, 100));
   const completedTopicCount = new Set(
     (progress.completedTopicIds ?? []).filter((topicId) =>
       TOPIC_ORDER.includes(topicId as (typeof TOPIC_ORDER)[number]),
     ),
   ).size;
-  // Keep this formula aligned with get_public_leaderboard() in Supabase.
+  // Legacy XP is retained. Score bonus is not used to rank different versions.
   const xp = attempts * XP_PER_MISSION + bestScore;
+  return getLevelProgress(xp, completedTopicCount);
+}
+
+export function getLevelProgress(value: number, completedTopicCount = 0) {
+  const xp = safeNonNegativeInteger(value);
   const level = Math.min(MAX_LEVEL, Math.floor(xp / XP_PER_LEVEL) + 1);
   const xpInLevel = level === MAX_LEVEL ? XP_PER_LEVEL : xp % XP_PER_LEVEL;
 

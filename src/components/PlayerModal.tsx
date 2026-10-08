@@ -86,8 +86,9 @@ export function PlayerModal({
             <dl className="player-stats">
               <div><dt>คะแนนดีที่สุด</dt><dd>{player.bestScore}</dd></div>
               <div><dt>จังหวะ CPR</dt><dd>{player.bestRhythmScore}%</dd></div>
-              <div><dt>ภารกิจ</dt><dd>{player.attemptsCount}</dd></div>
+              <div><dt>ภารกิจสูตรใหม่</dt><dd>{player.measuredAttemptsCount ?? 0}</dd></div>
             </dl>
+            <p className="caption">{player.xp ?? 0} XP · รวมภารกิจเก่าและใหม่ {player.attemptsCount} ครั้ง · อันดับนี้ใช้ผลสูตรใหม่ที่ฝึกเอง ผลใช้เสียงนำอยู่คนละหมวด</p>
             <p className="notice">
               <strong>การเข้าสู่ระบบเป็นทางเลือก</strong>
               ออกจากโปรไฟล์แล้วก็ยังเรียนและฝึกแบบ Guest ได้ คะแนนในเครื่องจะไม่หาย

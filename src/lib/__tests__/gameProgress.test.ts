@@ -13,6 +13,10 @@ const baseProgress: UserProgress = {
 };
 
 describe("game progression", () => {
+  it('uses the new best score bonus while retaining a larger legacy bonus', () => {
+    expect(getGameProgress({ ...baseProgress, missionAttemptsCount: 2, bestOverallScore: 0, measuredBestOverallScore: 67 }).xp).toBe(567);
+    expect(getGameProgress({ ...baseProgress, missionAttemptsCount: 2, bestOverallScore: 90, measuredBestOverallScore: 67 }).xp).toBe(590);
+  });
   it("calculates xp with the same mission formula as the leaderboard", () => {
     expect(
       getGameProgress({

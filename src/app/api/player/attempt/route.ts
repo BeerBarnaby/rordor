@@ -1,4 +1,5 @@
 import { callSupabaseRpc } from "@/lib/supabase/server";
+import { parseMeasuredAttempt } from '@/lib/missionAttempt';
 import {
   noStoreJson,
   readPlayerToken,
@@ -7,6 +8,7 @@ import {
 } from "@/lib/playerServer";
 
 type AttemptPayload = {
+  scoringVersion?: unknown;
   clientAttemptId?: unknown;
   scenarioId?: unknown;
   overallScore?: unknown;
@@ -23,6 +25,20 @@ export async function POST(request: Request) {
 
   try {
     const body = (await request.json()) as AttemptPayload;
+    if (!body || typeof body !== 'object' || Array.isArray(body)) return noStoreJson({ ok: false, error: 'invalid_attempt' }, 400);
+    if (body?.scoringVersion !== undefined) {
+      const payload = parseMeasuredAttempt(body);
+      if (!payload) return noStoreJson({ ok: false, error: 'invalid_attempt' }, 400);
+      const session = await callSupabaseRpc<PlayerRpcEnvelope>('get_game_player_v2', { p_session_token: token });
+      if (!session.ok) return noStoreJson({ ok: false, error: 'invalid_session' }, 401);
+      if (session.player?.id !== payload.expectedPlayerId) return noStoreJson({ ok: false, error: 'account_changed' }, 403);
+      const envelope = await callSupabaseRpc<PlayerRpcEnvelope>('submit_game_attempt_v2', {
+        p_session_token: token, p_client_attempt_id: payload.clientAttemptId, p_scenario_id: payload.scenarioId,
+        p_sequence_score: payload.sequenceScore, p_call_score: payload.callScore, p_cpr_rhythm_score: payload.cprRhythmScore,
+        p_total_time_seconds: payload.totalTimeSeconds, p_audio_guided: payload.audioGuided,
+      });
+      return noStoreJson({ ok: Boolean(envelope.ok), error: envelope.error, player: envelope.player }, envelope.ok ? 200 : 400);
+    }
     const overallScore = Number(body.overallScore);
     const cprRhythmScore = Number(body.cprRhythmScore);
     const totalTimeSeconds = Number(body.totalTimeSeconds);

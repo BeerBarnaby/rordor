@@ -1,4 +1,5 @@
 import type { LeaderboardEntry, MissionResult, PlayerProfile } from "@/types";
+import { measuredPayload, type MeasuredAttempt } from './missionAttempt';
 
 const PLAYER_SESSION_KEY = "nong_prom_player_session_v1";
 
@@ -16,6 +17,9 @@ type RpcEnvelope = {
     best_rhythm_score?: number;
     attempts_count?: number;
     rank?: number | null;
+    xp?: number;
+    level?: number;
+    measured_attempts_count?: number;
   };
 };
 
@@ -28,6 +32,9 @@ function toProfile(value: RpcEnvelope["player"]): PlayerProfile | null {
     bestRhythmScore: Number(value.best_rhythm_score ?? 0),
     attemptsCount: Number(value.attempts_count ?? 0),
     rank: value.rank == null ? null : Number(value.rank),
+    xp: value.xp == null ? undefined : Number(value.xp),
+    level: value.level == null ? undefined : Number(value.level),
+    measuredAttemptsCount: value.measured_attempts_count == null ? undefined : Number(value.measured_attempts_count),
   };
 }
 
@@ -50,6 +57,8 @@ function rpcError(code?: string): Error {
     attempt_too_fast: "ระบบยังไม่รับคะแนนที่จบเร็วผิดปกติ กรุณาลองฝึกใหม่",
     attempt_rate_limited: "ส่งคะแนนถี่เกินไป กรุณารอสักครู่แล้วลองใหม่",
     daily_attempt_limit: "ส่งคะแนนครบ 100 ครั้งของวันนี้แล้ว ลองใหม่พรุ่งนี้",
+    attempt_conflict: 'ผลรอบนี้เคยบันทึกแล้ว แต่ข้อมูลที่ส่งซ้ำไม่ตรงกัน',
+    account_changed: 'ผลรอบนี้เป็นของอีกโปรไฟล์ กรุณากลับเข้าโปรไฟล์ที่ใช้ฝึก',
   };
   return new Error(messages[code ?? ""] ?? "เชื่อมต่อระบบคะแนนไม่สำเร็จ กรุณาลองอีกครั้ง");
 }
@@ -69,7 +78,7 @@ async function createSession(
   if (!profile) throw rpcError();
 
   clearLegacyBrowserSession();
-  return { profile };
+  return (await restorePlayerSession()) ?? { profile };
 }
 
 export function registerPlayer(
@@ -102,10 +111,10 @@ export async function logoutPlayer() {
   await fetch("/api/player/session", { method: "DELETE" });
 }
 
-export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
-  const response = await fetch("/api/player/leaderboard", { cache: "no-store" });
+export async function getLeaderboard(audioGuided = false): Promise<LeaderboardEntry[]> {
+  const response = await fetch(`/api/player/leaderboard?guided=${audioGuided}`, { cache: "no-store" });
   const data = await response.json().catch(() => []);
-  if (!response.ok || !Array.isArray(data)) return [];
+  if (!response.ok || !Array.isArray(data)) throw rpcError();
   return data.map((row) => ({
     rank: Number(row.rank),
     displayName: String(row.display_name),
@@ -113,25 +122,25 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
     bestRhythmScore: Number(row.best_rhythm_score),
     attemptsCount: Number(row.attempts_count),
     level: Number(row.level),
+    xp: Number(row.xp),
+    audioGuided: Boolean(row.audio_guided),
   }));
 }
 
 export async function submitMissionToLeaderboard(result: MissionResult) {
-  if (result.scoringVersion) return null;
+  const payload = measuredPayload(result);
+  if (!payload) return null;
+  return submitMeasuredAttempt(payload);
+}
+export async function submitMeasuredAttempt(payload: MeasuredAttempt) {
   const response = await fetch("/api/player/attempt", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      clientAttemptId: result.id,
-      scenarioId: result.scenarioId,
-      overallScore: result.overallScore,
-      cprRhythmScore: result.cprRhythmScore,
-      totalTimeSeconds: result.totalTimeSeconds,
-    }),
+    body: JSON.stringify(payload),
   });
-  if (response.status === 401) return null;
   const envelope = (await response.json().catch(() => ({}))) as RpcEnvelope;
-  if (!response.ok || !envelope.ok) return null;
+  if (!response.ok || !envelope.ok) throw rpcError(envelope.error);
   const profile = envelope.ok ? toProfile(envelope.player) : null;
+  if (!profile) throw rpcError();
   return profile;
 }

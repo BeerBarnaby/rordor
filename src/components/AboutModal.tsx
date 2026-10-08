@@ -2,6 +2,8 @@
 import { AppDialog } from "./AppDialog";
 import { ContentMetadata } from "./TrainingUI";
 import { MAIN_PROTOCOL_METADATA } from "@/data/scenarios";
+import Image from 'next/image';
+import { PromMark } from './PromMark';
 export function AboutModal({
   isOpen,
   onClose,
@@ -46,7 +48,7 @@ export function AboutModal({
         <section>
           <h3 className="section-title">ข้อมูลโครงการ</h3>
           <div className="project-identity">
-            <span className="project-mark" aria-hidden="true">37</span>
+            <PromMark className="project-mark" />
             <div>
               <p className="project-label">ชื่อโครงการ</p>
               <p className="project-name">น้องพร้อม (NONG PROM)</p>
@@ -59,6 +61,16 @@ export function AboutModal({
               <dd>หน่วยฝึกนักศึกษาวิชาทหาร มณฑลทหารบกที่ 37</dd>
             </div>
           </dl>
+          <section className="organization-list" aria-label="หน่วยงานที่เกี่ยวข้องกับโครงการ">
+            <a className="organization-item" href="https://www.facebook.com/rotc37CR/photos/403117162301787/" target="_blank" rel="noopener noreferrer">
+              <Image src="/images/organizations/rotc37-transparent-v1.png" width={1024} height={1024} sizes="72px" alt="ตราหน่วยฝึกนักศึกษาวิชาทหาร มณฑลทหารบกที่ 37" />
+              <span><strong>หน่วยฝึกนักศึกษาวิชาทหาร มณฑลทหารบกที่ 37</strong><small>เพจหน่วยฝึก ↗</small></span>
+            </a>
+            <a className="organization-item" href="https://www.pcccr.ac.th/" target="_blank" rel="noopener noreferrer">
+              <Image src="/images/organizations/pcshs-chiangrai.png" width={200} height={307} sizes="72px" alt="ตราโรงเรียนวิทยาศาสตร์จุฬาภรณราชวิทยาลัย เชียงราย" />
+              <span><strong>โรงเรียนวิทยาศาสตร์จุฬาภรณราชวิทยาลัย เชียงราย</strong><small>เว็บไซต์โรงเรียน ↗</small></span>
+            </a>
+          </section>
           <div className="project-credits">
             <section>
               <p className="project-label">ที่ปรึกษาโครงการ</p>

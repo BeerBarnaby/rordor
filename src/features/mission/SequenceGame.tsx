@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from "react";
 import { INITIAL_SEQUENCE_CARDS } from "@/data/scenarios";
 import { SequenceCardItem } from "@/types";
+import { playCue } from '@/lib/trainingAudio';
 import {
   CircleCheck,
   CircleX,
@@ -56,7 +57,7 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({
   }, []);
 
   const handleSelectCard = (card: SequenceCardItem) => {
-    if (isSubmitted) return;
+    if (isSubmitted || selectedCards.length >= targetStepCount) return;
     setAvailableCards((prev) => prev.filter((c) => c.id !== card.id));
     setSelectedCards((prev) => [...prev, card]);
   };
@@ -115,6 +116,7 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({
       (c) => c.isCorrect,
     ).length;
     const calculatedScore = Math.round((correctCount / totalValidSteps) * 100);
+    playCue(calculatedScore === 100 ? 'correct' : 'review');
 
     setScore(calculatedScore);
     setFeedbackList(feedbacks);
@@ -134,12 +136,13 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({
         <p className="protocol-code">ขั้น 01 · การตัดสินใจ</p>
         <h1 className="page-title">ลำดับการช่วยเหลือ</h1>
         <p className="mt-2">เพื่อนล้มลงและไม่ตอบสนอง คุณจะทำอะไรตามลำดับ?</p>
-        <p className="caption mt-2">
-          เลือก {targetStepCount} ขั้นตอนที่ควรทำ แล้วใช้ลูกศรสลับลำดับก่อนตรวจคำตอบ
-        </p>
+        <p className="caption mt-2">แตะเพิ่ม {targetStepCount} ขั้นตอนตามลำดับที่คิดว่าควรทำ</p>
       </header>
+      <div className="sequence-status" role="status" aria-live="polite"><strong>เลือกแล้ว {selectedCards.length} / {targetStepCount}</strong><span>{isSubmitted ? 'ตรวจแล้ว · ดูคำแนะนำก่อนฝึกต่อ' : selectedCards.length === targetStepCount ? 'เปิดลำดับของคุณเพื่อสลับ หรือกดตรวจคำตอบ' : 'ยังสลับลำดับหรือนำออกได้'}</span></div>
       <div className="sequence-grid">
-        <section>
+        <details className="sequence-selection" open={isSubmitted}>
+          <summary>ลำดับของคุณ ({selectedCards.length}/{targetStepCount}) · {isSubmitted ? 'ดูผลแต่ละข้อ' : 'แตะเพื่อดู / สลับลำดับ'}</summary>
+          <section>
           <div className="flex items-center justify-between gap-3 mb-3">
             <h2 className="section-title !mb-0">
               ลำดับของคุณ ({selectedCards.length}/{targetStepCount})
@@ -162,7 +165,7 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({
                     <span className="caption pt-1">{index + 1}.</span>
                     <div className="flex-1">
                       <p className="font-semibold">{card.title}</p>
-                      <p className="caption mt-1">{card.subtitle}</p>
+                      {isSubmitted && <p className="caption mt-1">{card.subtitle}</p>}
                     </div>
                     {isSubmitted &&
                       (card.isCorrect && card.correctOrder === index + 1 ? (
@@ -210,20 +213,22 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({
               ))}
             </ol>
           )}
-        </section>
+          </section>
+        </details>
         {!isSubmitted && (
           <section>
-            <h2 className="section-title">ตัวเลือกการปฏิบัติ</h2>
+            <h2 className="section-title">เลือกสิ่งที่จะทำ</h2>
             <div className="sequence-list">
               {availableCards.map((card) => (
                 <button
                   key={card.id}
                   className="answer-option"
+                  disabled={selectedCards.length >= targetStepCount}
+                  aria-label={`เพิ่มขั้นตอน: ${card.title}`}
                   onClick={() => handleSelectCard(card)}
                 >
                   <span>
                     <span className="block font-semibold">{card.title}</span>
-                    <span className="caption block mt-1">{card.subtitle}</span>
                   </span>
                   <Plus size={20} className="shrink-0" />
                 </button>
@@ -234,7 +239,7 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({
       </div>
       {!isSubmitted ? (
         <button
-          className="primary-button self-start"
+          className="primary-button sequence-submit"
           disabled={selectedCards.length !== targetStepCount}
           onClick={handleSubmit}
         >

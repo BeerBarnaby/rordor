@@ -1,0 +1,23 @@
+{
+  "runId": "nong-prom-aed-2026-10-06",
+  "scope": "AED screens and required shared components",
+  "fileKey": "0Pdi6Am2mz6z36FchOGeDJ",
+  "pageId": "0:1",
+  "componentReviewId": "5:34",
+  "headerId": "5:44",
+  "buttonSetId": "5:43",
+  "buttonIds": ["5:37", "5:39", "5:41"],
+  "collectionId": "VariableCollectionId:5:2",
+  "temporaryFigmaFont": "Anuphan",
+  "productionFont": "LINE Seed Sans TH",
+  "screenReviewId": "7:15",
+  "instructionRowId": "7:7",
+  "safetyNoticeId": "7:12",
+  "approvedIllustrationHash": "1ced39f4d9d8da35cb6c35880a13e1d3cb03e5f7",
+  "mobileScreenIds": ["7:20", "7:50", "7:80", "7:111", "7:134", "7:165", "7:195", "7:225"],
+  "tabletScreenIds": ["7:257", "7:287", "7:317", "7:348", "7:371", "7:402", "7:432", "7:462"],
+  "desktopScreenIds": ["7:494", "7:524", "7:554", "7:585", "7:608", "7:639", "7:669", "7:699"],
+  "completedSteps": ["discovery", "foundations", "header", "action-button", "24-editable-screen-layouts", "isolated-illustration", "mobile-all-state-visual-review", "tablet-clear-visual-review", "desktop-clear-visual-fix", "all-screen-outer-bounds-check"],
+  "pendingSteps": ["pad-placement-diagram-reviewed-by-instructor", "prototype-links", "exit-confirmation", "disclosure-content", "final-layout-approval", "implementation", "device-tests"],
+  "productionChanged": false
+}

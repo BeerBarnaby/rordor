@@ -10,8 +10,8 @@ export interface ProtocolMetadata {
 export const MAIN_PROTOCOL_METADATA: ProtocolMetadata = {
   protocolId: 'CPR_ADULT_ROTC_V1',
   version: '1.1.0',
-  reviewStatus: 'prototype_pending_expert_review',
-  lastUpdated: '2026-09-19',
+  reviewStatus: 'instructor_approved_user_reported',
+  lastUpdated: '2026-10-06',
 };
 
 // บริบทเปลี่ยนได้ แต่ลำดับและสาระทางการแพทย์ใช้ชุดที่รอตรวจทานชุดเดิม

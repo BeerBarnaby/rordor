@@ -12,7 +12,7 @@ export async function GET() {
   if (!token) return noStoreJson({ ok: false, error: "invalid_session" }, 401);
 
   try {
-    const envelope = await callSupabaseRpc<PlayerRpcEnvelope>("get_game_player", {
+    const envelope = await callSupabaseRpc<PlayerRpcEnvelope>("get_game_player_v2", {
       p_session_token: token,
     });
     if (!envelope.ok || !envelope.player) {

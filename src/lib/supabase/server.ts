@@ -8,9 +8,11 @@ type PlayerRpcName =
   | "logout_game_player"
   | "submit_game_attempt"
   | "get_public_leaderboard";
+// The private implementations are exposed only through invoker RPC wrappers.
+type MeasuredRpcName = 'get_game_player_v2' | 'get_public_leaderboard_v2' | 'submit_game_attempt_v2';
 
 export async function callSupabaseRpc<T>(
-  functionName: PlayerRpcName,
+  functionName: PlayerRpcName | MeasuredRpcName,
   parameters: Record<string, unknown>,
 ): Promise<T> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { advanceAED, measuredMissionScore, type AEDState } from '../aedTraining';
+import { advanceAED, measuredMissionScore, recommendationForNextPractice, type AEDState } from '../aedTraining';
 describe('guided AED state guards', () => {
+  it('alternates from saved completed attempts instead of a session counter', () => {
+    expect([0, 1, 2, 3].map(recommendationForNextPractice)).toEqual(['shock', 'no-shock', 'shock', 'no-shock']);
+  });
+  it('normalizes invalid completed attempt counts', () => {
+    expect(recommendationForNextPractice(-1)).toBe('shock');
+    expect(recommendationForNextPractice(NaN)).toBe('shock');
+    expect(recommendationForNextPractice(1.9)).toBe('no-shock');
+  });
   it.each(['shock', 'no-shock'] as const)('follows the device %s branch', recommendation => {
     let state: AEDState = 'power';
     for (let i = 0; i < 3; i++) state = advanceAED(state, 'continue', recommendation);

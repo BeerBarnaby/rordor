@@ -153,6 +153,9 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   font-weight: 500;
 }
 .header-actions { display: flex; align-items: center; gap: 2px; }
+.sound-control { position: relative; display: inline-flex; }
+.sound-toggle { flex: none; }
+.sound-unavailable { position: absolute; z-index: 60; right: 0; top: 48px; width: 220px; padding: 12px; border: 1px solid var(--color-line); background: var(--color-surface); color: var(--color-ink); font-size: 13px; line-height: 20px; border-radius: 9px; }
 .player-button { position: relative; }
 .player-button[data-connected="true"]::after {
   content: "";
@@ -268,24 +271,30 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .actions, .hero-actions { display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
 .section-rule { padding-top: 28px; border-top: 1px solid var(--color-line); }
 
-.home-screen { display: flex; flex-direction: column; gap: var(--space-10); }
-.home-top-grid { display: grid; gap: var(--space-8); }
+.home-screen { display: flex; flex-direction: column; gap: var(--space-6); }
+.home-top-grid { display: grid; gap: var(--space-6); }
+.home-top-grid > * { min-width: 0; }
+.home-hero .display-title {
+  font-size: clamp(28px, 8vw, 36px);
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+}
 .home-hero {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding: var(--space-8) var(--space-6);
+  padding: var(--space-6) var(--space-5);
   border: 1px solid var(--color-line);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
   color: var(--color-ink);
-  box-shadow: 0 18px 50px rgb(25 25 31 / 0.07);
+  box-shadow: none;
 }
 .home-hero::before {
   display: none;
 }
 .home-hero::after {
-  content: "";
+  content: none;
   position: absolute;
   z-index: -1;
   width: 260px;
@@ -302,17 +311,113 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .home-hero > :nth-child(4) { animation-delay: 180ms; }
 .home-hero > :nth-child(5) { animation-delay: 240ms; }
 .home-hero .protocol-code { color: var(--color-signal); }
-.home-hero .lead { margin-top: var(--space-6); color: var(--color-ink-muted); }
+.home-hero .lead { margin-top: var(--space-4); color: var(--color-ink-muted); font-size: 16px; line-height: 26px; }
 .hero-accent-word { color: var(--color-signal); }
 .mission-meta { margin-top: var(--space-4); color: var(--color-ink); font-size: var(--text-sm); line-height: var(--leading-sm); font-weight: 700; }
-.home-hero .hero-actions { margin-top: var(--space-8); }
-.home-hero .primary-button { min-height: 58px; }
+.home-hero .hero-actions { margin-top: var(--space-5); }
+.home-hero .primary-button { min-height: 54px; }
+.home-hero .hero-actions > button { min-width: 0; overflow-wrap: anywhere; }
 .home-hero .caption { color: var(--color-ink-muted); }
+.home-companion { display: grid; grid-template-columns: minmax(0, 1fr) 110px; align-items: center; gap: 8px; margin-top: 20px; }
+.home-companion strong { font-size: 16px; line-height: 26px; font-weight: 700; }
+.home-companion p { margin-top: 6px; font-size: 14px; line-height: 23px; color: var(--color-ink-muted); }
+.home-companion img { width: 110px; height: 150px; object-fit: contain; }
+.organization-list { display: grid; gap: 16px; margin-top: 24px; }
+.leaderboard-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+.leaderboard-modes .secondary-button { min-height: 44px; padding: 8px; font-size: 14px; }
+.leaderboard-modes button[aria-pressed="true"] { background: var(--color-navy); color: white; border-color: var(--color-navy); }
+.brand-stamp.prom-mascot-mark { width: 38px; height: 38px; flex-basis: 38px; background: transparent; border: 0; }
+.app-header[data-mode] .brand-stamp.prom-mascot-mark { background: transparent; border: 0; }
+.prom-mascot-mark img { width: 100%; height: 100%; object-fit: contain; }
+.project-mark.prom-mascot-mark { background: transparent; }
+.organization-item { display: grid; grid-template-columns: 72px minmax(0, 1fr); align-items: center; gap: 16px; padding: 16px; border: 1px solid var(--color-line); border-radius: 12px; color: var(--color-ink); text-decoration: none; }
+.organization-item img { width: 72px; height: 90px; object-fit: contain; }
+.organization-item strong { display: block; font-size: 16px; line-height: 26px; }
+.organization-item small { display: block; margin-top: 8px; color: var(--color-ink-muted); font-size: 14px; line-height: 22px; }
+
+/* Focused learning/training refresh: existing colors and Thai typography. */
+.learning-screen, .sequence-training, .call-training, .cpr-training, .results-screen { gap: 24px; }
+.learning-screen .lead { font-size: 16px; line-height: 26px; }
+.learning-screen .lesson-card { display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 16px; min-height: 154px; padding: 14px; box-shadow: none; animation: none; background: var(--color-surface); border-color: var(--color-line); }
+.learning-screen .lesson-card:hover { transform: none; box-shadow: none; border-color: var(--module-color); }
+.lesson-cover { display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 8px; background: #fff9f7; }
+.lesson-cover img { width: 100%; height: 116px; object-fit: contain; }
+.lesson-card-copy { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.lesson-card .module-number { font-size: 12px; line-height: 18px; font-weight: 600; }
+.lesson-card .module-open { min-height: 32px; font-size: 14px; margin-top: 4px; }
+.lesson-intro { display: grid; grid-template-columns: 110px minmax(0, 1fr); align-items: center; gap: 16px; padding: 16px; border-radius: 12px; background: #fff9f7; }
+.lesson-intro img { width: 110px; height: 110px; object-fit: contain; }
+.lesson-intro .section-title { font-size: 17px; line-height: 27px; margin: 6px 0; }
+.learning-screen .module-tabs small { display: block; font-size: 12px; line-height: 19px; }
+.learning-screen .module-tabs button > span { display: none; }
+.sequence-status { display: grid; gap: 4px; padding: 12px 16px; border-radius: 10px; background: var(--color-panel); }
+.sequence-status span { color: var(--color-ink-muted); font-size: 13px; line-height: 21px; }
+.sequence-training .sequence-grid { gap: 20px; }
+.sequence-selection { border: 1px solid var(--color-line); border-radius: 10px; padding: 0 14px; }
+.sequence-selection > summary { cursor: pointer; min-height: 48px; padding: 12px 0; font-size: 14px; line-height: 24px; font-weight: 600; }
+.sequence-selection > section { padding-bottom: 14px; }
+.sequence-training .answer-option { min-height: 58px; padding: 14px 16px; font-size: 16px; line-height: 26px; }
+.sequence-training .sequence-item-header p { font-size: 15px; line-height: 24px; }
+.sequence-training .sequence-submit { position: sticky; bottom: 12px; width: 100%; z-index: 1; box-shadow: 0 0 0 8px var(--color-surface); }
+.sequence-training .sequence-submit:disabled { position: static; box-shadow: none; }
+.call-session { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid var(--color-line); border-radius: 12px; }
+.call-session strong { font-size: 15px; line-height: 24px; }
+.call-session small { display: block; font-size: 13px; line-height: 21px; color: var(--color-ink-muted); }
+.call-checkpoints { display: flex; justify-content: space-between; padding: 0; margin: 0; list-style: none; gap: 8px; }
+.call-checkpoints li { display: grid; place-items: center; flex: 1; height: 28px; border-radius: 6px; background: var(--color-panel); font-size: 12px; color: var(--color-ink-muted); }
+.call-checkpoints li[aria-current="step"] { color: white; background: var(--color-navy); }
+.call-checkpoints li[data-complete="true"] { color: var(--color-success); background: var(--color-success-soft); }
+.call-training .conversation-prompt.call-bubble { border: 0; padding: 18px; background: #f3f4f6; color: var(--color-ink); border-radius: 12px 12px 12px 2px; box-shadow: none; }
+.call-training .call-bubble .operator-label { color: var(--color-ink-muted); }
+.call-training .call-bubble .operator-label::before { display: none; }
+.call-training .page-title { font-size: 26px; line-height: 36px; }
+.call-training { gap: 16px; }
+.call-training .call-bubble blockquote { font-size: 21px; line-height: 32px; }
+.call-user-bubble { max-width: 92%; margin-left: auto; padding: 16px; border-radius: 12px 12px 2px 12px; background: #edf5f2; color: var(--color-ink); font-size: 16px; line-height: 27px; }
+.call-user-bubble .caption { margin-bottom: 6px; }
+.call-answer-feedback { gap: 16px; }
+.call-history { border: 0; }
+.call-history-pair { margin-bottom: 16px; padding: 12px; background: var(--color-panel); border-radius: 8px; font-size: 14px; line-height: 24px; }
+.call-history-pair p + p { margin-top: 8px; }
+.cpr-ready-cover { width: 100%; max-width: 240px; height: 140px; object-fit: contain; margin: 0 auto; }
+.cpr-training .cpr-ready { gap: 16px; padding: 20px; }
+.cpr-audio-options { border: 0; }
+.cpr-training[data-mode="compressing"] { gap: 10px; }
+.cpr-training[data-mode="compressing"] .protocol-code { display: none; }
+.cpr-training[data-mode="compressing"] .page-title { font-size: 22px; line-height: 30px; }
+.cpr-training[data-mode="compressing"] .cpr-audio-options summary { min-height: 44px; padding: 10px 0; }
+.cpr-training .cpr-surface { width: 100%; margin: 0; padding: 22px 18px; border-radius: 12px; }
+.cpr-target { font-size: 15px; line-height: 24px; color: #fff; }
+.cpr-live-metric { margin-top: 16px; }
+.cpr-training .cpr-bpm { font-size: clamp(54px, 16vw, 72px); margin: 6px 0 12px; }
+.cpr-training .cpr-tap { width: min(100%, 260px); min-height: 160px; margin: 24px auto 20px; box-shadow: 0 0 0 8px rgb(230 57 70 / 0.12); }
+.cpr-training .cpr-tap strong { font-size: 32px; letter-spacing: 0; }
+.cpr-training .cpr-tap span { font-size: 14px; line-height: 22px; opacity: 1; }
+.cpr-training .cpr-feedback { font-size: 16px; line-height: 26px; }
+.review-next { padding: 20px; border: 1px solid var(--color-line); border-radius: 12px; background: #fff9f7; display: grid; gap: 12px; }
+.review-next .section-title { margin: 0; }
+.review-score-overview .score-number { font-size: 44px; line-height: 1.2; }
+.results-screen .skill-breakdown { display: grid; gap: 16px; }
+.results-screen .aed-review-status { background: var(--color-panel); padding: 16px; border-radius: 10px; font-size: 14px; line-height: 24px; }
+@media (min-width: 1024px) {
+  .learning-screen .module-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .learning-screen .module-grid .lesson-card { grid-template-columns: 1fr; }
+  .learning-screen .module-grid .lesson-cover img { height: 150px; }
+  .lesson-intro { grid-template-columns: 220px minmax(0, 1fr); }
+  .lesson-intro img { width: 220px; height: 150px; }
+  .sequence-training .sequence-grid { grid-template-columns: 1fr; }
+  .sequence-training .sequence-grid > section .sequence-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.optional-mission-image { width: min(100%, 360px); height: auto; max-height: 200px; object-fit: contain; }
+@media (min-width: 640px) {
+  .home-companion { grid-template-columns: minmax(0, 1fr) 160px; }
+  .home-companion img { width: 160px; height: 200px; }
+}
 .training-plan { padding-top: 4px; }
 .training-rail { padding: 0; margin: 4px 0 0; list-style: none; border-bottom: 1px solid var(--color-line); }
 .training-rail li {
   display: grid;
-  grid-template-columns: 42px minmax(0, 1fr) auto;
+  grid-template-columns: 32px minmax(0, 1fr);
   align-items: center;
   gap: 12px;
   min-height: 66px;
@@ -323,8 +428,8 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .training-rail li:nth-child(3) { animation-delay: 140ms; }
 .training-rail li:nth-child(4) { animation-delay: 210ms; }
 .training-rail .rail-number { color: var(--color-signal); font: 700 13px/20px var(--font-line-seed), system-ui, sans-serif; font-variant-numeric: tabular-nums; }
-.training-rail strong { display: block; font-size: 15px; font-weight: 600; }
-.training-rail small { display: block; color: var(--color-ink-muted); font-size: 13px; line-height: 20px; }
+.training-rail strong { display: block; font-size: 16px; line-height: 26px; font-weight: 600; }
+.training-rail small { display: block; color: var(--color-ink-muted); font-size: 14px; line-height: 22px; }
 .training-rail svg { width: 18px; height: 18px; color: var(--color-ink-muted); }
 .home-result {
   display: grid;
@@ -768,8 +873,26 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .cpr-surface .cpr-feedback { color: white; }
 
 .aed-console { padding: 22px 20px; border-radius: var(--radius-md); background: var(--color-pine); color: white; }
-.aed-task { display: grid; gap: 24px; padding-top: 20px; }
-.aed-current-task { display: grid; gap: 20px; }
+.aed-task { display: grid; gap: 12px; width: 100%; max-width: 568px; margin: 0 auto; color: var(--color-navy); }
+.aed-current-task { display: grid; gap: 8px; }
+.aed-task-grid, .aed-work { display: grid; gap: 16px; min-width: 0; }
+.aed-visual { min-width: 0; }
+.aed-scene-image { display: block; width: 100%; height: 180px; object-fit: contain; }
+.aed-pad-figure { margin: 0; }
+.aed-pads-image { display: block; width: 100%; height: auto; max-height: 240px; object-fit: contain; }
+.aed-pad-figure figcaption { margin-top: 8px; }
+.aed-instruction-list { list-style: decimal; padding-left: 32px; margin: 0; display: grid; gap: 16px; }
+.aed-instruction-list li { padding-left: 4px; }
+.aed-instruction-list li::marker { color: var(--color-ink-muted); font-weight: 600; }
+.aed-instruction-list strong { font-size: 16px; line-height: 26px; font-weight: 600; }
+.aed-instruction-list p { margin: 4px 0 0; color: var(--color-ink-muted); font-size: 16px; line-height: 26px; }
+.app-shell[data-training-tone="aed"] { background: var(--color-paper); }
+.app-shell[data-training-tone="aed"] .app-main { padding-top: 24px; padding-bottom: 24px; }
+.aed-task .page-title { font-size: 28px; line-height: 36px; font-weight: 700; }
+.aed-task .reference-details { margin: 0; padding: 0; border: 0; color: var(--color-ink-muted); }
+.aed-task .reference-details summary { min-height: 44px; color: var(--color-ink-muted); }
+.app-header[data-mode="aed"] .header-exit { color: var(--color-navy); }
+.app-header[data-mode="aed"] .icon-button:hover { background: var(--color-panel); }
 .aed-device-panel { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 20px; padding: 18px; border: 1px solid var(--color-line); border-radius: 12px; background: var(--color-panel); }
 .aed-device-label { display: grid; gap: 2px; color: var(--color-ink-muted); }
 .aed-device-label > span { font-size: 21px; font-weight: 700; letter-spacing: .03em; }
@@ -777,10 +900,10 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .aed-device-display { display: grid; gap: 4px; padding: 12px; border-radius: 6px; background: var(--color-surface); }
 .aed-device-display strong { font-size: 16px; line-height: 24px; font-weight: 700; }
 .aed-device-panel[data-state="analyzing"] .aed-device-display { background: var(--color-warning-soft); }
-.aed-instruction { margin: 0; max-width: 580px; font-size: 18px; line-height: 29px; }
+.aed-instruction { margin: 0; max-width: 580px; color: var(--color-ink-muted); font-size: 16px; line-height: 26px; }
 .aed-safety { display: flex; align-items: flex-start; gap: 12px; padding: 16px; border-radius: 12px; background: var(--color-warning-soft); color: var(--color-warning); }
 .aed-safety svg { flex-shrink: 0; margin-top: 3px; }
-.aed-task-action { background: #c82d3a; border-color: #c82d3a; width: 100%; }
+.aed-task-action { background: var(--color-signal); border-color: var(--color-signal); width: 100%; min-height: 56px; }
 .aed-review-status { padding: 20px; background: var(--color-panel); border-radius: 14px; }
 .aed-console .caption { color: rgb(255 255 255 / 0.68); }
 .aed-console .section-title { color: white; }
@@ -892,7 +1015,12 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   .app-main { padding: 36px 32px calc(112px + env(safe-area-inset-bottom)); }
   .primary-button, .secondary-button { width: auto; }
   .actions, .hero-actions { flex-direction: row; align-items: center; flex-wrap: wrap; }
-  .home-hero .primary-button { min-width: 280px; }
+  .home-hero .display-title { font-size: 40px; }
+  .home-hero .lead { font-size: 18px; line-height: 29px; }
+  .home-hero .hero-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+  .home-hero .hero-actions > button { width: 100%; }
+  .training-rail { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; }
+  .training-rail li { min-height: 84px; }
   .home-result { grid-template-columns: minmax(0, 0.8fr) minmax(320px, 1.2fr); align-items: center; gap: 44px; }
   .module-tabs button small { display: block; }
   .cpr-surface { width: 100%; margin: 0; padding: 34px; border-radius: var(--radius-md); }
@@ -900,6 +1028,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 }
 
 @media (min-width: 768px) {
+  .aed-scene-image { height: 280px; }
   .app-header { min-height: 72px; padding-inline: 32px; }
   .bottom-nav {
     position: sticky;
@@ -928,7 +1057,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   .app-main { padding: 36px 40px 64px; }
   .display-title { font-size: 52px; }
   .progress-label { display: block; }
-  .home-hero { padding: 38px 34px 32px; }
+  .home-hero { padding: 28px; }
   .module-grid, .video-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .learning-module { min-height: 180px; padding: 20px; }
   .detail-grid { grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.75fr); gap: 52px; }
@@ -937,14 +1066,38 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 }
 
 @media (min-width: 1024px) {
+  .aed-task { max-width: 1040px; }
+  .aed-task-grid { grid-template-columns: minmax(0, 480px) minmax(0, 1fr); gap: 24px; align-items: start; }
   .app-header { padding-inline: 48px; }
   .bottom-nav { justify-content: flex-start; gap: 20px; padding-inline: 48px; }
   .nav-item::before { top: auto; bottom: 0; }
   .app-main { padding: 54px 56px 72px; }
-  .home-top-grid { grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr); align-items: center; gap: 56px; }
+  .home-screen { gap: var(--space-8); }
+  .home-top-grid { grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr); align-items: start; gap: 32px; }
+  .home-hero .display-title { font-size: 44px; }
+  .training-rail { display: block; }
   .training-plan { padding-top: 0; border-top: 0; }
   .sequence-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .page-title { font-size: 30px; line-height: 40px; }
+}
+
+@media (max-width: 420px) {
+  .app-header[data-mode="aed"] { gap: 8px; padding-inline: 12px; }
+  .app-header[data-mode="aed"] .brand { gap: 8px; }
+  .app-header[data-mode="aed"] .brand strong { font-size: 15px; }
+  .app-header[data-mode="aed"] .brand small { font-size: 9px; line-height: 13px; white-space: nowrap; }
+  .app-header[data-mode="aed"] .header-actions { flex-shrink: 0; }
+  .app-header[data-mode="aed"] .header-exit { padding-inline: 4px; font-size: 13px; white-space: nowrap; }
+  .app-header[data-mode="default"] { gap: 8px; padding-inline: 12px; }
+  .app-header[data-mode="default"] .header-actions { flex-shrink: 0; }
+  .app-header[data-mode="default"] .brand { gap: 8px; }
+  .app-header[data-mode="default"] .brand small { font-size: 9px; line-height: 13px; letter-spacing: 0; }
+}
+
+@media (max-width: 360px) {
+  .aed-scene-image { height: 140px; }
+  .aed-work { gap: 12px; }
+  .aed-safety { font-size: 14px; line-height: 22px; padding: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react";
-import { ArrowRight, CircleAlert, CircleCheck, CircleX, RotateCcw } from "lucide-react";
+import { ArrowRight, CircleAlert, CircleCheck, CircleX, RotateCcw, PhoneCall } from "lucide-react";
 import { getEmergencyCallFields } from "@/data/scenarios";
 import { AnswerOption, FeedbackPanel } from "@/components/TrainingUI";
 import { ScenarioVariant } from "@/types";
+import { playCue } from '@/lib/trainingAudio';
 
 type AnswerState = "correct" | "incomplete" | "incorrect";
 
@@ -56,6 +57,7 @@ export function EmergencyCallSimulation({
     const state: AnswerState = option.isCorrect
       ? "correct"
       : option.status ?? "incorrect";
+    playCue(state === 'correct' ? 'correct' : 'review');
     setAnswers((previous) => ({
       ...previous,
       [field.id]: { optionId: option.id, state, feedback: option.feedback },
@@ -71,42 +73,38 @@ export function EmergencyCallSimulation({
       <header>
         <p className="protocol-code">ขั้น 02 · การสื่อสาร</p>
         <h1 className="page-title">แจ้งเหตุ 1669</h1>
-        <p className="lead mt-3">ฟังคำถาม แล้วเลือกข้อมูลที่ช่วยให้เจ้าหน้าที่ประเมินเหตุได้เร็ว</p>
+        <p className="caption mt-2">อ่านข้อความจากเจ้าหน้าที่ แล้วเลือกคำตอบ · ไม่มีการโทรจริง</p>
       </header>
       {!finished ? (
         <>
-          <div className="conversation-prompt">
-            <p className="operator-label">
-              สายจำลอง 1669 · รายการที่ {index + 1} จาก{" "}
-              {fields.length}
-            </p>
+          <div className="call-session"><PhoneCall size={22} aria-hidden="true" /><span><strong>1669 · ศูนย์รับแจ้งเหตุฉุกเฉิน</strong><small>สายจำลอง · คำถาม {index + 1} จาก {fields.length}</small></span></div>
+          <ol className="call-checkpoints" aria-label="ความคืบหน้าการแจ้งเหตุ">{fields.map((item, i) => <li key={item.id} aria-current={i === index ? 'step' : undefined} data-complete={i < index}><span className="sr-only">{item.label} </span>{i < index ? <CircleCheck size={16} aria-label="ตอบแล้ว" /> : i + 1}</li>)}</ol>
+          {index > 0 && <details className="reference-details call-history"><summary>ดูบทสนทนาก่อนหน้า ({index} คำถาม)</summary>{fields.slice(0, index).map(item => <div className="call-history-pair" key={item.id}><p><strong>เจ้าหน้าที่:</strong> {item.question.replace(/^เจ้าหน้าที่ 1669: /, '').replaceAll('"', '')}</p><p><strong>คุณ:</strong> {item.options.find(option => option.id === answers[item.id]?.optionId)?.text}</p></div>)}</details>}
+          <div className="conversation-prompt call-bubble">
+            <p className="operator-label">เจ้าหน้าที่ถาม · {field.label}</p>
             <blockquote>
               {field.question
                 .replace(/^เจ้าหน้าที่ 1669: /, "")
                 .replaceAll('"', "")}
             </blockquote>
           </div>
-          <section>
-            <h2 className="section-title">คุณจะตอบว่าอย่างไร?</h2>
+          {!answer && <section>
+            <h2 className="section-title">เลือกคำตอบของคุณ</h2>
             <div className="space-y-3">
               {field.options.map((option) => (
                 <AnswerOption
                   key={option.id}
-                  disabled={!!answer}
-                  state={
-                    answer?.optionId === option.id
-                      ? answer.state
-                      : "default"
-                  }
+                  state="default"
                   onClick={() => chooseAnswer(option)}
                 >
                   {option.text}
                 </AnswerOption>
               ))}
             </div>
-          </section>
+          </section>}
           {answer && (
-            <div>
+            <div className="page-stack call-answer-feedback">
+              <div className="call-user-bubble"><p className="caption">คุณตอบ</p><p>{field.options.find(option => option.id === answer.optionId)?.text}</p></div>
               <FeedbackPanel state={answer.state}>
                 {answer.feedback}
               </FeedbackPanel>
@@ -114,11 +112,12 @@ export function EmergencyCallSimulation({
                 <button
                   className="primary-button"
                   onClick={() => {
+                    window.scrollTo({ top: 0, behavior: 'instant' });
                     if (index < fields.length - 1) setIndex(index + 1);
                     else setFinished(true);
                   }}
                 >
-                  {index === fields.length - 1 ? "ดูสรุปการแจ้งเหตุ" : "รับสายต่อ"}
+                  {index === fields.length - 1 ? "ดูสรุปการแจ้งเหตุ" : "ไปคำถามถัดไป"}
                   <ArrowRight size={20} />
                 </button>
               ) : (

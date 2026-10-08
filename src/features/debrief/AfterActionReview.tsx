@@ -2,16 +2,21 @@
 import { MissionResult } from "@/types";
 import { CircleCheck, RotateCcw, BookOpen } from "lucide-react";
 import { INITIAL_SEQUENCE_CARDS } from "@/data/scenarios";
+import { nextPracticeFor } from '@/lib/trainingReview';
 export function AfterActionReview({
   result,
   onRetryMission,
   onGoHome,
   onLearn,
+  syncMessage = '', pendingCount = 0, onRetrySync,
 }: {
   result: MissionResult;
   onRetryMission: () => void;
   onGoHome: () => void;
-  onLearn: () => void;
+  onLearn: (topic?: string) => void;
+  syncMessage?: string;
+  pendingCount?: number;
+  onRetrySync?: () => void;
 }) {
   const sequenceTotal = INITIAL_SEQUENCE_CARDS.filter(
     (c) => c.isCorrect,
@@ -30,7 +35,7 @@ export function AfterActionReview({
     ...(result.cprRhythmScore >= 70
       ? ["รักษาจังหวะกดในช่วงเป้าหมายได้ดี"]
       : []),
-    ...(result.scoringVersion === 'measured-v2'
+    ...(result.aedRecommendation
       ? ["ทบทวนตามลำดับการใช้ AED ครบทุกขั้นตอน"]
       : []),
   ];
@@ -40,6 +45,7 @@ export function AfterActionReview({
       ? ["ทบทวนจังหวะกดหน้าอก 100–120 ครั้ง/นาที แล้วลองฝึกจังหวะอีกครั้ง"]
       : []),
   ];
+  const nextPractice = nextPracticeFor(result);
   return (
     <div className="page-stack results-screen">
       <header>
@@ -49,7 +55,14 @@ export function AfterActionReview({
           {result.scenarioTitle} · {result.completedAt}
         </p>
       </header>
-      <div className="home-columns">
+      <section aria-label="การบันทึกผล"><p className="caption" role="status">{syncMessage || (result.playerId ? 'ผลบันทึกในเครื่องและผูกกับโปรไฟล์ที่ใช้เริ่มภารกิจ' : 'บันทึกผลแบบ Guest ในเครื่อง ไม่ต้องเข้าสู่ระบบ')}</p>{pendingCount > 0 && <button className="text-button" onClick={onRetrySync}>ลองส่งคะแนนที่รออีกครั้ง ({pendingCount})</button>}</section>
+      <section className="review-next" aria-labelledby="review-next-title">
+        <p className="protocol-code">{nextPractice.needsReview ? 'ฝึกต่อเรื่องนี้ก่อน' : 'ทบทวนต่อได้'}</p>
+        <h2 id="review-next-title" className="section-title">{nextPractice.title}</h2>
+        <p>{nextPractice.needsReview ? nextPractice.instruction : 'ทำแบบฝึกได้ตามเป้าหมายรอบนี้ ทบทวนต่อและฝึกภาคปฏิบัติกับครูฝึกอย่างสม่ำเสมอ'}</p>
+        <button className="primary-button" onClick={() => onLearn(nextPractice.topic)}><BookOpen size={20} aria-hidden="true" />ทบทวนบท{nextPractice.title}</button>
+      </section>
+      <div className="review-score-overview">
         <section>
           <p className="caption">{result.scoringVersion ? 'คะแนนแบบฝึก 3 ส่วน' : 'คะแนนเดิม (สูตรก่อนปรับปรุง)'}</p>
           <p className="mt-2">
@@ -57,30 +70,15 @@ export function AfterActionReview({
             <span className="caption ml-2">/ 100</span>
           </p>
           <p className="caption mt-4">
+            {result.cprAudioGuided && <span className="block">รอบนี้ใช้เสียงนำจังหวะ CPR เป็นการฝึกแบบมีตัวช่วย</span>}
             ใช้เวลา {Math.floor(result.totalTimeSeconds / 60)} นาที{" "}
             {result.totalTimeSeconds % 60} วินาที
           </p>
         </section>
-        <dl className="metric-list">
-          <div>
-            <dt>ลำดับการช่วยเหลือ</dt>
-            <dd>
-              {Math.round((result.skillScores.sequence * sequenceTotal) / 100)}{" "}
-              / {sequenceTotal}
-            </dd>
-          </div>
-          <div>
-            <dt>การแจ้ง 1669</dt>
-            <dd>{result.callCompletenessScore}%</dd>
-          </div>
-          <div>
-            <dt>จังหวะกดในช่วงเป้าหมาย</dt>
-            <dd>{result.cprRhythmScore}%</dd>
-          </div>
-        </dl>
       </div>
       <section className="skill-breakdown section-rule" aria-labelledby="skill-breakdown-title">
         <h2 id="skill-breakdown-title" className="section-title">ผลแยกตามทักษะ</h2>
+        <p className="caption">จัดลำดับถูก {Math.round((result.skillScores.sequence * sequenceTotal) / 100)} จาก {sequenceTotal} ขั้น · จังหวะแตะเฉลี่ย {result.cprAverageBpm} ครั้ง/นาที</p>
         {[
           ["ลำดับการช่วยเหลือ", result.skillScores.sequence],
           ["แจ้งเหตุ 1669", result.callCompletenessScore],
@@ -95,11 +93,11 @@ export function AfterActionReview({
         ))}
       </section>
       <section className="aed-review-status">
-        <h2 className="section-title">AED · {result.scoringVersion ? 'ทบทวนครบ' : 'ผลเดิมเป็นการกดผ่านขั้น'}</h2>
-        <p>ไม่ได้ประเมินทักษะการใช้เครื่องจริง และไม่นำการกดผ่านขั้นตอนมาคิดคะแนน</p>
+        <h2 className="section-title">AED · {result.aedRecommendation ? 'ทบทวนแล้วในภารกิจเดิม' : 'บทเรียนเสริมสำหรับผู้สนใจ'}</h2>
+        <p>ไม่จำเป็นต้องทบทวน AED เพื่อจบภารกิจหลัก เลือกเรียนเพิ่มได้ในบทเรียน และไม่นำการกดผ่านขั้นตอนมาคิดคะแนนทักษะ</p>
         {result.aedRecommendation && <p className="caption mt-2">สถานการณ์นี้: เครื่องจำลอง{result.aedRecommendation === 'shock' ? 'แนะนำให้ช็อก' : 'ไม่แนะนำให้ช็อก'}</p>}
       </section>
-      {result.scoringVersion && <details className="reference-details"><summary>วิธีคิดคะแนนและลำดับกิจกรรม</summary><p className="caption">เฉลี่ยจากการจัดลำดับ การแจ้ง 1669 และจังหวะการแตะเท่านั้น ไม่ให้โบนัสจากความเร็ว เวลาเป็นเวลารวมตั้งแต่เริ่ม รวมช่วงที่ออกจากหน้าฝึก ผลสูตรใหม่เก็บในเครื่อง ยังไม่ส่งปนกับอันดับสูตรเดิม</p><ol className="space-y-3 mt-4">{result.timeline.map((event, index) => <li key={index}><span className="caption">{event.timestamp} · </span>{event.title}</li>)}</ol></details>}
+      {result.scoringVersion && <details className="reference-details"><summary>วิธีคิดคะแนนและลำดับกิจกรรม</summary><p className="caption">เฉลี่ยจากการจัดลำดับ การแจ้ง 1669 และจังหวะการแตะเท่านั้น ไม่ให้โบนัสจากความเร็ว เวลาเป็นเวลารวมตั้งแต่เริ่ม รวมช่วงที่ออกจากหน้าฝึก ผลสูตรใหม่บันทึกในเครื่องและส่งออนไลน์เมื่อฝึกด้วยโปรไฟล์ แยกจากอันดับสูตรเดิมและแยกผลที่ใช้เสียงนำ</p><ol className="space-y-3 mt-4">{result.timeline.map((event, index) => <li key={index}><span className="caption">{event.timestamp} · </span>{event.title}</li>)}</ol></details>}
       <div className="home-columns section-rule">
         <section>
           <h2 className="section-title">สิ่งที่ทำได้ดี</h2>
@@ -114,12 +112,13 @@ export function AfterActionReview({
               </li>
             ))}
           </ul>
+          {!strengths.length && <p>ฝึกครบเส้นทางแล้ว ลองทบทวนตามคำแนะนำเพื่อปรับคำตอบและจังหวะในรอบถัดไป</p>}
         </section>
         <section>
           <h2 className="section-title">สิ่งที่ควรทบทวน</h2>
           {review.length ? (
             <ul className="list-disc pl-5 space-y-3">
-              {review.map((item, i) => (
+              {review.slice(0, 2).map((item, i) => (
                 <li key={i}>{item}</li>
               ))}
             </ul>
@@ -129,6 +128,7 @@ export function AfterActionReview({
               และฝึกภาคปฏิบัติกับครูฝึกเพื่อพัฒนาทักษะต่อไป
             </p>
           )}
+          {review.length > 2 && <details className="reference-details"><summary>ดูจุดที่ควรทบทวนอีก {review.length - 2} ข้อ</summary><ul className="list-disc pl-5 space-y-3">{review.slice(2).map((item, index) => <li key={index}>{item}</li>)}</ul></details>}
         </section>
       </div>
       <aside className="notice">
@@ -140,7 +140,7 @@ export function AfterActionReview({
           <RotateCcw size={20} />
           ลองสถานการณ์ใหม่
         </button>
-        <button className="secondary-button" onClick={onLearn}>
+        <button className="secondary-button" onClick={() => onLearn()}>
           <BookOpen size={20} />
           ดูบทเรียน
         </button>
