@@ -80,7 +80,7 @@ export function EmergencyCallSimulation({
           <div className="call-session"><PhoneCall size={22} aria-hidden="true" /><span><strong>1669 · ศูนย์รับแจ้งเหตุฉุกเฉิน</strong><small>สายจำลอง · คำถาม {index + 1} จาก {fields.length}</small></span></div>
           <ol className="call-checkpoints" aria-label="ความคืบหน้าการแจ้งเหตุ">{fields.map((item, i) => <li key={item.id} aria-current={i === index ? 'step' : undefined} data-complete={i < index}><span className="sr-only">{item.label} </span>{i < index ? <CircleCheck size={16} aria-label="ตอบแล้ว" /> : i + 1}</li>)}</ol>
           {index > 0 && <details className="reference-details call-history"><summary>ดูบทสนทนาก่อนหน้า ({index} คำถาม)</summary>{fields.slice(0, index).map(item => <div className="call-history-pair" key={item.id}><p><strong>เจ้าหน้าที่:</strong> {item.question.replace(/^เจ้าหน้าที่ 1669: /, '').replaceAll('"', '')}</p><p><strong>คุณ:</strong> {item.options.find(option => option.id === answers[item.id]?.optionId)?.text}</p></div>)}</details>}
-          <div className="conversation-prompt call-bubble">
+          <div key={field.id} className="conversation-prompt call-bubble">
             <p className="operator-label">เจ้าหน้าที่ถาม · {field.label}</p>
             <blockquote>
               {field.question
@@ -103,7 +103,7 @@ export function EmergencyCallSimulation({
             </div>
           </section>}
           {answer && (
-            <div className="page-stack call-answer-feedback">
+            <div key={`${field.id}-${answer.optionId}`} className="page-stack call-answer-feedback">
               <div className="call-user-bubble"><p className="caption">คุณตอบ</p><p>{field.options.find(option => option.id === answer.optionId)?.text}</p></div>
               <FeedbackPanel state={answer.state}>
                 {answer.feedback}

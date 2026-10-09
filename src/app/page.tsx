@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import Image from 'next/image';
+import { MissionMenu } from '@/components/MissionMenu';
 import { MobileContainer } from "@/components/MobileContainer";
 import { HomeDashboard, TrainingSteps } from "@/components/HomeDashboard";
 import { AboutModal } from "@/components/AboutModal";
@@ -285,23 +285,7 @@ export default function Home() {
       )}
 
       {/* 3. MISSION TAB / FLOW */}
-      {activeTab === 'mission' && missionMenu && <section className="page-stack training-screen">
-        <header><p className="protocol-code">ฝึกสถานการณ์</p><h1 className="page-title">เลือกภารกิจที่อยากฝึก</h1><p className="body-copy">เริ่มจากภารกิจหลัก หรือเลือกฝึก AED เพิ่มเติมได้โดยไม่ต้องเข้าสู่ระบบ</p></header>
-        <section className="page-stack" aria-labelledby="core-mission-title">
-          <h2 id="core-mission-title" className="section-title">ภารกิจหลัก · ช่วยเพื่อนหมดสติ</h2>
-          <p>ประเมินเหตุ → แจ้งเหตุ 1669 → ฝึกจังหวะ CPR</p>
-          <p className="caption">3 ขั้น · ประมาณ 5 นาที · มีสรุปผลหลังฝึก</p>
-          <button className="primary-button" onClick={continueTraining}>{inProgress ? 'ฝึกภารกิจหลักต่อ' : 'เริ่มภารกิจหลัก'}<ArrowRight size={20} aria-hidden="true" /></button>
-        </section>
-        <section className="page-stack" aria-labelledby="aed-mission-title">
-          <h2 id="aed-mission-title" className="section-title">ภารกิจเสริม · ใช้เครื่อง AED</h2>
-          <Image src="/images/training/prom-aed-clear-v1.png" width={1536} height={1024} sizes="(min-width: 768px) 360px, 280px" className="optional-mission-image" alt="ตัวละครนักศึกษาวิชาทหารเคลียร์พื้นที่ข้างหุ่นฝึกและเครื่อง AED จำลอง" />
-          <p>ฝึกเปิดเครื่อง ติดแผ่น เคลียร์พื้นที่ และทำตามผลวิเคราะห์ ทั้งกรณีแนะนำให้ช็อกและไม่แนะนำให้ช็อก</p>
-          <p className="caption">เลือกฝึกได้เมื่อสนใจ · ไม่จำเป็นต้องผ่านเพื่อจบภารกิจหลัก · ไม่เพิ่ม XP</p>
-          <button className="secondary-button" onClick={startAEDMission}>เริ่มภารกิจ AED<ArrowRight size={20} aria-hidden="true" /></button>
-        </section>
-        <SimulationNotice />
-      </section>}
+      {activeTab === 'mission' && missionMenu && <MissionMenu continuing={inProgress} onMain={continueTraining} onAED={startAEDMission} />}
       {standaloneAED && <div hidden={activeTab !== 'mission' || missionMenu}><AEDPractice active={activeTab === 'mission' && !missionMenu && !exitConfirmation} onClose={() => { setStandaloneAED(false); setMissionMenu(true); }} /></div>}
       {startTimeMs > 0 && (
         <div key={attemptKey} hidden={activeTab !== "mission" || standaloneAED || missionMenu}>

@@ -111,7 +111,7 @@ export function HomeDashboard({
             </p>
           )}
           <div className="home-companion">
-            <div><strong>ฝึกไปกับน้องพร้อม</strong><p>ค่อย ๆ คิด ตัดสินใจ แล้วลองลงมือ<br />มีคำแนะนำหลังฝึก</p></div>
+            <div><strong>น้องพร้อมช่วยทบทวน</strong><p>ลองตัดสินใจ แล้วดูคำแนะนำหลังฝึก</p></div>
             <Image src="/images/training/prom-companion-home-v1.png" width={1024} height={1536} sizes="(min-width: 640px) 160px, 110px" alt="น้องพร้อม ตัวละครนักศึกษาวิชาทหาร ยิ้มต้อนรับพร้อมสมุดฝึก" />
           </div>
         </section>

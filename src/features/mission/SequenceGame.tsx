@@ -138,7 +138,7 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({
         <p className="mt-2">เพื่อนล้มลงและไม่ตอบสนอง คุณจะทำอะไรตามลำดับ?</p>
         <p className="caption mt-2">แตะเพิ่ม {targetStepCount} ขั้นตอนตามลำดับที่คิดว่าควรทำ</p>
       </header>
-      <div className="sequence-status" role="status" aria-live="polite"><strong>เลือกแล้ว {selectedCards.length} / {targetStepCount}</strong><span>{isSubmitted ? 'ตรวจแล้ว · ดูคำแนะนำก่อนฝึกต่อ' : selectedCards.length === targetStepCount ? 'เปิดลำดับของคุณเพื่อสลับ หรือกดตรวจคำตอบ' : 'ยังสลับลำดับหรือนำออกได้'}</span></div>
+      <div className="sequence-status" role="status" aria-live="polite"><strong key={selectedCards.length} className="selection-count">เลือกแล้ว {selectedCards.length} / {targetStepCount}</strong><span>{isSubmitted ? 'ตรวจแล้ว · ดูคำแนะนำก่อนฝึกต่อ' : selectedCards.length === targetStepCount ? 'เปิดลำดับของคุณเพื่อสลับ หรือกดตรวจคำตอบ' : 'ยังสลับลำดับหรือนำออกได้'}</span></div>
       <div className="sequence-grid">
         <details className="sequence-selection" open={isSubmitted}>
           <summary>ลำดับของคุณ ({selectedCards.length}/{targetStepCount}) · {isSubmitted ? 'ดูผลแต่ละข้อ' : 'แตะเพื่อดู / สลับลำดับ'}</summary>

@@ -1103,3 +1103,111 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
 }
+
+.mission-menu { display: grid; gap: 18px; max-width: 840px; margin: 0 auto; }
+.mission-menu-heading .page-title { margin: 6px 0; font-size: 28px; line-height: 36px; font-weight: 700; }
+.mission-menu-heading > p:last-child { font-size: 15px; line-height: 24px; color: var(--color-ink-muted); }
+.mission-choice-grid { display: grid; gap: 14px; }
+.mission-choice { display: flex; flex-direction: column; gap: 12px; min-width: 0; padding: 16px; border: 1px solid var(--color-line); border-radius: 14px; background: var(--color-surface); }
+.mission-choice-main { background: #fff9f7; border-color: #ead7d4; }
+.mission-choice-heading { display: grid; grid-template-columns: minmax(0,1fr) 90px; align-items: center; gap: 8px; }
+.mission-choice-heading img { width: 90px; height: 85px; object-fit: contain; }
+.mission-choice-heading h2 { margin: 6px 0 4px; font-size: 21px; line-height: 30px; font-weight: 700; }
+.mission-choice-heading p { margin: 0; font-size: 13px; line-height: 21px; color: var(--color-ink-muted); }
+.mission-choice-label { display: inline-block; font-size: 12px; line-height: 20px; font-weight: 700; color: var(--color-navy); }
+.mission-choice-extra .mission-choice-label { color: #a72a35; }
+.mission-mini-route { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; list-style: none; padding: 0; margin: 0; }
+.mission-mini-route li { display: flex; align-items: center; justify-content: center; gap: 5px; padding: 9px 3px; border-radius: 7px; background: #fff; font-size: 12px; line-height: 19px; color: var(--color-navy); }
+.mission-mini-route svg { flex-shrink: 0; }
+.mission-choice-meta { font-size: 12px; line-height: 20px; color: var(--color-ink-muted); margin: 0; }
+.mission-choice-meta > span { display: block; }
+.mission-choice-description { margin: 0; font-size: 14px; line-height: 23px; }
+.mission-choice .primary-button, .mission-choice .secondary-button { min-height: 48px; margin-top: auto; padding: 12px; font-size: 16px; }
+.mission-menu-note { margin: 0; font-size: 12px; line-height: 20px; color: var(--color-ink-muted); }
+@media (max-width: 639px) {
+  .home-hero { padding: 20px 18px; border-radius: 14px; }
+  .home-hero .display-title { font-size: clamp(26px, 7.4vw, 32px); line-height: 1.28; }
+  .home-hero .protocol-code { font-size: 12px; line-height: 20px; }
+  .home-hero .lead { margin-top: 12px; font-size: 15px; line-height: 25px; }
+  .home-hero .mission-meta { margin-top: 12px; font-size: 12px; line-height: 21px; font-weight: 600; }
+  .home-hero .hero-actions { margin-top: 18px; gap: 9px; }
+  .home-hero .primary-button, .home-hero .secondary-button { min-height: 48px; padding: 12px; font-size: 16px; }
+  .home-companion { grid-template-columns: minmax(0, 1fr) 90px; gap: 12px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--color-line); }
+  .home-companion strong { font-size: 14px; line-height: 23px; }
+  .home-companion p { font-size: 13px; line-height: 22px; }
+  .home-companion img { width: 90px; height: 115px; }
+}
+@media (min-width: 768px) {
+  .mission-choice-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+  .mission-choice { padding: 22px; gap: 16px; }
+  .mission-choice-heading { grid-template-columns: minmax(0,1fr) 100px; }
+  .mission-choice-heading img { width: 100px; height: 100px; }
+}
+@media (max-width: 360px) {
+  .mission-choice { padding: 14px; }
+  .mission-choice-heading { grid-template-columns: minmax(0,1fr) 70px; }
+  .mission-choice-heading img { width: 70px; height: 80px; }
+  .mission-choice-heading h2 { font-size: 19px; line-height: 28px; }
+  .mission-mini-route li { flex-direction: column; padding: 6px 2px; gap: 3px; }
+}
+
+/* Short, one-shot interaction feedback. Never a metronome or a score signal. */
+@media (prefers-reduced-motion: no-preference) {
+  .learning-screen .lesson-card { animation: ready-card-in 280ms ease-out both; }
+  .learning-screen .module-grid .lesson-card:nth-child(2) { animation-delay: 55ms; }
+  .learning-screen .module-grid .lesson-card:nth-child(3) { animation-delay: 110ms; }
+  .lesson-cover img { transition: transform 220ms ease-out; }
+  .home-companion img { animation: companion-hello 380ms ease-out both; }
+  .sequence-item { animation: ready-card-in 180ms ease-out both; }
+  .selection-count { animation: selection-ack 180ms ease-out; transform-origin: left center; }
+  .sequence-submit:not(:disabled) { animation: action-ready 240ms ease-out; }
+  .call-training .call-bubble { animation: conversation-in 220ms ease-out both; }
+  .call-user-bubble { animation: reply-in 220ms ease-out both; }
+  .call-answer-feedback .feedback-panel { animation: ready-card-in 220ms 70ms ease-out both; }
+  .call-checkpoints li[data-complete="true"] svg { animation: selection-ack 200ms ease-out; }
+  .results-screen .review-next { animation: ready-card-in 300ms ease-out both; }
+  .results-screen .skill-row .progress-track > span { transform-origin: left center; animation: score-reveal 500ms ease-out both; }
+  .results-screen .skill-row:nth-of-type(3) .progress-track > span { animation-delay: 60ms; }
+  .results-screen .skill-row:nth-of-type(4) .progress-track > span { animation-delay: 120ms; }
+  details[open] > :not(summary) { animation: detail-reveal 160ms ease-out; }
+  .simulation-progress li[aria-current="step"] .progress-marker { animation: selection-ack 260ms ease-out; }
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .learning-screen .lesson-card:hover { transform: translateY(-2px); }
+  .lesson-card:hover .lesson-cover img { transform: scale(1.04); }
+}
+.learning-screen .lesson-card:focus-visible { outline: 3px solid var(--module-color); outline-offset: 3px; }
+.learning-screen .lesson-card:active { border-color: var(--module-color); }
+.cpr-training .cpr-tap:focus-visible { outline: 3px solid white; outline-offset: 5px; }
+@keyframes ready-card-in {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes selection-ack {
+  from { transform: scale(.96); }
+  to { transform: scale(1); }
+}
+@keyframes action-ready {
+  from { box-shadow: 0 0 0 0 rgb(230 57 70 / .2); }
+  to { box-shadow: 0 0 0 8px var(--color-surface); }
+}
+@keyframes conversation-in {
+  from { opacity: 0; transform: translateX(-7px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes reply-in {
+  from { opacity: 0; transform: translateX(7px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes score-reveal {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes detail-reveal {
+  from { opacity: .4; }
+  to { opacity: 1; }
+}
+@keyframes companion-hello {
+  from { opacity: 0; transform: translateY(5px) rotate(-3deg); }
+  to { opacity: 1; transform: translateY(0) rotate(0); }
+}
