@@ -94,7 +94,7 @@ export function AfterActionReview({
       </section>
       <section className="aed-review-status">
         <h2 className="section-title">AED · {result.aedRecommendation ? 'ทบทวนแล้วในภารกิจเดิม' : 'บทเรียนเสริมสำหรับผู้สนใจ'}</h2>
-        <p>ไม่จำเป็นต้องทบทวน AED เพื่อจบภารกิจหลัก เลือกเรียนเพิ่มได้ในบทเรียน และไม่นำการกดผ่านขั้นตอนมาคิดคะแนนทักษะ</p>
+        <p>เลือกฝึก AED เพิ่มได้ ไม่รวมในคะแนนภารกิจหลัก</p>
         {result.aedRecommendation && <p className="caption mt-2">สถานการณ์นี้: เครื่องจำลอง{result.aedRecommendation === 'shock' ? 'แนะนำให้ช็อก' : 'ไม่แนะนำให้ช็อก'}</p>}
       </section>
       {result.scoringVersion && <details className="reference-details"><summary>วิธีคิดคะแนนและลำดับกิจกรรม</summary><p className="caption">เฉลี่ยจากการจัดลำดับ การแจ้ง 1669 และจังหวะการแตะเท่านั้น ไม่ให้โบนัสจากความเร็ว เวลาเป็นเวลารวมตั้งแต่เริ่ม รวมช่วงที่ออกจากหน้าฝึก ผลสูตรใหม่บันทึกในเครื่องและส่งออนไลน์เมื่อฝึกด้วยโปรไฟล์ แยกจากอันดับสูตรเดิมและแยกผลที่ใช้เสียงนำ</p><ol className="space-y-3 mt-4">{result.timeline.map((event, index) => <li key={index}><span className="caption">{event.timestamp} · </span>{event.title}</li>)}</ol></details>}
@@ -112,7 +112,7 @@ export function AfterActionReview({
               </li>
             ))}
           </ul>
-          {!strengths.length && <p>ฝึกครบเส้นทางแล้ว ลองทบทวนตามคำแนะนำเพื่อปรับคำตอบและจังหวะในรอบถัดไป</p>}
+          {!strengths.length && <p>ฝึกจบแล้ว ดูจุดที่ควรทบทวนก่อนลองอีกครั้ง</p>}
         </section>
         <section>
           <h2 className="section-title">สิ่งที่ควรทบทวน</h2>

@@ -432,6 +432,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .training-rail li:nth-child(4) { animation-delay: 210ms; }
 .training-rail .rail-number { color: var(--color-signal); font: 700 13px/20px var(--font-line-seed), system-ui, sans-serif; font-variant-numeric: tabular-nums; }
 .training-rail strong { display: block; font-size: 16px; line-height: 26px; font-weight: 600; }
+.training-rail .text-button { width: 100%; justify-content: space-between; text-align: left; margin: 0; min-height: 44px; }
 .training-rail small { display: block; color: var(--color-ink-muted); font-size: 14px; line-height: 22px; }
 .training-rail svg { width: 18px; height: 18px; color: var(--color-ink-muted); }
 .home-result {
@@ -660,7 +661,10 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .reference-details { border-top: 1px solid var(--color-line); }
 .cpr-reading-list { margin-top: 16px; border: 1px solid var(--color-line); border-radius: 12px; overflow: hidden; }
 .cpr-reading-item + .cpr-reading-item { border-top: 1px solid var(--color-line); }
-.cpr-reading-item > summary { cursor: pointer; padding: 16px; min-height: 48px; }
+.cpr-reading-item > summary { cursor: pointer; padding: 16px; min-height: 48px; list-style: none; position: relative; padding-right: 42px; }
+.cpr-reading-item > summary::-webkit-details-marker { display: none; }
+.cpr-reading-item > summary::after { content: '+'; position: absolute; right: 16px; top: 17px; font-size: 22px; color: var(--color-ink-muted); }
+.cpr-reading-item[open] > summary::after { content: '−'; }
 .cpr-reading-item > summary > span, .cpr-reading-item > summary > strong { display: block; margin-top: 4px; }
 .cpr-reading-item > summary > strong { font-size: 18px; line-height: 1.5; }
 .cpr-reading-hint { color: var(--color-pine); font-size: 13px; }

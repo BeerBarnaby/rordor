@@ -3,12 +3,12 @@
 import { ArrowRight, Check, ChevronRight, Trophy } from "lucide-react";
 import Image from 'next/image';
 import { LeaderboardEntry, PlayerProfile, UserProgress } from "@/types";
-import { getGameProgress, getLevelProgress, TOPIC_ORDER } from "@/lib/gameProgress";
+import { getGameProgress, getLevelProgress } from "@/lib/gameProgress";
 
 const steps = [
-  { title: "ลำดับช่วยเหลือ", detail: "ประเมินเหตุและลงมือให้ถูกลำดับ" },
-  { title: "แจ้งเหตุ 1669", detail: "บอกข้อมูลสำคัญให้ครบ" },
-  { title: "จังหวะ CPR", detail: "รักษาจังหวะ 100–120 ครั้ง/นาที" },
+  { title: "ลำดับการช่วยเหลือ", detail: "ฝึกช่วยเหลือตามลำดับ" },
+  { title: "แจ้งเหตุ 1669", detail: "ฝึกแจ้งเหตุ 1669" },
+  { title: "ฝึกจังหวะ CPR", detail: "ฝึกจังหวะกดหน้าอก 100–120 ครั้ง/นาที" },
 ];
 const lessonSteps = [...steps, { title: 'AED · บทเสริม', detail: 'สำหรับผู้สนใจ' }];
 
@@ -85,10 +85,10 @@ export function HomeDashboard({
           <p className="protocol-code">สถานการณ์ฝึก · ช่วยเพื่อนหมดสติ</p>
           <h1 className="display-title">
             <span className="hero-title-line">เจอคนหมดสติ</span>
-            <span className="hero-title-line">เราจะทำอะไรก่อน?</span>
+            <span className="hero-title-line">ต้องทำอย่างไร?</span>
           </h1>
           <p className="lead">
-            ฝึกประเมินเหตุ แจ้ง 1669 และรักษาจังหวะ CPR
+            ฝึกช่วยคนหมดสติ โทร 1669 และฝึกจังหวะ CPR
           </p>
           <p className="mission-meta">3 ขั้น · ประมาณ 5 นาที · ไม่ต้องเข้าสู่ระบบ</p>
           <div className="hero-actions">
@@ -97,11 +97,11 @@ export function HomeDashboard({
                 ? `ทำต่อ: ${currentLabel}`
                 : progress.missionAttemptsCount
                   ? "ลองสถานการณ์ใหม่"
-                  : "เริ่มฝึกกับน้องพร้อม"}
+                  : "เริ่มฝึก"}
               <ArrowRight size={20} aria-hidden="true" />
             </button>
             <button className="secondary-button" onClick={onLearn}>
-              เรียนรู้พื้นฐาน
+              บทเรียน
               <ChevronRight size={18} aria-hidden="true" />
             </button>
           </div>
@@ -111,23 +111,23 @@ export function HomeDashboard({
             </p>
           )}
           <div className="home-companion">
-            <div><strong>น้องพร้อมช่วยทบทวน</strong><p>ลองตัดสินใจ แล้วดูคำแนะนำหลังฝึก</p></div>
+            <div><strong>ฝึกกับน้องพร้อม</strong><p>เลือกคำตอบ แล้วดูผลหลังฝึก</p></div>
             <Image src="/images/training/prom-companion-home-v1.png" width={1024} height={1536} sizes="(min-width: 640px) 160px, 110px" alt="น้องพร้อม ตัวละครนักศึกษาวิชาทหาร ยิ้มต้อนรับพร้อมสมุดฝึก" />
           </div>
         </section>
 
         <section className="training-plan" aria-labelledby="training-plan-title">
           <h2 id="training-plan-title" className="section-title">
-            เส้นทางการฝึก
+            บทเรียน
           </h2>
           <ol className="training-rail">
-            {steps.map((step, index) => (
+            {lessonSteps.map((step, index) => (
               <li key={step.title}>
                 <span className="rail-number">0{index + 1}</span>
-                <span>
+                <button className="text-button" onClick={onLearn} aria-label={`ดูบทเรียน: ${step.title}`}>
                   <strong>{step.title}</strong>
-                  <small>{step.detail}</small>
-                </span>
+                  <ChevronRight size={18} aria-hidden="true" />
+                </button>
               </li>
             ))}
           </ol>
@@ -138,13 +138,10 @@ export function HomeDashboard({
         <div className="game-progress-card">
           <div className="game-heading">
             <div>
-              <p className="protocol-code">เส้นทางผู้ช่วยชีวิต</p>
+              <p className="protocol-code">ความคืบหน้า</p>
               <h2 id="game-hub-title" className="section-title !mb-1">
                 Level {game.level}
               </h2>
-              <p className="caption">
-                3 บทเรียนหลัก + AED บทเสริม · ทุกบทเปิดให้เรียน
-              </p>
             </div>
             <span className="level-badge">LV.{game.level}</span>
           </div>
@@ -163,32 +160,22 @@ export function HomeDashboard({
               ? "ถึงเลเวลสูงสุดแล้ว"
               : `${game.xpInLevel} / ${game.xpForNextLevel} XP ไปยัง Level ${game.level + 1}`}
           </p>
-          <p className="content-meta mt-1">ภารกิจละ 250 XP + โบนัสคะแนนดีที่สุด · {player ? 'XP ที่บันทึกออนไลน์ของโปรไฟล์นี้' : 'XP ในเครื่อง'} · ไม่ใช่ระดับทักษะภาคปฏิบัติ</p>
+          <p className="content-meta mt-1">ฝึกจบรับ 250 XP พร้อมโบนัสจากคะแนนดีที่สุด</p>
+          <details className="reference-details"><summary>ระบบ XP</summary><p className="content-meta">รับ 250 XP เมื่อจบภารกิจหลัก โบนัสคิดจากคะแนนดีที่สุด ไม่ได้ให้ซ้ำทุกครั้ง {player ? 'บันทึก XP ออนไลน์ในโปรไฟล์นี้' : 'บันทึก XP ในเครื่องนี้'} ระดับและ XP ไม่ใช่การรับรองทักษะภาคปฏิบัติ</p></details>
           {syncMessage && <p className="caption mt-2" role="status">{syncMessage}</p>}
           {pendingCount > 0 && <button className="text-button" onClick={onRetrySync}>ลองส่งคะแนนที่รออีกครั้ง ({pendingCount})</button>}
-          <ol className="lesson-progress" aria-label="ความคืบหน้าบทเรียน">
-            {TOPIC_ORDER.map((topicId, index) => {
-              const completed = progress.completedTopicIds.includes(topicId);
-              return (
-                <li key={topicId} data-complete={completed}>
-                  <span>{completed ? <Check /> : index + 1}</span>
-                  <small>{lessonSteps[index].title}</small>
-                </li>
-              );
-            })}
-          </ol>
+          <p className="caption mt-2">เรียนแล้ว {localGame.completedTopicCount} จาก 4 บท</p>
         </div>
 
         <div className="leaderboard-card">
           <div className="game-heading">
             <div>
-              <p className="protocol-code">อันดับผู้ฝึก</p>
-              <h2 className="section-title !mb-1">Leaderboard</h2>
+              <h2 className="section-title !mb-1">อันดับผู้ฝึก</h2>
             </div>
             <Trophy className="leaderboard-trophy" aria-hidden="true" />
           </div>
           <div className="leaderboard-modes" role="group" aria-label="แยกอันดับตามตัวช่วยเสียง"><button className="secondary-button" aria-pressed={!leaderboardGuided} onClick={() => onLeaderboardMode(false)}>ฝึกเอง</button><button className="secondary-button" aria-pressed={leaderboardGuided} onClick={() => onLeaderboardMode(true)}>ใช้เสียงนำ</button></div>
-          <p className="caption mt-2">คะแนนสูตรใหม่ · เฉลี่ยลำดับ / 1669 / จังหวะ</p>
+          <p className="caption mt-2">เรียงตามคะแนนการฝึกสูงสุด</p>
           {leaderboardLoading ? <p className="caption" role="status">กำลังโหลดอันดับ…</p> : leaderboardError ? <div><p className="caption" role="status">{leaderboardError}</p><button className="text-button" onClick={onReloadLeaderboard}>โหลดอันดับอีกครั้ง</button></div> : leaderboard.length > 0 ? (
             <ol className="leaderboard-list">
               {leaderboard.slice(0, 5).map((entry, index) => (
@@ -204,16 +191,14 @@ export function HomeDashboard({
             </ol>
           ) : (
             <p className="caption leaderboard-empty">
-              ยังไม่มีคะแนนสูตรใหม่ในหมวดนี้
+              ยังไม่มีผู้ส่งคะแนนในหมวดนี้
             </p>
           )}
           <button className="text-button" onClick={onOpenPlayer}>
             {player ? `โปรไฟล์ของ ${player.displayName}` : "โปรไฟล์ผู้เล่น (ไม่บังคับ)"}
             <ChevronRight size={18} />
           </button>
-          <p className="content-meta mt-2">
-            แยกจากคะแนนสูตรเดิมและแยกผลที่ใช้เสียงนำ เรียงจากคะแนนดีที่สุด ตามด้วยจังหวะ และจำนวนครั้งที่ฝึก ไม่ใช่ผลประเมินภาคปฏิบัติ
-          </p>
+          <details className="reference-details"><summary>วิธีคิดคะแนนและจัดอันดับ</summary><p className="content-meta mt-2">คะแนนคือค่าเฉลี่ยจากลำดับช่วยเหลือ การแจ้งเหตุ และจังหวะ CPR ใช้คะแนนที่ดีที่สุดในการจัดอันดับ หากเท่ากัน ดูคะแนนจังหวะ แล้วดูจำนวนครั้งที่ฝึก</p><p className="content-meta mt-2">แยกอันดับฝึกเองกับใช้เสียงนำ และไม่รวมคะแนนสูตรเดิม คะแนนนี้ไม่ใช่ผลประเมินภาคปฏิบัติ</p></details>
         </div>
       </section>
 

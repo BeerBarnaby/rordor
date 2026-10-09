@@ -17,7 +17,6 @@ import {
   LEARNING_TOPICS,
   LEARNING_VIDEOS,
   LEARNING_DOCUMENTS,
-  PROTOTYPE_DISCLAIMER,
 } from "@/data/learning";
 import { LearningVideo, UserProgress } from "@/types";
 import { YouTubeModal } from "@/components/YouTubeModal";
@@ -32,17 +31,15 @@ const modules = [
     detail: "ความปลอดภัย · การตอบสนอง",
     icon: ShieldCheck,
     cover: '/images/training/lesson-assessment-v1.png',
-    goal: 'รู้ว่าพื้นที่ปลอดภัยหรือไม่ ก่อนเข้าช่วย',
   },
-  { id: "call1669", title: "แจ้งเหตุ 1669", detail: "ข้อมูลที่ต้องบอก · การตอบคำถาม", icon: PhoneCall, cover: '/images/training/lesson-call1669-v1.png', goal: 'บอกเหตุ สถานที่ และอาการให้เจ้าหน้าที่เข้าใจ' },
-  { id: "cpr", title: "เริ่ม CPR", detail: "ตำแหน่งมือ · ความเร็ว · จังหวะ", icon: HeartPulse, cover: '/images/training/lesson-cpr-v1.png', goal: 'ทบทวนหลักการกดหน้าอก แล้วฝึกจังหวะด้วยการแตะ' },
+  { id: "call1669", title: "แจ้งเหตุ 1669", detail: "ข้อมูลที่ต้องแจ้ง", icon: PhoneCall, cover: '/images/training/lesson-call1669-v1.png' },
+  { id: "cpr", title: "เริ่ม CPR", detail: "ตำแหน่งมือ · จังหวะการกด", icon: HeartPulse, cover: '/images/training/lesson-cpr-v1.png' },
   {
     id: "aed",
     title: "AED · บทเรียนเสริม",
     detail: "สำหรับผู้สนใจ · ไม่บังคับในภารกิจหลัก",
     icon: Zap,
     cover: '/images/training/prom-aed-clear-v1.png',
-    goal: 'ทบทวนการใช้เครื่องตามคำแนะนำทีละขั้น',
   },
 ];
 export function LearningCenter({
@@ -89,7 +86,7 @@ export function LearningCenter({
         </h1>
         {!topic && (
           <p className="lead mt-3">
-            ทุกบทเปิดให้เรียน เลือกเริ่มจากเรื่องที่ต้องการได้เลย
+            เลือกเรียนได้ทุกบท ไม่ต้องเรียงลำดับ
           </p>
         )}
       </header>
@@ -129,8 +126,7 @@ export function LearningCenter({
             <button className="learning-module lesson-card" data-module="aed" onClick={() => openModule('aed')}><span className="lesson-cover"><Image src={modules[3].cover} alt="" width={1536} height={1024} sizes="110px" /></span><span className="lesson-card-copy"><span className="module-number">เลือกเรียนเพิ่มเติม</span><strong>AED · บทเรียนเสริม</strong><span className="caption">เปิดเครื่อง ติดแผ่น และทำตามผลวิเคราะห์</span><span className="module-open">เปิดบทเรียน <ArrowRight size={18} aria-hidden="true" /></span></span></button>
           </section>
           <aside className="notice">
-            <strong>ใช้ทบทวนก่อนฝึก</strong>
-            {PROTOTYPE_DISCLAIMER} และไม่ทดแทนการฝึกภาคปฏิบัติ
+            ต้องฝึกภาคปฏิบัติกับครูฝึกควบคู่กัน
           </aside>
         </>
       ) : (
@@ -194,11 +190,10 @@ export function LearningCenter({
           >
             <section className="lesson-intro">
               <Image src={activeModule!.cover} alt="" width={1536} height={1024} sizes="(min-width: 768px) 240px, 160px" />
-              <div><p className="content-meta">เมื่ออ่านบทนี้แล้ว</p><h2 className="section-title">{activeModule!.goal}</h2><p className="caption">ภาพประกอบหัวข้อ ไม่ใช่ภาพสาธิตการรักษา</p></div>
+              <div><p>{topic.description}</p></div>
             </section>
             <section>
-              <p>{topic.description}</p>
-              <h2 className="section-title mt-6">จำขั้นตอนสำคัญ</h2>
+              <h2 className="section-title">ขั้นตอนสำคัญ</h2>
               <ol className="protocol-list">
                 {topic.summarySteps.map((step, index) => <li key={step}><span className="step-number">{String(index + 1).padStart(2, '0')}</span><span>{step}</span></li>)}
               </ol>
@@ -206,12 +201,12 @@ export function LearningCenter({
             {selected === 'aed' && <section className="page-stack"><button className="primary-button" onClick={onPracticeAED}>ทบทวน AED ทีละขั้น <ArrowRight size={20} aria-hidden="true" /></button><p className="caption">ลองผลช็อกและไม่ช็อกได้ · ไม่เพิ่ม XP หรือคะแนนทักษะ</p></section>}
             {selected === 'cpr' && (
               <section aria-labelledby="cpr-reading-title" className="cpr-reading">
-                <h2 id="cpr-reading-title" className="section-title">CPR สำหรับผู้ใหญ่ · อ่านทีละเรื่อง</h2>
+                <h2 id="cpr-reading-title" className="section-title">การทำ CPR</h2>
                 <p className="caption">{CPR_LESSON_SCOPE}</p>
                 <div className="cpr-reading-list">
                   {CPR_LESSONS.map((lesson, index) => (
                     <details className="cpr-reading-item" key={lesson.id}>
-                      <summary><span className="caption">เรื่อง {index + 1}</span><strong>{lesson.title}</strong><span className="caption">{lesson.takeaway}</span><span className="cpr-reading-hint">เปิดอ่าน</span></summary>
+                      <summary><strong>{index + 1}. {lesson.title}</strong><span className="caption">{lesson.takeaway}</span></summary>
                       <div className="cpr-reading-body">
                         {lesson.points.map(point => <p key={point}>{point}</p>)}
                         <a className="text-button" href={CPR_SOURCES[lesson.source].url} target="_blank" rel="noopener noreferrer">{CPR_SOURCES[lesson.source].title}<ExternalLink size={16} aria-label="เปิดแท็บใหม่" /></a>
@@ -219,7 +214,6 @@ export function LearningCenter({
                     </details>
                   ))}
                 </div>
-                <p className="caption mt-3">เรียบเรียงและตรวจแหล่งอ้างอิง 9 ต.ค. 2569 · เนื้อหาเพิ่มส่วนนี้รอครูฝึกตรวจทานก่อนเผยแพร่ ไม่ทดแทนการฝึกภาคปฏิบัติ</p>
               </section>
             )}
             {videos.length > 0 && (
@@ -312,6 +306,8 @@ export function LearningCenter({
       </div>
       <details className="reference-details">
         <summary>แหล่งอ้างอิงและสถานะการตรวจทานเนื้อหา</summary>
+        <p className="caption">ภาพหน้าปกใช้ประกอบหัวข้อ ไม่ใช่ภาพสาธิตการรักษา</p>
+        {selected === 'cpr' && <p className="caption">บทอ่าน CPR เพิ่มเมื่อ 9 ต.ค. 2569 อ้างอิง AHA 2025 และ American Red Cross รอครูฝึกตรวจทานส่วนที่เพิ่มใหม่</p>}
         <ContentMetadata />
       </details>
       <YouTubeModal video={video} onClose={() => setVideo(null)} />
