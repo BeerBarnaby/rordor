@@ -133,20 +133,16 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({
   return (
     <div className="page-stack training-screen sequence-training">
       <header>
-        <p className="protocol-code">ขั้น 01 · การตัดสินใจ</p>
-        <h1 className="page-title">ลำดับการช่วยเหลือ</h1>
-        <p className="mt-2">เพื่อนล้มลงและไม่ตอบสนอง คุณจะทำอะไรตามลำดับ?</p>
-        <p className="caption mt-2">แตะเพิ่ม {targetStepCount} ขั้นตอนตามลำดับที่คิดว่าควรทำ</p>
+        <h1 className="page-title">เรียงลำดับการช่วยเหลือ</h1>
+        <p className="mt-2">เพื่อนล้มลง คุณควรทำอะไรตามลำดับ?</p>
+        <p className="caption mt-2">แตะเลือกให้ครบ {targetStepCount} ขั้นตอน แล้วตรวจคำตอบ</p>
       </header>
-      <div className="sequence-status" role="status" aria-live="polite"><strong key={selectedCards.length} className="selection-count">เลือกแล้ว {selectedCards.length} / {targetStepCount}</strong><span>{isSubmitted ? 'ตรวจแล้ว · ดูคำแนะนำก่อนฝึกต่อ' : selectedCards.length === targetStepCount ? 'เปิดลำดับของคุณเพื่อสลับ หรือกดตรวจคำตอบ' : 'ยังสลับลำดับหรือนำออกได้'}</span></div>
       <div className="sequence-grid">
-        <details className="sequence-selection" open={isSubmitted}>
-          <summary>ลำดับของคุณ ({selectedCards.length}/{targetStepCount}) · {isSubmitted ? 'ดูผลแต่ละข้อ' : 'แตะเพื่อดู / สลับลำดับ'}</summary>
+        <details className="sequence-selection" open>
+          <summary aria-live="polite">ลำดับที่เลือก {selectedCards.length}/{targetStepCount}</summary>
           <section>
           <div className="flex items-center justify-between gap-3 mb-3">
-            <h2 className="section-title !mb-0">
-              ลำดับของคุณ ({selectedCards.length}/{targetStepCount})
-            </h2>
+            <p className="caption">{isSubmitted ? 'ตรวจแล้ว ดูผลแต่ละข้อด้านล่าง' : 'ใช้ปุ่มขึ้น ลง หรือนำออก เพื่อแก้ลำดับ'}</p>
             {selectedCards.length > 0 && !isSubmitted && (
               <button className="text-button" onClick={resetGame}>
                 ล้าง
@@ -217,7 +213,7 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({
         </details>
         {!isSubmitted && (
           <section>
-            <h2 className="section-title">เลือกสิ่งที่จะทำ</h2>
+            <h2 className="section-title">ขั้นตอนที่เลือกได้</h2>
             <div className="sequence-list">
               {availableCards.map((card) => (
                 <button

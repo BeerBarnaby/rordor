@@ -301,22 +301,14 @@ export default function Home() {
           {missionPhase === "opening" && (
             <div className="page-stack training-screen">
               <header>
-                <p className="protocol-code">{scenario.code} · โทร 1669 + CPR</p>
-                <h1 className="display-title">
-                  เพื่อนล้มลง
-                  <br />
-                  คุณอยู่ใกล้ที่สุด
-                </h1>
-                <p className="lead mt-5">
+                <p className="protocol-code">สถานการณ์จำลอง</p>
+                <h1 className="page-title">{scenario.title}</h1>
+                <p className="lead mt-3">
                   {scenario.opening}
                 </p>
               </header>
-              <section className="conversation-prompt">
-                <p className="protocol-code">โจทย์ของคุณ</p>
-                <blockquote>ตัดสินใจให้ถูก แล้วช่วยเหลือตามลำดับ</blockquote>
-              </section>
               <p className="caption">
-                ใช้เวลาประมาณ 5 นาที · มีคำแนะนำหลังทุกคำตอบ · ผลเก็บไว้ในอุปกรณ์นี้
+                3 ขั้นตอน · ประมาณ 5 นาที
               </p>
               <SimulationNotice />
               <button
@@ -327,7 +319,7 @@ export default function Home() {
                   setMissionPhase("sequence");
                 }}
               >
-                เริ่มฝึกสถานการณ์
+                เริ่มฝึก
                 <ArrowRight size={20} />
               </button>
             </div>

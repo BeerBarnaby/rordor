@@ -15,14 +15,14 @@ export function SimulationNotice() {
 export function ContentMetadata() {
   return (
     <div className="content-meta section-rule">
-      <p>สถานะตรวจทาน: ผู้ดูแลโครงการแจ้งว่าครูฝึกให้ผ่านแล้ว เมื่อ 6 ตุลาคม 2569</p>
-      <p>ยังไม่ได้บันทึกชื่อผู้ตรวจทานหรือเอกสารรับรอง ภาพประกอบที่เพิ่มในฉบับทดลองควรตรวจอีกครั้งก่อนเผยแพร่</p>
-      <p>
-        อ้างอิงหลัก: สภากาชาดไทย, สพฉ., เอกสารนักศึกษาวิชาทหาร
-        หน่วยบัญชาการรักษาดินแดน และ AHA Guidelines 2025
-      </p>
+      <h3>สถานะการตรวจทาน</h3>
+      <p>ยังไม่มีหลักฐานการตรวจทานที่บันทึกในระบบ จึงยังไม่ระบุว่าได้รับการรับรอง</p>
+      <p>ผู้ดูแลแจ้งว่าครูฝึกตรวจเนื้อหาเดิมเมื่อ 6 ตุลาคม 2569 แต่ยังไม่มีชื่อผู้ตรวจหรือเอกสารยืนยัน เนื้อหาและภาพที่เพิ่มภายหลังยังต้องตรวจทาน</p>
+      <h3>แหล่งอ้างอิง</h3>
+      <ul><li><a href="https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines/adult-basic-life-support" target="_blank" rel="noopener noreferrer">AHA 2025: การช่วยชีวิตขั้นพื้นฐานสำหรับผู้ใหญ่</a></li><li><a href="https://www.redcross.org/take-a-class/cpr/performing-cpr/cpr-steps" target="_blank" rel="noopener noreferrer">American Red Cross: ขั้นตอน CPR</a></li></ul>
       <p>ปรับปรุงเนื้อหาล่าสุด: {MAIN_PROTOCOL_METADATA.lastUpdated}</p>
-      <p>ฉบับทดลองในเครื่อง · ไม่ทดแทนการฝึกภาคปฏิบัติหรือการประเมินด้วยอุปกรณ์มาตรฐาน</p>
+      <h3>ข้อจำกัดของสื่อ</h3>
+      <p>สื่อฝึกจำลอง ไม่ทดแทนการฝึกภาคปฏิบัติหรือการประเมินด้วยอุปกรณ์มาตรฐาน</p>
     </div>
   );
 }

@@ -20,16 +20,16 @@ export function MissionMenu({ continuing, onMain, onAED }: { continuing: boolean
           <li><Timer size={18} aria-hidden="true" /><span>จังหวะ CPR</span></li>
         </ol>
         <p className="mission-choice-meta">3 ขั้น · ประมาณ 5 นาที · มีสรุปผล{continuing && <span>มีภารกิจที่ฝึกค้างไว้ในหน้านี้</span>}</p>
-        <button className="primary-button" onClick={onMain}>{continuing ? 'ฝึกภารกิจหลักต่อ' : 'เริ่มภารกิจหลัก'}<ArrowRight size={20} aria-hidden="true" /></button>
+        <button className="primary-button" onClick={onMain}>{continuing ? 'ฝึกต่อ' : 'เริ่มฝึก'}<ArrowRight size={20} aria-hidden="true" /></button>
       </section>
       <section className="mission-choice mission-choice-extra" aria-labelledby="aed-mission-title">
         <div className="mission-choice-heading">
-          <div><span className="mission-choice-label">ภารกิจเสริม</span><h2 id="aed-mission-title">ใช้เครื่อง AED</h2><p>เปิดเครื่อง ติดแผ่น และทำตามคำสั่ง</p></div>
+          <div><span className="mission-choice-label">บทฝึกเสริม</span><h2 id="aed-mission-title">ใช้เครื่อง AED</h2></div>
           <Image src="/images/training/prom-aed-clear-v1.png" width={1536} height={1024} sizes="120px" alt="" />
         </div>
-        <p className="mission-choice-description">ลองทั้งกรณีที่เครื่องสั่งช็อกและไม่สั่งช็อก</p>
-        <p className="mission-choice-meta">ไม่บังคับในภารกิจหลัก · ไม่เพิ่ม XP</p>
-        <button className="secondary-button" onClick={onAED}>เริ่มภารกิจ AED<ArrowRight size={20} aria-hidden="true" /></button>
+        <p className="mission-choice-description">เปิดเครื่อง ติดแผ่น และทำตามคำสั่ง ลองทั้งกรณีช็อกและไม่ช็อก</p>
+        <p className="mission-choice-meta">เลือกฝึกได้ · ไม่เพิ่ม XP</p>
+        <button className="secondary-button" onClick={onAED}>ฝึกใช้ AED<ArrowRight size={20} aria-hidden="true" /></button>
       </section>
     </div>
     <p className="mission-menu-note">เป็นการฝึกจำลอง ไม่โทร 1669 จริง และไม่ทดแทนการฝึกภาคปฏิบัติ</p>

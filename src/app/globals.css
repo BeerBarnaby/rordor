@@ -430,7 +430,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .training-rail li:nth-child(2) { animation-delay: 70ms; }
 .training-rail li:nth-child(3) { animation-delay: 140ms; }
 .training-rail li:nth-child(4) { animation-delay: 210ms; }
-.training-rail .rail-number { color: var(--color-signal); font: 700 13px/20px var(--font-line-seed), system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+.training-rail .rail-number { color: var(--color-ink-muted); font: 500 13px/20px var(--font-line-seed), system-ui, sans-serif; font-variant-numeric: tabular-nums; }
 .training-rail strong { display: block; font-size: 16px; line-height: 26px; font-weight: 600; }
 .training-rail .text-button { width: 100%; justify-content: space-between; text-align: left; margin: 0; min-height: 44px; }
 .training-rail small { display: block; color: var(--color-ink-muted); font-size: 14px; line-height: 22px; }
@@ -1241,3 +1241,21 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .eyebrow, .protocol-code, .brand > span { font-weight: 500; }
 .lead, .caption, .mission-choice-heading p,
 .cpr-reading-body p { font-weight: 400; }
+
+/* Shared reading hierarchy, without shrinking Thai copy to fit artwork. */
+.page-title { font-size: 30px; line-height: 1.3; font-weight: 700; }
+.section-title { font-size: 22px; line-height: 1.4; font-weight: 600; }
+.primary-button, .secondary-button { font-size: 16px; font-weight: 600; }
+.caption, .content-meta { font-size: 14px; line-height: 1.6; }
+.protocol-code, .learning-module .module-number { color: var(--color-ink-muted); font-weight: 500; }
+.learning-module[data-module] { --module-bg: #fff; --module-border: var(--color-line); --module-color: var(--color-ink-muted); }
+.learning-module strong { font-size: 20px; line-height: 1.4; }
+.content-meta h3 { margin: 16px 0 6px; color: var(--color-ink); font-size: 16px; font-weight: 600; }
+.content-meta a { text-decoration: underline; text-underline-offset: 3px; }
+.training-screen { max-width: 760px; margin-inline: auto; }
+.sequence-controls .icon-button { min-width: 44px; min-height: 44px; }
+@media (max-width: 639px) {
+  .page-stack.training-screen { gap: 16px; }
+  .home-hero .display-title { font-size: 30px; font-weight: 700; line-height: 1.3; }
+  .mission-choice-description { font-size: 16px; line-height: 1.6; }
+}

@@ -82,11 +82,11 @@ export function LearningCenter({
           {selected === 'aed' ? 'บทเรียนเสริม · สำหรับผู้สนใจ' : topic ? `บทเรียนหลัก ${activeModuleIndex + 1} จาก 3` : "บทเรียนภาคสนาม"}
         </p>
         <h1 className="page-title">
-          {activeModule?.title || "เลือกบทเรียนที่อยากทบทวน"}
+          {activeModule?.title || "บทเรียน"}
         </h1>
         {!topic && (
           <p className="lead mt-3">
-            เลือกเรียนได้ทุกบท ไม่ต้องเรียงลำดับ
+            เลือกเรียนได้ตามต้องการ ไม่ต้องเรียงลำดับ
           </p>
         )}
       </header>
@@ -105,7 +105,7 @@ export function LearningCenter({
                 >
                   <span className="lesson-cover"><Image src={item.cover} alt="" width={1536} height={1024} sizes="(min-width: 1024px) 280px, 110px" /></span>
                   <span className="lesson-card-copy">
-                    <span className="module-number">บทเรียน {index + 1} · {completed ? 'ทบทวนแล้ว' : 'พร้อมเรียน'}</span>
+                    <span className="module-number">บทเรียน {index + 1}{completed ? ' · เรียนแล้ว' : ''}</span>
                     <strong>{item.title}</strong>
                     <span className="caption block mt-1">{item.detail}</span>
                   <span className="module-open">
@@ -121,8 +121,8 @@ export function LearningCenter({
             })}
           </div>
           <section className="section-rule" aria-label="บทเรียนเสริม">
-            <h2 className="section-title">เรียนเพิ่มเติมเมื่อสนใจ</h2>
-            <p className="caption mb-3">AED แยกจากภารกิจหลัก ไม่ต้องเรียนบทนี้เพื่อดูผลการฝึก CPR และการแจ้งเหตุ</p>
+            <h2 className="section-title">บทเรียนเสริม: การใช้ AED</h2>
+            <p className="caption mb-3">เรียนรู้การเปิดเครื่อง ติดแผ่น และทำตามคำสั่งของเครื่อง</p>
             <button className="learning-module lesson-card" data-module="aed" onClick={() => openModule('aed')}><span className="lesson-cover"><Image src={modules[3].cover} alt="" width={1536} height={1024} sizes="110px" /></span><span className="lesson-card-copy"><span className="module-number">เลือกเรียนเพิ่มเติม</span><strong>AED · บทเรียนเสริม</strong><span className="caption">เปิดเครื่อง ติดแผ่น และทำตามผลวิเคราะห์</span><span className="module-open">เปิดบทเรียน <ArrowRight size={18} aria-hidden="true" /></span></span></button>
           </section>
           <aside className="notice">

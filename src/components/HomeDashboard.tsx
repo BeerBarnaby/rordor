@@ -10,7 +10,6 @@ const steps = [
   { title: "แจ้งเหตุ 1669", detail: "ฝึกแจ้งเหตุ 1669" },
   { title: "ฝึกจังหวะ CPR", detail: "ฝึกจังหวะกดหน้าอก 100–120 ครั้ง/นาที" },
 ];
-const lessonSteps = [...steps, { title: 'AED · บทเสริม', detail: 'สำหรับผู้สนใจ' }];
 
 export function TrainingSteps({ current = -1 }: { current?: number }) {
   const safeCurrent = Math.min(Math.max(current, 0), steps.length - 1);
@@ -82,21 +81,20 @@ export function HomeDashboard({
     <div className="home-screen">
       <div className="home-top-grid">
         <section className="home-hero">
-          <p className="protocol-code">สถานการณ์ฝึก · ช่วยเพื่อนหมดสติ</p>
           <h1 className="display-title">
             <span className="hero-title-line">เจอคนหมดสติ</span>
             <span className="hero-title-line">ต้องทำอย่างไร?</span>
           </h1>
           <p className="lead">
-            ฝึกช่วยคนหมดสติ โทร 1669 และฝึกจังหวะ CPR
+            ฝึกประเมินเหตุ แจ้ง 1669 และฝึกจังหวะ CPR
           </p>
-          <p className="mission-meta">3 ขั้น · ประมาณ 5 นาที · ไม่ต้องเข้าสู่ระบบ</p>
+          <p className="mission-meta">3 ขั้น · ประมาณ 5 นาที</p>
           <div className="hero-actions">
             <button className="primary-button" onClick={onStart}>
               {continuing
                 ? `ทำต่อ: ${currentLabel}`
                 : progress.missionAttemptsCount
-                  ? "ลองสถานการณ์ใหม่"
+                  ? "เริ่มฝึกอีกครั้ง"
                   : "เริ่มฝึก"}
               <ArrowRight size={20} aria-hidden="true" />
             </button>
@@ -105,13 +103,14 @@ export function HomeDashboard({
               <ChevronRight size={18} aria-hidden="true" />
             </button>
           </div>
+          {!player && !progress.missionAttemptsCount && <p className="caption mt-2">ฝึกได้โดยไม่ต้องเข้าสู่ระบบ</p>}
           {continuing && (
             <p className="caption mt-3">
               บันทึกไว้ที่ขั้น {currentStep + 1} จาก 3
             </p>
           )}
           <div className="home-companion">
-            <div><strong>ฝึกกับน้องพร้อม</strong><p>เลือกคำตอบ แล้วดูผลหลังฝึก</p></div>
+            <div><strong>น้องพร้อม</strong></div>
             <Image src="/images/training/prom-companion-home-v1.png" width={1024} height={1536} sizes="(min-width: 640px) 160px, 110px" alt="น้องพร้อม ตัวละครนักศึกษาวิชาทหาร ยิ้มต้อนรับพร้อมสมุดฝึก" />
           </div>
         </section>
@@ -121,7 +120,7 @@ export function HomeDashboard({
             บทเรียน
           </h2>
           <ol className="training-rail">
-            {lessonSteps.map((step, index) => (
+            {steps.map((step, index) => (
               <li key={step.title}>
                 <span className="rail-number">0{index + 1}</span>
                 <button className="text-button" onClick={onLearn} aria-label={`ดูบทเรียน: ${step.title}`}>
@@ -131,8 +130,54 @@ export function HomeDashboard({
               </li>
             ))}
           </ol>
+          <button className="text-button" onClick={onLearn}>การใช้ AED · บทเสริม <ChevronRight size={18} aria-hidden="true" /></button>
         </section>
       </div>
+
+      <section className="home-result" aria-labelledby="latest-result-title">
+        {progress.lastMissionResult ? (
+          <>
+            <div>
+              <p className="protocol-code">ผลล่าสุด</p>
+              <h2 id="latest-result-title" className="section-title">
+                {progress.lastMissionResult.scenarioTitle}
+              </h2>
+              <p className="caption">{progress.lastMissionResult.completedAt}</p>
+              <p className="home-result-score mt-4">
+                <span className="score-number">
+                  {progress.lastMissionResult.overallScore}
+                </span>
+                <span className="caption">/ 100 คะแนน</span>
+              </p>
+              <p className="caption">{progress.lastMissionResult.scoringVersion ? 'เฉลี่ย 3 แบบฝึก · บันทึกในเครื่อง' : 'ผลจากสูตรเดิม'}</p>
+            </div>
+            <dl className="metric-list">
+              <div>
+                <dt>จังหวะกดในช่วงเป้าหมาย</dt>
+                <dd>{progress.lastMissionResult.cprRhythmScore}%</dd>
+              </div>
+              <div>
+                <dt>คะแนนดีที่สุด ({progress.lastMissionResult.scoringVersion ? 'สูตรใหม่' : 'สูตรเดิม'})</dt>
+                <dd>{progress.lastMissionResult.scoringVersion ? progress.measuredBestOverallScore ?? progress.lastMissionResult.overallScore : progress.bestOverallScore}</dd>
+              </div>
+              <div>
+                <dt>ฝึกแล้ว</dt>
+                <dd>{progress.missionAttemptsCount} ครั้ง</dd>
+              </div>
+            </dl>
+          </>
+        ) : (
+          <div>
+            <p className="protocol-code">ผลการฝึก</p>
+            <h2 id="latest-result-title" className="section-title">
+              ยังไม่มีผลการฝึก
+            </h2>
+            <p className="caption">
+              ใช้เวลาประมาณ 5 นาที แล้วระบบจะสรุปสิ่งที่ทำได้ดีและจุดที่ควรทบทวน
+            </p>
+          </div>
+        )}
+      </section>
 
       <section className="game-hub" aria-labelledby="game-hub-title">
         <div className="game-progress-card">
@@ -143,7 +188,6 @@ export function HomeDashboard({
                 Level {game.level}
               </h2>
             </div>
-            <span className="level-badge">LV.{game.level}</span>
           </div>
           <div
             className="xp-track"
@@ -202,50 +246,6 @@ export function HomeDashboard({
         </div>
       </section>
 
-      <section className="home-result" aria-labelledby="latest-result-title">
-        {progress.lastMissionResult ? (
-          <>
-            <div>
-              <p className="protocol-code">ผลล่าสุด</p>
-              <h2 id="latest-result-title" className="section-title">
-                {progress.lastMissionResult.scenarioTitle}
-              </h2>
-              <p className="caption">{progress.lastMissionResult.completedAt}</p>
-              <p className="home-result-score mt-4">
-                <span className="score-number">
-                  {progress.lastMissionResult.overallScore}
-                </span>
-                <span className="caption">/ 100 คะแนน</span>
-              </p>
-              <p className="caption">{progress.lastMissionResult.scoringVersion ? 'เฉลี่ย 3 แบบฝึก · บันทึกในเครื่อง' : 'ผลจากสูตรเดิม'}</p>
-            </div>
-            <dl className="metric-list">
-              <div>
-                <dt>จังหวะกดในช่วงเป้าหมาย</dt>
-                <dd>{progress.lastMissionResult.cprRhythmScore}%</dd>
-              </div>
-              <div>
-                <dt>คะแนนดีที่สุด ({progress.lastMissionResult.scoringVersion ? 'สูตรใหม่' : 'สูตรเดิม'})</dt>
-                <dd>{progress.lastMissionResult.scoringVersion ? progress.measuredBestOverallScore ?? progress.lastMissionResult.overallScore : progress.bestOverallScore}</dd>
-              </div>
-              <div>
-                <dt>ฝึกแล้ว</dt>
-                <dd>{progress.missionAttemptsCount} ครั้ง</dd>
-              </div>
-            </dl>
-          </>
-        ) : (
-          <div>
-            <p className="protocol-code">ผลการฝึก</p>
-            <h2 id="latest-result-title" className="section-title">
-              ยังไม่มีผลการฝึก
-            </h2>
-            <p className="caption">
-              ใช้เวลาประมาณ 5 นาที แล้วระบบจะสรุปสิ่งที่ทำได้ดีและจุดที่ควรทบทวน
-            </p>
-          </div>
-        )}
-      </section>
     </div>
   );
 }
