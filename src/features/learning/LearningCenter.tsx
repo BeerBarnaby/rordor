@@ -23,6 +23,7 @@ import { LearningVideo, UserProgress } from "@/types";
 import { YouTubeModal } from "@/components/YouTubeModal";
 import { ContentMetadata } from "@/components/TrainingUI";
 import { ProgressService } from "@/lib/progress";
+import { CPR_LESSONS, CPR_LESSON_SCOPE, CPR_SOURCES } from '@/data/cprLessons';
 
 const modules = [
   {
@@ -203,6 +204,24 @@ export function LearningCenter({
               </ol>
             </section>
             {selected === 'aed' && <section className="page-stack"><button className="primary-button" onClick={onPracticeAED}>ทบทวน AED ทีละขั้น <ArrowRight size={20} aria-hidden="true" /></button><p className="caption">ลองผลช็อกและไม่ช็อกได้ · ไม่เพิ่ม XP หรือคะแนนทักษะ</p></section>}
+            {selected === 'cpr' && (
+              <section aria-labelledby="cpr-reading-title" className="cpr-reading">
+                <h2 id="cpr-reading-title" className="section-title">CPR สำหรับผู้ใหญ่ · อ่านทีละเรื่อง</h2>
+                <p className="caption">{CPR_LESSON_SCOPE}</p>
+                <div className="cpr-reading-list">
+                  {CPR_LESSONS.map((lesson, index) => (
+                    <details className="cpr-reading-item" key={lesson.id}>
+                      <summary><span className="caption">เรื่อง {index + 1}</span><strong>{lesson.title}</strong><span className="caption">{lesson.takeaway}</span><span className="cpr-reading-hint">เปิดอ่าน</span></summary>
+                      <div className="cpr-reading-body">
+                        {lesson.points.map(point => <p key={point}>{point}</p>)}
+                        <a className="text-button" href={CPR_SOURCES[lesson.source].url} target="_blank" rel="noopener noreferrer">{CPR_SOURCES[lesson.source].title}<ExternalLink size={16} aria-label="เปิดแท็บใหม่" /></a>
+                      </div>
+                    </details>
+                  ))}
+                </div>
+                <p className="caption mt-3">เรียบเรียงและตรวจแหล่งอ้างอิง 9 ต.ค. 2569 · เนื้อหาเพิ่มส่วนนี้รอครูฝึกตรวจทานก่อนเผยแพร่ ไม่ทดแทนการฝึกภาคปฏิบัติ</p>
+              </section>
+            )}
             {videos.length > 0 && (
               <section>
                 <h3 className="section-title">วิดีโอแนะนำ</h3>

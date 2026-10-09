@@ -1,26 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
+import { Prompt } from "next/font/google";
 import "./globals.css";
 
-const lineSeedSansThai = localFont({
-  src: [
-    {
-      path: "./fonts/LINESeedSansTH-Regular.woff2",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "./fonts/LINESeedSansTH-Bold.woff2",
-      weight: "700",
-      style: "normal",
-    },
-    {
-      path: "./fonts/LINESeedSansTH-ExtraBold.woff2",
-      weight: "800",
-      style: "normal",
-    },
-  ],
-  variable: "--font-line-seed",
+const promptThai = Prompt({
+  weight: ["400", "500", "600", "700"],
+  subsets: ["thai", "latin"],
+  variable: "--font-prompt-thai",
   display: "swap",
 });
 
@@ -63,7 +48,7 @@ export default function RootLayout({
   return (
     <html
       lang="th"
-      className={`${lineSeedSansThai.variable} h-full antialiased`}
+      className={`${promptThai.variable} h-full antialiased`}
     >
       <body className="min-h-full font-sans">{children}</body>
     </html>
