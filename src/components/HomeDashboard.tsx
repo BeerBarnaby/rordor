@@ -74,6 +74,7 @@ export function HomeDashboard({
     : null;
   const localGame = getGameProgress(progress);
   const game = player?.xp == null ? localGame : getLevelProgress(player.xp, localGame.completedTopicCount);
+  const hasProgress = progress.missionAttemptsCount > 0 || localGame.completedTopicCount > 0 || (player?.xp ?? 0) > 0;
 
   return (
     <div className="home-screen">
@@ -101,7 +102,6 @@ export function HomeDashboard({
               <ChevronRight size={18} aria-hidden="true" />
             </button>
           </div>
-          {!player && !progress.missionAttemptsCount && <p className="caption mt-2">ฝึกได้โดยไม่ต้องเข้าสู่ระบบ</p>}
           {continuing && (
             <p className="caption mt-3">
               บันทึกไว้ที่ขั้น {currentStep + 1} จาก 3
@@ -109,6 +109,7 @@ export function HomeDashboard({
           )}
           <div className="home-companion">
             <Image src="/images/training/prom-companion-home-v1.png" width={1024} height={1536} sizes="(min-width: 640px) 160px, 110px" alt="น้องพร้อม ตัวละครนักศึกษาวิชาทหาร ยิ้มต้อนรับพร้อมสมุดฝึก" />
+            <p><strong>น้องพร้อมจะพาฝึกทีละขั้น</strong><span>{player ? 'ผลการฝึกจะบันทึกในโปรไฟล์นี้' : 'เริ่มได้เลย ไม่ต้องเข้าสู่ระบบ'}</span></p>
           </div>
         </section>
 
@@ -176,7 +177,12 @@ export function HomeDashboard({
         )}
       </section>
 
-      <section className="game-hub" aria-labelledby="game-hub-title">
+      {!hasProgress ? (
+        <section className="game-empty-state" aria-labelledby="game-hub-title">
+          <div><p className="protocol-code">ความคืบหน้า</p><h2 id="game-hub-title" className="section-title">Level 1 · 0 XP</h2><p className="caption">ฝึกภารกิจแรกแล้วคะแนนและอันดับจะปรากฏตรงนี้</p></div>
+          <button className="text-button" onClick={onOpenPlayer}>โปรไฟล์ผู้เล่น (ไม่บังคับ)<ChevronRight size={18} /></button>
+        </section>
+      ) : <section className="game-hub" aria-labelledby="game-hub-title">
         <div className="game-progress-card">
           <div className="game-heading">
             <div>
@@ -240,7 +246,7 @@ export function HomeDashboard({
           </button>
           <details className="reference-details"><summary>วิธีคิดคะแนนและจัดอันดับ</summary><p className="content-meta mt-2">คะแนนคือค่าเฉลี่ยจากลำดับช่วยเหลือ การแจ้งเหตุ และจังหวะ CPR ใช้คะแนนที่ดีที่สุดในการจัดอันดับ หากเท่ากัน ดูคะแนนจังหวะ แล้วดูจำนวนครั้งที่ฝึก</p><p className="content-meta mt-2">ไม่รวมคะแนนสูตรเดิม และไม่ใช่ผลประเมินภาคปฏิบัติ</p></details>
         </div>
-      </section>
+      </section>}
 
     </div>
   );

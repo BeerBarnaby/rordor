@@ -42,7 +42,7 @@ export function AboutModal({
           </ul>
         </section>
         <section>
-          <h3 className="section-title">แหล่งอ้างอิงและผู้ตรวจทาน</h3>
+          <h3 className="section-title">แหล่งอ้างอิง</h3>
           <ContentMetadata />
         </section>
         <section>

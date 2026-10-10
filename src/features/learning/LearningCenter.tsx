@@ -33,7 +33,7 @@ const modules = [
     cover: '/images/training/lesson-assessment-v1.png',
   },
   { id: "call1669", title: "แจ้งเหตุ 1669", detail: "ข้อมูลที่ต้องแจ้ง", icon: PhoneCall, cover: '/images/training/lesson-call1669-v1.png' },
-  { id: "cpr", title: "เริ่ม CPR", detail: "ตำแหน่งมือ · จังหวะการกด", icon: HeartPulse, cover: '/images/training/lesson-cpr-v1.png' },
+  { id: "cpr", title: "การทำ CPR เบื้องต้น", detail: "ตำแหน่งมือ · จังหวะการกด", icon: HeartPulse, cover: '/images/training/lesson-cpr-v1.png' },
   {
     id: "aed",
     title: "AED · บทเรียนเสริม",
@@ -63,10 +63,6 @@ export function LearningCenter({
       item.topicId === selected ||
       (selected === "aed" && item.topicId === "cpr"),
   );
-  // Use the general-audience lesson first. Field/military footage remains
-  // available as additional context instead of defining the core procedure.
-  const primaryVideo = videos.find((item) => !item.contextLabel) ?? videos[0];
-  const additionalVideos = videos.filter((item) => item.id !== primaryVideo?.id);
   const docs = LEARNING_DOCUMENTS.filter(
     (item) => item.topicId === selected && item.isAvailable,
   );
@@ -112,13 +108,7 @@ export function LearningCenter({
                     <span className="module-number">บทเรียน {index + 1}{completed ? ' · เรียนแล้ว' : ''}</span>
                     <strong>{item.title}</strong>
                     <span className="caption block mt-1">{item.detail}</span>
-                  <span className="module-open">
-                    {completed ? (
-                      <>ทบทวนอีกครั้ง <Check size={18} /></>
-                    ) : (
-                      <>เปิดบทเรียน <ArrowRight size={18} /></>
-                    )}
-                  </span>
+                  <span className="module-open" aria-hidden="true">{completed ? <Check size={18} /> : <ArrowRight size={18} />}</span>
                   </span>
                 </button>
               );
@@ -127,7 +117,7 @@ export function LearningCenter({
           <section className="section-rule" aria-label="บทเรียนเสริม">
             <h2 className="section-title">บทเรียนเสริม: การใช้ AED</h2>
             <p className="caption mb-3">เรียนรู้การเปิดเครื่อง ติดแผ่น และทำตามคำสั่งของเครื่อง</p>
-            <button className="learning-module lesson-card" data-module="aed" onClick={() => openModule('aed')}><span className="lesson-cover"><Image src={modules[3].cover} alt="" width={1536} height={1024} sizes="110px" /></span><span className="lesson-card-copy"><span className="module-number">เลือกเรียนเพิ่มเติม</span><strong>การใช้ AED</strong><span className="caption">เปิดเครื่อง ติดแผ่น และทำตามคำสั่งของเครื่อง</span><span className="module-open">เปิดบทเรียน <ArrowRight size={18} aria-hidden="true" /></span></span></button>
+            <button className="learning-module lesson-card" data-module="aed" onClick={() => openModule('aed')}><span className="lesson-cover"><Image src={modules[3].cover} alt="" width={1536} height={1024} sizes="110px" /></span><span className="lesson-card-copy"><span className="module-number">เลือกเรียนเพิ่มเติม</span><strong>การใช้ AED</strong><span className="caption">เปิดเครื่อง ติดแผ่น และทำตามคำสั่งของเครื่อง</span><span className="module-open" aria-hidden="true"><ArrowRight size={18} /></span></span></button>
           </section>
           <aside className="notice">
             ต้องฝึกภาคปฏิบัติกับครูฝึกควบคู่กัน
@@ -168,11 +158,11 @@ export function LearningCenter({
                 </div>
               </section>
             )}
-            {primaryVideo && (
+            {videos.length > 0 && (
               <section>
-                <h3 className="section-title">วิดีโอแนะนำ</h3>
+                <h3 className="section-title">วิดีโอประกอบทั้งหมด</h3>
                 <div className="video-grid">
-                  {[primaryVideo].map((item) => (
+                  {videos.map((item) => (
                     <button
                       key={item.id}
                       className="video-resource"
@@ -204,39 +194,6 @@ export function LearningCenter({
                     </button>
                   ))}
                 </div>
-                {additionalVideos.length > 0 && (
-                  <details className="reference-details mt-4">
-                    <summary>วิดีโอเพิ่มเติม ({additionalVideos.length})</summary>
-                    <div className="video-grid mt-4">
-                      {additionalVideos.map((item) => (
-                        <button
-                          key={item.id}
-                          className="video-resource video-resource-compact"
-                          onClick={() => setVideo(item)}
-                        >
-                          <div className="video-thumbnail">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={`https://img.youtube.com/vi/${item.youtubeId}/hqdefault.jpg`}
-                              alt=""
-                              width={480}
-                              height={270}
-                              loading="lazy"
-                            />
-                            <span className="video-play"><Play /></span>
-                            {item.duration && (
-                              <span className="video-duration">
-                                {item.duration.replace("min", "นาที")}
-                              </span>
-                            )}
-                          </div>
-                          <h4 className="mt-3 font-semibold">{item.title}</h4>
-                          <p className="caption mt-1">{item.provider}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </details>
-                )}
               </section>
             )}
             <div className="detail-grid">
@@ -290,9 +247,9 @@ export function LearningCenter({
         </button>
       </div>
       <details className="reference-details">
-        <summary>แหล่งอ้างอิงและสถานะการตรวจทานเนื้อหา</summary>
+        <summary>แหล่งอ้างอิงเนื้อหา</summary>
         <p className="caption">ภาพหน้าปกใช้ประกอบหัวข้อ ไม่ใช่ภาพสาธิตการรักษา</p>
-        {selected === 'cpr' && <p className="caption">บทอ่าน CPR เพิ่มเมื่อ 9 ต.ค. 2569 อ้างอิง AHA 2025 และ American Red Cross รอครูฝึกตรวจทานส่วนที่เพิ่มใหม่</p>}
+        {selected === 'cpr' && <p className="caption">บทอ่าน CPR อ้างอิง AHA 2025 และ American Red Cross</p>}
         <ContentMetadata />
       </details>
       <YouTubeModal video={video} onClose={() => setVideo(null)} />
