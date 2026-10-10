@@ -3,7 +3,6 @@
 import React, { useState, useCallback } from "react";
 import { INITIAL_SEQUENCE_CARDS } from "@/data/scenarios";
 import { SequenceCardItem } from "@/types";
-import { playCue } from '@/lib/trainingAudio';
 import {
   CircleCheck,
   CircleX,
@@ -34,6 +33,8 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({
   const targetStepCount = INITIAL_SEQUENCE_CARDS.filter(
     (card) => card.isCorrect,
   ).length;
+  const correctPositionCount = feedbackList.filter((item) => item.isCorrect).length;
+  const firstIssue = feedbackList.find((item) => !item.isCorrect)?.text;
 
   const moveCard = (index: number, direction: -1 | 1) => {
     setSelectedCards((previous) => {
@@ -116,8 +117,6 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({
       (c) => c.isCorrect,
     ).length;
     const calculatedScore = Math.round((correctCount / totalValidSteps) * 100);
-    playCue(calculatedScore === 100 ? 'correct' : 'review');
-
     setScore(calculatedScore);
     setFeedbackList(feedbacks);
     setIsSubmitted(true);
@@ -138,7 +137,7 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({
         <p className="caption mt-2">แตะเลือกให้ครบ {targetStepCount} ขั้นตอน แล้วตรวจคำตอบ</p>
       </header>
       <div className="sequence-grid">
-        <details className="sequence-selection" open>
+        <details className="sequence-selection" open={!isSubmitted}>
           <summary aria-live="polite">ลำดับที่เลือก {selectedCards.length}/{targetStepCount}</summary>
           <section>
           <div className="flex items-center justify-between gap-3 mb-3">
@@ -247,12 +246,11 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({
       ) : (
         <section className="section-rule">
           <div role="status" aria-live="polite">
-            <h2 className="section-title">ผลการเรียงลำดับ · {score}%</h2>
-            <p className="caption">
-              อ่านคำแนะนำ แล้วลองใหม่หรือไปฝึกการแจ้งเหตุ
-            </p>
+            <p className="protocol-code">ผลการเรียงลำดับ</p>
+            <h2 className="page-title">ถูก {correctPositionCount} จาก {targetStepCount} ขั้นตอน</h2>
+            {firstIssue && <p className="mt-3"><strong>จุดที่ควรแก้ก่อน:</strong> {firstIssue}</p>}
           </div>
-          <ul className="mt-4 space-y-4">
+          <details className="reference-details mt-4"><summary>ดูคำอธิบายทุกขั้นตอน</summary><ul className="mt-4 space-y-4">
             {feedbackList.map((item, index) => (
               <li key={index} className="flex items-start gap-3">
                 {item.isCorrect ? (
@@ -269,7 +267,7 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({
                 <span>{item.text}</span>
               </li>
             ))}
-          </ul>
+          </ul></details>
           <div className="actions mt-6">
             <button className="secondary-button" onClick={resetGame}>
               <RotateCcw size={20} />

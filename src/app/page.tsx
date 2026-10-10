@@ -58,7 +58,6 @@ export default function Home() {
   const [exitConfirmation, setExitConfirmation] = useState(false);
   const [player, setPlayer] = useState<PlayerProfile | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
-  const [leaderboardGuided, setLeaderboardGuided] = useState(false);
   const [leaderboardError, setLeaderboardError] = useState('');
   const [leaderboardLoading, setLeaderboardLoading] = useState(true);
   const [leaderboardRefresh, setLeaderboardRefresh] = useState(0);
@@ -134,13 +133,13 @@ export default function Home() {
 
   useEffect(() => {
     let active = true;
-    getLeaderboard(leaderboardGuided).then(entries => {
+    getLeaderboard().then(entries => {
       if (active) { setLeaderboard(entries); setLeaderboardError(''); }
     }).catch(() => {
       if (active) { setLeaderboard([]); setLeaderboardError('ยังโหลดอันดับออนไลน์ไม่ได้ ลองใหม่ได้ โดยยังฝึกต่อได้ตามปกติ'); }
     }).finally(() => { if (active) setLeaderboardLoading(false); });
     return () => { active = false; };
-  }, [leaderboardGuided, leaderboardRefresh]);
+  }, [leaderboardRefresh]);
 
   const handleStartMission = () => {
     missionOwner.current = player?.id;
@@ -175,12 +174,12 @@ export default function Home() {
     setMissionPhase("cpr");
   };
 
-  const handleCprComplete = (rhythmScore: number, avgBpm: number, audioGuided = false) => {
+  const handleCprComplete = (rhythmScore: number, avgBpm: number) => {
     recordEvent('จบการฝึกจังหวะด้วยการแตะ', rhythmScore >= 70, `จังหวะเฉลี่ย ${avgBpm} ครั้ง/นาที`);
-    finishMainMission(rhythmScore, avgBpm, audioGuided);
+    finishMainMission(rhythmScore, avgBpm);
   };
 
-  const finishMainMission = (rhythmScore: number, avgBpm: number, audioGuided: boolean) => {
+  const finishMainMission = (rhythmScore: number, avgBpm: number) => {
 
     // Build Final Mission Result & Save Progress
     const totalTimeSeconds = Math.max(
@@ -204,7 +203,6 @@ export default function Home() {
     const result: MissionResult = {
       playerId: missionOwner.current,
       scoringVersion: 'measured-v2',
-      cprAudioGuided: audioGuided,
       id: `mission_${Date.now()}`,
       scenarioId: scenario.id,
       scenarioTitle: scenario.title,
@@ -260,8 +258,6 @@ export default function Home() {
           leaderboard={leaderboard}
           player={player}
           onOpenPlayer={() => setIsPlayerOpen(true)}
-          leaderboardGuided={leaderboardGuided}
-          onLeaderboardMode={(guided) => { if (guided !== leaderboardGuided) { setLeaderboardLoading(true); setLeaderboardGuided(guided); } }}
           leaderboardLoading={leaderboardLoading}
           leaderboardError={leaderboardError}
           onReloadLeaderboard={() => { setLeaderboardLoading(true); setLeaderboardRefresh(value => value + 1); }}
@@ -289,7 +285,7 @@ export default function Home() {
       {standaloneAED && <div hidden={activeTab !== 'mission' || missionMenu}><AEDPractice active={activeTab === 'mission' && !missionMenu && !exitConfirmation} onClose={() => { setStandaloneAED(false); setMissionMenu(true); }} /></div>}
       {startTimeMs > 0 && (
         <div key={attemptKey} hidden={activeTab !== "mission" || standaloneAED || missionMenu}>
-          {missionPhase !== "opening" && missionPhase !== "debrief" && (
+          {missionPhase === "sequence" && (
             <div>
               <TrainingSteps
                 current={["sequence", "call1669", "cpr"].indexOf(

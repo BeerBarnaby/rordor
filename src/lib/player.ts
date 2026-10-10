@@ -111,8 +111,8 @@ export async function logoutPlayer() {
   await fetch("/api/player/session", { method: "DELETE" });
 }
 
-export async function getLeaderboard(audioGuided = false): Promise<LeaderboardEntry[]> {
-  const response = await fetch(`/api/player/leaderboard?guided=${audioGuided}`, { cache: "no-store" });
+export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
+  const response = await fetch('/api/player/leaderboard', { cache: "no-store" });
   const data = await response.json().catch(() => []);
   if (!response.ok || !Array.isArray(data)) throw rpcError();
   return data.map((row) => ({
@@ -123,7 +123,6 @@ export async function getLeaderboard(audioGuided = false): Promise<LeaderboardEn
     attemptsCount: Number(row.attempts_count),
     level: Number(row.level),
     xp: Number(row.xp),
-    audioGuided: Boolean(row.audio_guided),
   }));
 }
 

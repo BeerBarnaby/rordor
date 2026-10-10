@@ -49,8 +49,6 @@ interface Props {
   leaderboard: LeaderboardEntry[];
   player: PlayerProfile | null;
   onOpenPlayer: () => void;
-  leaderboardGuided: boolean;
-  onLeaderboardMode: (guided: boolean) => void;
   leaderboardLoading: boolean;
   leaderboardError: string;
   onReloadLeaderboard: () => void;
@@ -67,7 +65,7 @@ export function HomeDashboard({
   leaderboard,
   player,
   onOpenPlayer,
-  leaderboardGuided, onLeaderboardMode, leaderboardLoading, leaderboardError, onReloadLeaderboard,
+  leaderboardLoading, leaderboardError, onReloadLeaderboard,
   syncMessage, pendingCount, onRetrySync,
 }: Props) {
   const continuing = currentStep !== undefined;
@@ -110,7 +108,6 @@ export function HomeDashboard({
             </p>
           )}
           <div className="home-companion">
-            <div><strong>น้องพร้อม</strong></div>
             <Image src="/images/training/prom-companion-home-v1.png" width={1024} height={1536} sizes="(min-width: 640px) 160px, 110px" alt="น้องพร้อม ตัวละครนักศึกษาวิชาทหาร ยิ้มต้อนรับพร้อมสมุดฝึก" />
           </div>
         </section>
@@ -218,7 +215,6 @@ export function HomeDashboard({
             </div>
             <Trophy className="leaderboard-trophy" aria-hidden="true" />
           </div>
-          <div className="leaderboard-modes" role="group" aria-label="แยกอันดับตามตัวช่วยเสียง"><button className="secondary-button" aria-pressed={!leaderboardGuided} onClick={() => onLeaderboardMode(false)}>ฝึกเอง</button><button className="secondary-button" aria-pressed={leaderboardGuided} onClick={() => onLeaderboardMode(true)}>ใช้เสียงนำ</button></div>
           <p className="caption mt-2">เรียงตามคะแนนการฝึกสูงสุด</p>
           {leaderboardLoading ? <p className="caption" role="status">กำลังโหลดอันดับ…</p> : leaderboardError ? <div><p className="caption" role="status">{leaderboardError}</p><button className="text-button" onClick={onReloadLeaderboard}>โหลดอันดับอีกครั้ง</button></div> : leaderboard.length > 0 ? (
             <ol className="leaderboard-list">
@@ -242,7 +238,7 @@ export function HomeDashboard({
             {player ? `โปรไฟล์ของ ${player.displayName}` : "โปรไฟล์ผู้เล่น (ไม่บังคับ)"}
             <ChevronRight size={18} />
           </button>
-          <details className="reference-details"><summary>วิธีคิดคะแนนและจัดอันดับ</summary><p className="content-meta mt-2">คะแนนคือค่าเฉลี่ยจากลำดับช่วยเหลือ การแจ้งเหตุ และจังหวะ CPR ใช้คะแนนที่ดีที่สุดในการจัดอันดับ หากเท่ากัน ดูคะแนนจังหวะ แล้วดูจำนวนครั้งที่ฝึก</p><p className="content-meta mt-2">แยกอันดับฝึกเองกับใช้เสียงนำ และไม่รวมคะแนนสูตรเดิม คะแนนนี้ไม่ใช่ผลประเมินภาคปฏิบัติ</p></details>
+          <details className="reference-details"><summary>วิธีคิดคะแนนและจัดอันดับ</summary><p className="content-meta mt-2">คะแนนคือค่าเฉลี่ยจากลำดับช่วยเหลือ การแจ้งเหตุ และจังหวะ CPR ใช้คะแนนที่ดีที่สุดในการจัดอันดับ หากเท่ากัน ดูคะแนนจังหวะ แล้วดูจำนวนครั้งที่ฝึก</p><p className="content-meta mt-2">ไม่รวมคะแนนสูตรเดิม และไม่ใช่ผลประเมินภาคปฏิบัติ</p></details>
         </div>
       </section>
 

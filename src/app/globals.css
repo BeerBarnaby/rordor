@@ -156,9 +156,6 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   font-weight: 500;
 }
 .header-actions { display: flex; align-items: center; gap: 2px; }
-.sound-control { position: relative; display: inline-flex; }
-.sound-toggle { flex: none; }
-.sound-unavailable { position: absolute; z-index: 60; right: 0; top: 48px; width: 220px; padding: 12px; border: 1px solid var(--color-line); background: var(--color-surface); color: var(--color-ink); font-size: 13px; line-height: 20px; border-radius: 9px; }
 .player-button { position: relative; }
 .player-button[data-connected="true"]::after {
   content: "";
@@ -173,6 +170,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 }
 
 .app-main { min-width: 0; padding: var(--space-6) var(--space-5) calc(104px + env(safe-area-inset-bottom)); }
+.app-shell[data-training-tone] .app-main { padding: 16px 20px max(20px, env(safe-area-inset-bottom)); }
 .app-main > * { animation: page-enter 520ms cubic-bezier(0.2, 0.75, 0.25, 1) both; }
 
 .bottom-nav {
@@ -321,14 +319,11 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .home-hero .primary-button { min-height: 54px; }
 .home-hero .hero-actions > button { min-width: 0; overflow-wrap: anywhere; }
 .home-hero .caption { color: var(--color-ink-muted); }
-.home-companion { display: grid; grid-template-columns: minmax(0, 1fr) 110px; align-items: center; gap: 8px; margin-top: 20px; }
+.home-companion { display: flex; height: 86px; justify-content: flex-end; align-items: flex-start; margin-top: 4px; overflow: hidden; }
 .home-companion strong { font-size: 16px; line-height: 26px; font-weight: 700; }
 .home-companion p { margin-top: 6px; font-size: 14px; line-height: 23px; color: var(--color-ink-muted); }
-.home-companion img { width: 110px; height: 150px; object-fit: contain; }
+.home-companion img { width: 82px; height: 112px; object-fit: contain; }
 .organization-list { display: grid; gap: 16px; margin-top: 24px; }
-.leaderboard-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
-.leaderboard-modes .secondary-button { min-height: 44px; padding: 8px; font-size: 14px; }
-.leaderboard-modes button[aria-pressed="true"] { background: var(--color-navy); color: white; border-color: var(--color-navy); }
 .brand-stamp.prom-mascot-mark { width: 38px; height: 38px; flex-basis: 38px; background: transparent; border: 0; }
 .app-header[data-mode] .brand-stamp.prom-mascot-mark { background: transparent; border: 0; }
 .prom-mascot-mark img { width: 100%; height: 100%; object-fit: contain; }
@@ -341,7 +336,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 /* Focused learning/training refresh: existing colors and Thai typography. */
 .learning-screen, .sequence-training, .call-training, .cpr-training, .results-screen { gap: 24px; }
 .learning-screen .lead { font-size: 16px; line-height: 26px; }
-.learning-screen .lesson-card { display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 16px; min-height: 154px; padding: 14px; box-shadow: none; animation: none; background: var(--color-surface); border-color: var(--color-line); }
+.learning-screen .lesson-card { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 14px; min-height: 124px; padding: 12px; box-shadow: none; animation: none; background: var(--color-surface); border-color: var(--color-line); }
 .learning-screen .lesson-card:hover { transform: none; box-shadow: none; border-color: var(--module-color); }
 .lesson-cover { display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 8px; background: #fff9f7; }
 .lesson-cover img { width: 100%; height: 116px; object-fit: contain; }
@@ -375,6 +370,10 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .call-training .call-bubble .operator-label::before { display: none; }
 .call-training .page-title { font-size: 26px; line-height: 36px; }
 .call-training { gap: 16px; }
+.training-title-row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+.training-title-row > span { flex: none; color: var(--color-ink-muted); font-size: 13px; font-weight: 600; }
+.call-context { display: grid; gap: 2px; padding: 12px 14px; border-left: 3px solid var(--color-signal); background: var(--color-panel); font-size: 14px; line-height: 22px; }
+.call-context span { color: var(--color-ink-muted); }
 .call-training .call-bubble blockquote { font-size: 21px; line-height: 32px; }
 .call-user-bubble { max-width: 92%; margin-left: auto; padding: 16px; border-radius: 12px 12px 2px 12px; background: #edf5f2; color: var(--color-ink); font-size: 16px; line-height: 27px; }
 .call-user-bubble .caption { margin-bottom: 6px; }
@@ -384,11 +383,9 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .call-history-pair p + p { margin-top: 8px; }
 .cpr-ready-cover { width: 100%; max-width: 240px; height: 140px; object-fit: contain; margin: 0 auto; }
 .cpr-training .cpr-ready { gap: 16px; padding: 20px; }
-.cpr-audio-options { border: 0; }
 .cpr-training[data-mode="compressing"] { gap: 10px; }
 .cpr-training[data-mode="compressing"] .protocol-code { display: none; }
 .cpr-training[data-mode="compressing"] .page-title { font-size: 22px; line-height: 30px; }
-.cpr-training[data-mode="compressing"] .cpr-audio-options summary { min-height: 44px; padding: 10px 0; }
 .cpr-training .cpr-surface { width: 100%; margin: 0; padding: 22px 18px; border-radius: 12px; }
 .cpr-target { font-size: 15px; line-height: 24px; color: #fff; }
 .cpr-live-metric { margin-top: 16px; }
@@ -397,6 +394,14 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .cpr-training .cpr-tap strong { font-size: 32px; letter-spacing: 0; }
 .cpr-training .cpr-tap span { font-size: 14px; line-height: 22px; opacity: 1; }
 .cpr-training .cpr-feedback { font-size: 16px; line-height: 26px; }
+.cpr-training[data-mode="compressing"] { min-height: calc(100dvh - 60px - 32px - env(safe-area-inset-bottom)); overflow: hidden; }
+.cpr-training[data-mode="compressing"] .cpr-surface { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; padding-block: 14px; }
+.cpr-training[data-mode="compressing"] .cpr-live-metric { margin-top: 6px; }
+.cpr-training[data-mode="compressing"] .cpr-bpm { font-size: clamp(46px, 14vw, 64px); margin: 2px 0 6px; }
+.cpr-training[data-mode="compressing"] .cpr-tap { flex: 1; min-height: 150px; max-height: 230px; margin: 12px auto; touch-action: none; }
+.cpr-training[data-mode="compressing"] .cpr-surface > .caption:last-child { display: none; }
+.video-resource-compact { padding-block: 8px; }
+.skill-row small { display: block; margin-top: 2px; color: var(--color-ink-muted); font-size: 13px; font-weight: 400; line-height: 20px; }
 .review-next { padding: 20px; border: 1px solid var(--color-line); border-radius: 12px; background: #fff9f7; display: grid; gap: 12px; }
 .review-next .section-title { margin: 0; }
 .review-score-overview .score-number { font-size: 44px; line-height: 1.2; }
@@ -413,8 +418,8 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 }
 .optional-mission-image { width: min(100%, 360px); height: auto; max-height: 200px; object-fit: contain; }
 @media (min-width: 640px) {
-  .home-companion { grid-template-columns: minmax(0, 1fr) 160px; }
-  .home-companion img { width: 160px; height: 200px; }
+  .home-companion { height: 110px; }
+  .home-companion img { width: 110px; height: 145px; }
 }
 .training-plan { padding-top: 4px; }
 .training-rail { padding: 0; margin: 4px 0 0; list-style: none; border-bottom: 1px solid var(--color-line); }
@@ -1149,10 +1154,10 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   .home-hero .mission-meta { margin-top: 12px; font-size: 12px; line-height: 21px; font-weight: 600; }
   .home-hero .hero-actions { margin-top: 18px; gap: 9px; }
   .home-hero .primary-button, .home-hero .secondary-button { min-height: 48px; padding: 12px; font-size: 16px; }
-  .home-companion { grid-template-columns: minmax(0, 1fr) 90px; gap: 12px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--color-line); }
+  .home-companion { height: 78px; margin-top: 4px; padding-top: 0; border-top: 0; }
   .home-companion strong { font-size: 14px; line-height: 23px; }
   .home-companion p { font-size: 13px; line-height: 22px; }
-  .home-companion img { width: 90px; height: 115px; }
+  .home-companion img { width: 76px; height: 104px; }
 }
 @media (min-width: 768px) {
   .mission-choice-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
@@ -1168,7 +1173,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   .mission-mini-route li { flex-direction: column; padding: 6px 2px; gap: 3px; }
 }
 
-/* Short, one-shot interaction feedback. Never a metronome or a score signal. */
+/* Short, one-shot motion feedback. */
 @media (prefers-reduced-motion: no-preference) {
   .learning-screen .lesson-card { animation: ready-card-in 280ms ease-out both; }
   .learning-screen .module-grid .lesson-card:nth-child(2) { animation-delay: 55ms; }

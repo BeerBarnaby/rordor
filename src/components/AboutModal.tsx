@@ -111,8 +111,8 @@ export function AboutModal({
             Version: {MAIN_PROTOCOL_METADATA.version}
           </p>
           <p className="content-meta mt-4">
-            แบบอักษร LINE Seed Sans TH © LY Corporation ใช้งานภายใต้ SIL Open
-            Font License 1.1
+            แบบอักษร Prompt ออกแบบโดย Cadson Demak ใช้งานภายใต้ SIL Open Font
+            License 1.1
           </p>
         </section>
         <button className="primary-button" onClick={onClose}>

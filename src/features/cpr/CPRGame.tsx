@@ -4,15 +4,13 @@ import React, { useEffect, useState, useRef, useSyncExternalStore } from "react"
 import { RhythmCalculator } from "@/lib/rhythmCalculator";
 import { RhythmCalculationResult } from "@/types";
 import { ArrowRight, Timer } from "lucide-react";
-import Image from 'next/image';
-import { METRONOME_BPM, playCue, soundEnabled, startMetronome, subscribeSound, unlockAudio } from '@/lib/trainingAudio';
 function subscribeVisibility(callback: () => void) { document.addEventListener('visibilitychange', callback); return () => document.removeEventListener('visibilitychange', callback); }
 function visibleSnapshot() { return document.visibilityState !== 'hidden'; }
 
 interface CPRGameProps {
   active?: boolean;
   targetCompressions?: number;
-  onCompleteStep: (rhythmScore: number, averageBpm: number, audioGuided?: boolean) => void;
+  onCompleteStep: (rhythmScore: number, averageBpm: number) => void;
 }
 
 export const CPRGame: React.FC<CPRGameProps> = ({
@@ -20,10 +18,7 @@ export const CPRGame: React.FC<CPRGameProps> = ({
   active = true,
   onCompleteStep,
 }) => {
-  const enabled = useSyncExternalStore(subscribeSound, soundEnabled, () => false);
   const visible = useSyncExternalStore(subscribeVisibility, visibleSnapshot, () => true);
-  const [guide, setGuide] = useState(false);
-  const usedGuide = useRef(false);
   const [compressions, setCompressions] = useState<number>(0);
   const [inTargetCount, setInTargetCount] = useState<number>(0);
   const [bpmHistory, setBpmHistory] = useState<number[]>([]);
@@ -47,11 +42,6 @@ export const CPRGame: React.FC<CPRGameProps> = ({
   useEffect(() => {
     if (active && visible) window.scrollTo({ top: 0, behavior: 'instant' });
   }, [mode, active, visible]);
-  useEffect(() => {
-    if (!enabled || !guide || !active || !visible || mode !== 'compressing') return;
-    usedGuide.current = true;
-    return startMetronome();
-  }, [enabled, guide, active, visible, mode]);
   useEffect(() => { if (!active || !visible) rhythmCalcRef.current.reset(); }, [active, visible]);
 
   useEffect(() => {
@@ -127,24 +117,17 @@ export const CPRGame: React.FC<CPRGameProps> = ({
 
   const handleFinish = () => {
     const { finalScore, avgBpm } = calculateFinalStats();
-    onCompleteStep(finalScore, avgBpm, usedGuide.current);
+    onCompleteStep(finalScore, avgBpm);
   };
 
   return (
     <div className="page-stack training-screen cpr-training" data-mode={mode}>
       <header>
-        <p className="protocol-code">ขั้น 03 · จังหวะกดหน้าอก</p>
-        <h1 className="page-title">ฝึกจังหวะ CPR</h1>
+        <div className="training-title-row"><h1 className="page-title">ฝึกจังหวะ CPR</h1><span>ขั้น 3/3</span></div>
         {mode !== 'compressing' && <p className="caption mt-2">ฝึกด้วยการแตะหน้าจอ ไม่ใช่การวัดแรงกดหรือความลึกจริง</p>}
       </header>
-      {(mode === 'ready' || mode === 'compressing') && <details className="reference-details cpr-audio-options">
-        <summary>ตัวช่วยเสียง · {guide && enabled ? 'เปิด' : 'ปิด'}</summary>
-        <button className="secondary-button" aria-pressed={guide && enabled} disabled={!enabled} onClick={() => { unlockAudio(); setGuide(value => !value); }}>เสียงนำจังหวะ {METRONOME_BPM} ครั้ง/นาที: {guide && enabled ? 'เปิด' : 'ปิด'}</button>
-        <p className="caption mt-2">{enabled ? 'เปิดได้เพื่อฝึกตามเสียง จะแสดงในผลว่าใช้เสียงช่วยฝึก' : 'เปิดเสียงที่รูปเสียงด้านบนก่อน หากต้องการเสียงช่วยจับจังหวะ'}</p>
-      </details>}
       {mode === "ready" && (
         <section className="cpr-ready">
-          <Image className="cpr-ready-cover" src="/images/training/lesson-cpr-v1.png" width={1536} height={1024} sizes="240px" alt="ภาพประกอบบทฝึกจังหวะ: นักศึกษาวิชาทหารกับหุ่นฝึก ไม่ใช่ภาพสาธิตตำแหน่งมือ" />
           <div>
             <h2 className="section-title">แตะต่อเนื่อง {targetCompressions} ครั้ง</h2>
             <p>เป้าหมาย 100–120 ครั้ง/นาที</p>
@@ -155,7 +138,6 @@ export const CPRGame: React.FC<CPRGameProps> = ({
           <button
             className="primary-button"
             onClick={() => {
-              playCue('select');
               setCountdown(3);
               setMode("countdown");
             }}
@@ -223,29 +205,25 @@ export const CPRGame: React.FC<CPRGameProps> = ({
         <section className="page-stack">
           <div>
             <p className="protocol-code">ครบ 30 ครั้ง</p>
-            <h2 className="page-title">เลือกตามระดับการฝึกของคุณ</h2>
-            <p className="lead mt-3">
-              ผู้ที่ผ่านการฝึกช่วยหายใจสามารถฝึกแบบ 30:2 ได้
-              หากยังไม่ผ่านการฝึกหรือไม่พร้อม ให้กดหน้าอกต่อเนื่องตามคำแนะนำของ 1669
-            </p>
+            <h2 className="page-title">ทำขั้นตอนไหนต่อ?</h2>
           </div>
           <div className="actions">
             <button
               className="primary-button"
               onClick={() => setMode("rescuing")}
             >
-              ฝึกช่วยหายใจ 2 ครั้ง
+              ผ่านการฝึกแล้ว: ช่วยหายใจ 2 ครั้ง
               <ArrowRight size={20} />
             </button>
             <button
               className="secondary-button"
               onClick={() => setMode("finished")}
             >
-              เลือกกดหน้าอกต่อเนื่อง
+              ยังไม่ผ่านการฝึก: กดหน้าอกต่อ
             </button>
           </div>
           <aside className="notice">
-            ในเหตุจริง ให้เปิดลำโพงโทรศัพท์และทำตามคำแนะนำของเจ้าหน้าที่ 1669
+            แบบฝึกบนจอไม่ถือว่าได้รับการฝึกช่วยหายใจ ในเหตุจริงให้เปิดลำโพงและทำตามคำแนะนำของเจ้าหน้าที่ 1669
           </aside>
         </section>
       )}

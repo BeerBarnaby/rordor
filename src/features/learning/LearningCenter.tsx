@@ -63,6 +63,10 @@ export function LearningCenter({
       item.topicId === selected ||
       (selected === "aed" && item.topicId === "cpr"),
   );
+  // Use the general-audience lesson first. Field/military footage remains
+  // available as additional context instead of defining the core procedure.
+  const primaryVideo = videos.find((item) => !item.contextLabel) ?? videos[0];
+  const additionalVideos = videos.filter((item) => item.id !== primaryVideo?.id);
   const docs = LEARNING_DOCUMENTS.filter(
     (item) => item.topicId === selected && item.isAvailable,
   );
@@ -123,7 +127,7 @@ export function LearningCenter({
           <section className="section-rule" aria-label="บทเรียนเสริม">
             <h2 className="section-title">บทเรียนเสริม: การใช้ AED</h2>
             <p className="caption mb-3">เรียนรู้การเปิดเครื่อง ติดแผ่น และทำตามคำสั่งของเครื่อง</p>
-            <button className="learning-module lesson-card" data-module="aed" onClick={() => openModule('aed')}><span className="lesson-cover"><Image src={modules[3].cover} alt="" width={1536} height={1024} sizes="110px" /></span><span className="lesson-card-copy"><span className="module-number">เลือกเรียนเพิ่มเติม</span><strong>AED · บทเรียนเสริม</strong><span className="caption">เปิดเครื่อง ติดแผ่น และทำตามผลวิเคราะห์</span><span className="module-open">เปิดบทเรียน <ArrowRight size={18} aria-hidden="true" /></span></span></button>
+            <button className="learning-module lesson-card" data-module="aed" onClick={() => openModule('aed')}><span className="lesson-cover"><Image src={modules[3].cover} alt="" width={1536} height={1024} sizes="110px" /></span><span className="lesson-card-copy"><span className="module-number">เลือกเรียนเพิ่มเติม</span><strong>การใช้ AED</strong><span className="caption">เปิดเครื่อง ติดแผ่น และทำตามคำสั่งของเครื่อง</span><span className="module-open">เปิดบทเรียน <ArrowRight size={18} aria-hidden="true" /></span></span></button>
           </section>
           <aside className="notice">
             ต้องฝึกภาคปฏิบัติกับครูฝึกควบคู่กัน
@@ -131,61 +135,9 @@ export function LearningCenter({
         </>
       ) : (
         <>
-          <div className="chapter-header">
-            <button
-              className="text-button !pl-0"
-              onClick={() => openModule(null)}
-            >
-              <ArrowLeft size={20} />
-              ทุกบท
-            </button>
-            <div className="module-tabs" role="tablist" aria-label="รายการบทเรียน">
-              {modules.map((item, index) => {
-                const Icon = item.icon;
-                return (
-                <button
-                  key={item.id}
-                  id={`tab-${item.id}`}
-                  role="tab"
-                  aria-label={item.title}
-                  aria-selected={selected === item.id}
-                  aria-controls="learning-detail"
-                  tabIndex={selected === item.id ? 0 : -1}
-                  onKeyDown={(event) => {
-                    const i = modules.findIndex((m) => m.id === selected);
-                    const next =
-                      event.key === "ArrowRight"
-                        ? (i + 1) % modules.length
-                        : event.key === "ArrowLeft"
-                          ? (i + modules.length - 1) % modules.length
-                          : event.key === "Home"
-                            ? 0
-                            : event.key === "End"
-                              ? modules.length - 1
-                              : -1;
-                    if (next >= 0) {
-                      event.preventDefault();
-                      setSelected(modules[next].id);
-                      document
-                        .getElementById(`tab-${modules[next].id}`)
-                        ?.focus();
-                    }
-                  }}
-                  onClick={() => setSelected(item.id)}
-                  data-module={item.id}
-                >
-                  <Icon aria-hidden="true" />
-                  <span>0{index + 1}</span>
-                  <small>{['ประเมินเหตุ', '1669', 'CPR', 'AED เสริม'][index]}</small>
-                </button>
-                );
-              })}
-            </div>
-          </div>
+          <button className="text-button !pl-0 self-start" onClick={() => openModule(null)}><ArrowLeft size={20} />บทเรียนทั้งหมด</button>
           <section
             id="learning-detail"
-            role="tabpanel"
-            aria-labelledby={`tab-${selected}`}
             className="page-stack"
           >
             <section className="lesson-intro">
@@ -216,11 +168,11 @@ export function LearningCenter({
                 </div>
               </section>
             )}
-            {videos.length > 0 && (
+            {primaryVideo && (
               <section>
                 <h3 className="section-title">วิดีโอแนะนำ</h3>
                 <div className="video-grid">
-                  {videos.map((item) => (
+                  {[primaryVideo].map((item) => (
                     <button
                       key={item.id}
                       className="video-resource"
@@ -252,6 +204,39 @@ export function LearningCenter({
                     </button>
                   ))}
                 </div>
+                {additionalVideos.length > 0 && (
+                  <details className="reference-details mt-4">
+                    <summary>วิดีโอเพิ่มเติม ({additionalVideos.length})</summary>
+                    <div className="video-grid mt-4">
+                      {additionalVideos.map((item) => (
+                        <button
+                          key={item.id}
+                          className="video-resource video-resource-compact"
+                          onClick={() => setVideo(item)}
+                        >
+                          <div className="video-thumbnail">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={`https://img.youtube.com/vi/${item.youtubeId}/hqdefault.jpg`}
+                              alt=""
+                              width={480}
+                              height={270}
+                              loading="lazy"
+                            />
+                            <span className="video-play"><Play /></span>
+                            {item.duration && (
+                              <span className="video-duration">
+                                {item.duration.replace("min", "นาที")}
+                              </span>
+                            )}
+                          </div>
+                          <h4 className="mt-3 font-semibold">{item.title}</h4>
+                          <p className="caption mt-1">{item.provider}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </details>
+                )}
               </section>
             )}
             <div className="detail-grid">

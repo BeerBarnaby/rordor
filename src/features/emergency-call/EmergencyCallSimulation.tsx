@@ -1,10 +1,9 @@
 "use client";
 import { useState } from "react";
-import { ArrowRight, CircleAlert, CircleCheck, CircleX, RotateCcw, PhoneCall } from "lucide-react";
+import { ArrowRight, CircleAlert, CircleCheck, CircleX, RotateCcw } from "lucide-react";
 import { getEmergencyCallFields } from "@/data/scenarios";
 import { AnswerOption, FeedbackPanel } from "@/components/TrainingUI";
 import { ScenarioVariant } from "@/types";
-import { playCue } from '@/lib/trainingAudio';
 
 type AnswerState = "correct" | "incomplete" | "incorrect";
 
@@ -57,7 +56,6 @@ export function EmergencyCallSimulation({
     const state: AnswerState = option.isCorrect
       ? "correct"
       : option.status ?? "incorrect";
-    playCue(state === 'correct' ? 'correct' : 'review');
     setAnswers((previous) => ({
       ...previous,
       [field.id]: { optionId: option.id, state, feedback: option.feedback },
@@ -71,17 +69,15 @@ export function EmergencyCallSimulation({
   return (
     <div className="page-stack training-screen call-training">
       <header>
-        <p className="protocol-code">ขั้น 02 · การสื่อสาร</p>
-        <h1 className="page-title">แจ้งเหตุ 1669</h1>
-        <p className="caption mt-2">อ่านข้อความจากเจ้าหน้าที่ แล้วเลือกคำตอบ · ไม่มีการโทรจริง</p>
+        <div className="training-title-row"><h1 className="page-title">แจ้งเหตุ 1669</h1><span>คำถาม {index + 1}/{fields.length}</span></div>
+        <p className="caption mt-2">สายจำลอง ไม่มีการโทรจริง</p>
       </header>
       {!finished ? (
         <>
-          <div className="call-session"><PhoneCall size={22} aria-hidden="true" /><span><strong>1669 · ศูนย์รับแจ้งเหตุฉุกเฉิน</strong><small>สายจำลอง · คำถาม {index + 1} จาก {fields.length}</small></span></div>
-          <ol className="call-checkpoints" aria-label="ความคืบหน้าการแจ้งเหตุ">{fields.map((item, i) => <li key={item.id} aria-current={i === index ? 'step' : undefined} data-complete={i < index}><span className="sr-only">{item.label} </span>{i < index ? <CircleCheck size={16} aria-label="ตอบแล้ว" /> : i + 1}</li>)}</ol>
-          {index > 0 && <details className="reference-details call-history"><summary>ดูบทสนทนาก่อนหน้า ({index} คำถาม)</summary>{fields.slice(0, index).map(item => <div className="call-history-pair" key={item.id}><p><strong>เจ้าหน้าที่:</strong> {item.question.replace(/^เจ้าหน้าที่ 1669: /, '').replaceAll('"', '')}</p><p><strong>คุณ:</strong> {item.options.find(option => option.id === answers[item.id]?.optionId)?.text}</p></div>)}</details>}
+          {index === 0 && <aside className="call-context"><strong>{scenario.title}</strong><span>{scenario.locationAnswer.replace(/ครับ$/, '')}</span></aside>}
+          {index > 0 && <details className="reference-details call-history"><summary>บทสนทนาก่อนหน้า ({index})</summary>{fields.slice(0, index).map(item => <div className="call-history-pair" key={item.id}><p><strong>เจ้าหน้าที่:</strong> {item.question.replace(/^เจ้าหน้าที่ 1669: /, '').replaceAll('"', '')}</p><p><strong>คุณ:</strong> {item.options.find(option => option.id === answers[item.id]?.optionId)?.text}</p></div>)}</details>}
           <div key={field.id} className="conversation-prompt call-bubble">
-            <p className="operator-label">เจ้าหน้าที่ถาม · {field.label}</p>
+            <p className="operator-label">เจ้าหน้าที่ 1669</p>
             <blockquote>
               {field.question
                 .replace(/^เจ้าหน้าที่ 1669: /, "")
@@ -89,7 +85,7 @@ export function EmergencyCallSimulation({
             </blockquote>
           </div>
           {!answer && <section>
-            <h2 className="section-title">เลือกคำตอบของคุณ</h2>
+            <p className="caption mb-3">เลือกคำตอบที่ให้ข้อมูลชัดเจนที่สุด</p>
             <div className="space-y-3">
               {field.options.map((option) => (
                 <AnswerOption

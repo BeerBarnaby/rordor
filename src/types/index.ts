@@ -100,7 +100,6 @@ export interface SkillScores {
 
 export interface MissionResult {
   playerId?: string; // Owner at completion; Guest results are never auto-uploaded after login.
-  cprAudioGuided?: boolean;
   scoringVersion?: 'measured-v2';
   aedRecommendation?: 'shock' | 'no-shock';
   id: string;
@@ -143,7 +142,6 @@ export interface PlayerProfile {
 
 export interface LeaderboardEntry {
   xp?: number;
-  audioGuided?: boolean;
   rank: number;
   displayName: string;
   bestScore: number;

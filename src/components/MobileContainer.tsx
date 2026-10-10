@@ -1,7 +1,6 @@
 "use client";
 import { ReactNode } from "react";
 import { House, BookOpen, ShieldCheck, Info, X, UserRound } from "lucide-react";
-import { SoundToggle } from './SoundToggle';
 import { PromMark } from './PromMark';
 
 type Tab = "home" | "learn" | "mission" | "about";
@@ -40,12 +39,11 @@ export function AppHeader({
         <PromMark />
         <span className="brand-copy">
           <strong>{focusMode ? "โหมดฝึก" : "น้องพร้อม"}</strong>
-          <small>{focusMode ? "NONG PROM" : "ROTC TRAINING COMPANION"}</small>
+          {!focusMode && <small>ROTC TRAINING COMPANION</small>}
         </span>
       </div>
       {focusMode ? (
         <div className="header-actions">
-        <SoundToggle />
         <button className="header-exit" onClick={onExitTraining}>
           ออกจากการฝึก
           <X size={19} aria-hidden="true" />
@@ -53,7 +51,6 @@ export function AppHeader({
         </div>
       ) : (
         <div className="header-actions">
-          <SoundToggle />
           <button
             className="icon-button player-button"
             data-connected={Boolean(playerName)}

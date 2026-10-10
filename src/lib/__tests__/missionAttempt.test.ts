@@ -9,7 +9,7 @@ describe('measured attempt payload boundary', () => {
   });
   it.each([null, [], {}, { ...payload, scoringVersion: 'legacy-v1' }, { ...payload, expectedPlayerId: 'other' },
     { ...payload, sequenceScore: '100' }, { ...payload, callScore: null }, { ...payload, cprRhythmScore: NaN },
-    { ...payload, totalTimeSeconds: 19 }, { ...payload, audioGuided: 'false' }, { ...payload, scenarioId: 'unknown' },
+    { ...payload, totalTimeSeconds: 19 }, { ...payload, scenarioId: 'unknown' },
     { ...payload, clientAttemptId: 'replay' }, { ...payload, sequenceScore: 101 }])('rejects invalid data %#', value => {
       expect(parseMeasuredAttempt(value)).toBeNull();
   });

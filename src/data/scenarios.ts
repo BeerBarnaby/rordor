@@ -9,9 +9,9 @@ export interface ProtocolMetadata {
 
 export const MAIN_PROTOCOL_METADATA: ProtocolMetadata = {
   protocolId: 'CPR_ADULT_ROTC_V1',
-  version: '1.1.0',
-  reviewStatus: 'instructor_approved_user_reported',
-  lastUpdated: '2026-10-06',
+  version: '1.2.0',
+  reviewStatus: 'pending_re_review_after_content_update',
+  lastUpdated: '2026-10-10',
 };
 
 // บริบทเปลี่ยนได้ แต่ลำดับและสาระทางการแพทย์ใช้ชุดที่รอตรวจทานชุดเดิม
@@ -96,21 +96,21 @@ export const INITIAL_SEQUENCE_CARDS: SequenceCardItem[] = [
   },
   {
     id: 'seq_6',
-    title: 'เปิดเครื่องและติดแผ่น AED',
-    subtitle: 'เปิดหน้าอก เช็ดให้แห้ง และติดตามภาพบนแผ่น',
+    title: 'รักษาจังหวะและคุณภาพการกดหน้าอก',
+    subtitle: 'กด 100–120 ครั้ง/นาที ปล่อยหน้าอกคืนตัว และหยุดให้น้อยที่สุด',
     isCorrect: true,
     correctOrder: 6,
-    feedbackIfCorrect: 'เปิดเครื่อง ติดแผ่น และทำตามเสียงสั่งโดยเร็ว',
-    feedbackIfWrong: 'เมื่อ AED มาถึง ให้เปิดเครื่องและติดแผ่นตามภาพโดยไม่ชะลอการช่วยเหลือ',
+    feedbackIfCorrect: 'รักษาจังหวะ 100–120 ครั้ง/นาที ปล่อยหน้าอกคืนตัว และหยุดกดให้น้อยที่สุด',
+    feedbackIfWrong: 'หลังเริ่ม CPR ต้องรักษาจังหวะและคุณภาพการกดหน้าอกอย่างต่อเนื่อง',
   },
   {
     id: 'seq_7',
-    title: 'ทำตาม AED แล้วกลับเข้า CPR',
-    subtitle: 'เคลียร์พื้นที่ วิเคราะห์ และกดหน้าอกต่อทันที',
+    title: 'ทำ CPR ต่อจนมีผู้รับช่วง',
+    subtitle: 'ทำต่อจนทีม 1669 รับช่วง ผู้ป่วยเริ่มตอบสนอง หรือพื้นที่ไม่ปลอดภัย',
     isCorrect: true,
     correctOrder: 7,
-    feedbackIfCorrect: 'ไม่ว่าเครื่องจะแนะนำให้ช็อกหรือไม่ ให้กลับมากดหน้าอกทันที',
-    feedbackIfWrong: 'ทำตามเสียงสั่งของ AED และกลับเข้าสู่ CPR ทันทีหลังวิเคราะห์หรือช็อก',
+    feedbackIfCorrect: 'ทำ CPR ต่อเนื่องจนทีมฉุกเฉินรับช่วง ผู้ป่วยเริ่มตอบสนอง หรือไม่สามารถช่วยต่อได้อย่างปลอดภัย',
+    feedbackIfWrong: 'อย่าหยุด CPR เองโดยไม่มีเหตุ ให้ทำต่อจนมีผู้รับช่วงหรือสถานการณ์เปลี่ยน',
   },
   // Distractor items
   {

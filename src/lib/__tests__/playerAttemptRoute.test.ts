@@ -28,7 +28,7 @@ describe('score API', () => {
     const response = await POST(request({ ...data, expectedPlayerId: '22222222-2222-4222-8222-222222222222' }));
     expect(response.status).toBe(403); expect(mocks.rpc).toHaveBeenCalledTimes(1);
   });
-  it.each([null, { ...data, audioGuided: 'false' }, { ...data, scoringVersion: 'future-v3' }, { ...data, sequenceScore: -1 }])('rejects invalid score data %#', async value => {
+  it.each([null, { ...data, scoringVersion: 'future-v3' }, { ...data, sequenceScore: -1 }])('rejects invalid score data %#', async value => {
     expect((await POST(request(value))).status).toBe(400); expect(mocks.rpc).not.toHaveBeenCalled();
   });
   it('keeps legacy API compatibility without submitting legacy totals to v2', async () => {
@@ -39,9 +39,9 @@ describe('score API', () => {
     mocks.rpc.mockRejectedValueOnce(Error('offline'));
     expect((await POST(request(data))).status).toBe(503);
   });
-  it('separates guided leaderboard queries', async () => {
+  it('uses the standard leaderboard without an audio category', async () => {
     mocks.rpc.mockResolvedValueOnce([]);
-    expect((await GET(new Request('http://localhost:3001/api/player/leaderboard?guided=true'))).status).toBe(200);
-    expect(mocks.rpc).toHaveBeenLastCalledWith('get_public_leaderboard_v2', { p_limit: 20, p_audio_guided: true });
+    expect((await GET()).status).toBe(200);
+    expect(mocks.rpc).toHaveBeenLastCalledWith('get_public_leaderboard_v2', { p_limit: 20, p_audio_guided: false });
   });
 });

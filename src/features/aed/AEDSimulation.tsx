@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import Image from 'next/image';
 import { ArrowRight, ShieldAlert, Power } from "lucide-react";
 import { advanceAED, type AEDRecommendation, type AEDState } from "@/lib/aedTraining";
-import { playCue } from '@/lib/trainingAudio';
 
 const instructions: Record<AEDState, { title: string; detail: string; action: string; step: number }> = {
   power: { title: "เปิดเครื่อง AED", detail: "กดปุ่มเปิดเครื่อง หรือเปิดฝาเครื่องตามรุ่น แล้วทำตามเสียงคำแนะนำ", action: "เปิดเครื่องจำลอง", step: 1 },
@@ -45,7 +44,6 @@ export function AEDSimulation({ onCompleteStep, recommendation = 'shock', active
   function proceed() {
     if (!active || completed.current || state === 'analyzing' || state === 'complete') return;
     const next = advanceAED(state, 'continue', recommendation);
-    playCue(next === 'complete' ? 'complete' : 'select');
     setState(next);
     if (next === 'complete') {
       completed.current = true;

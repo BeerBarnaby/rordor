@@ -12,7 +12,7 @@ export type MeasuredAttempt = {
   callScore: number;
   cprRhythmScore: number;
   totalTimeSeconds: number;
-  audioGuided: boolean;
+  audioGuided: false;
 };
 export function parseMeasuredAttempt(value: unknown): MeasuredAttempt | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
@@ -22,14 +22,13 @@ export function parseMeasuredAttempt(value: unknown): MeasuredAttempt | null {
     || typeof body.clientAttemptId !== 'string' || !/^mission_[0-9]{13}$/.test(body.clientAttemptId)
     || typeof body.scenarioId !== 'string' || !scenarios.has(body.scenarioId)
     || !score(body.sequenceScore) || !score(body.callScore) || !score(body.cprRhythmScore)
-    || typeof body.totalTimeSeconds !== 'number' || !Number.isInteger(body.totalTimeSeconds) || body.totalTimeSeconds < 20 || body.totalTimeSeconds > 86400
-    || typeof body.audioGuided !== 'boolean') return null;
+    || typeof body.totalTimeSeconds !== 'number' || !Number.isInteger(body.totalTimeSeconds) || body.totalTimeSeconds < 20 || body.totalTimeSeconds > 86400) return null;
   return { scoringVersion: SCORING_VERSION, expectedPlayerId: body.expectedPlayerId, clientAttemptId: body.clientAttemptId, scenarioId: body.scenarioId,
     sequenceScore: body.sequenceScore as number, callScore: body.callScore as number, cprRhythmScore: body.cprRhythmScore as number,
-    totalTimeSeconds: body.totalTimeSeconds, audioGuided: body.audioGuided };
+    totalTimeSeconds: body.totalTimeSeconds, audioGuided: false };
 }
 export function measuredPayload(result: MissionResult) {
   return parseMeasuredAttempt({ scoringVersion: result.scoringVersion, expectedPlayerId: result.playerId, clientAttemptId: result.id,
     scenarioId: result.scenarioId, sequenceScore: result.skillScores.sequence, callScore: result.callCompletenessScore,
-    cprRhythmScore: result.cprRhythmScore, totalTimeSeconds: result.totalTimeSeconds, audioGuided: result.cprAudioGuided ?? false });
+    cprRhythmScore: result.cprRhythmScore, totalTimeSeconds: result.totalTimeSeconds });
 }
