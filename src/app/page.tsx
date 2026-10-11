@@ -27,6 +27,7 @@ import {
 } from "@/types";
 import { ArrowRight } from "lucide-react";
 import { SimulationNotice } from "@/components/TrainingUI";
+import { PostMissionSurvey, shouldOfferPostMissionSurvey } from "@/components/PostMissionSurvey";
 import { SCENARIO_VARIANTS } from "@/data/scenarios";
 import {
   getLeaderboard,
@@ -62,6 +63,7 @@ export default function Home() {
   const [leaderboardLoading, setLeaderboardLoading] = useState(true);
   const [leaderboardRefresh, setLeaderboardRefresh] = useState(0);
   const [queueWarning, setQueueWarning] = useState('');
+  const [offerPostMissionSurvey, setOfferPostMissionSurvey] = useState(false);
   const savedProgress = useSyncExternalStore(
     subscribeProgress,
     progressSnapshot,
@@ -218,6 +220,7 @@ export default function Home() {
     };
 
     setCurrentResult(result);
+    setOfferPostMissionSurvey(shouldOfferPostMissionSurvey(userProgress.missionAttemptsCount));
     ProgressService.recordMissionResult(result);
     if (!ProgressService.isPersisted()) setQueueWarning('เบราว์เซอร์บันทึกผลไม่ได้ ผลอยู่เฉพาะหน้านี้ อย่าปิดหน้าจนกว่าจะเก็บผลได้');
     if (result.playerId) {
@@ -341,15 +344,18 @@ export default function Home() {
 
           {/* Phase 6: After Action Review (AAR) */}
           {missionPhase === "debrief" && currentResult && (
-            <AfterActionReview
-              result={currentResult}
-              onRetryMission={handleStartMission}
-              onGoHome={() => setActiveTab("home")}
-              onLearn={(topic) => { setLearningTopic(topic ?? null); setActiveTab("learn"); }}
-              syncMessage={queueWarning || (currentResult.playerId === playerId ? onlineSync.status.message : '')}
-              pendingCount={currentResult.playerId === playerId ? onlineSync.pendingCount : 0}
-              onRetrySync={onlineSync.retry}
-            />
+            <>
+              <AfterActionReview
+                result={currentResult}
+                onRetryMission={handleStartMission}
+                onGoHome={() => setActiveTab("home")}
+                onLearn={(topic) => { setLearningTopic(topic ?? null); setActiveTab("learn"); }}
+                syncMessage={queueWarning || (currentResult.playerId === playerId ? onlineSync.status.message : '')}
+                pendingCount={currentResult.playerId === playerId ? onlineSync.pendingCount : 0}
+                onRetrySync={onlineSync.retry}
+              />
+              {offerPostMissionSurvey && <PostMissionSurvey isLoggedIn={Boolean(player)} onLogin={() => setIsPlayerOpen(true)} />}
+            </>
           )}
         </div>
       )}

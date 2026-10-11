@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { LogOut, ShieldCheck, Trophy } from "lucide-react";
+import { LogOut, MessageSquareText, ShieldCheck, Trophy } from "lucide-react";
 import { AppDialog } from "./AppDialog";
 import type { PlayerProfile } from "@/types";
 import {
@@ -10,6 +10,7 @@ import {
   registerPlayer,
 } from "@/lib/player";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
+import { SatisfactionSurvey } from "./SatisfactionSurvey";
 
 type Mode = "register" | "login";
 
@@ -32,12 +33,14 @@ export function PlayerModal({
   const [trainingYear, setTrainingYear] = useState("1");
   const [status, setStatus] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showSurvey, setShowSurvey] = useState(false);
   const configured = isSupabaseConfigured();
 
   function handleClose() {
     setPin("");
     setStatus("");
     setSubmitting(false);
+    setShowSurvey(false);
     onClose();
   }
 
@@ -96,6 +99,10 @@ export function PlayerModal({
               <strong>การเข้าสู่ระบบเป็นทางเลือก</strong>
               ออกจากโปรไฟล์แล้วก็ยังเรียนและฝึกแบบ Guest ได้ คะแนนในเครื่องจะไม่หาย
             </p>
+            <button className="secondary-button" type="button" onClick={() => setShowSurvey((current) => !current)}>
+              <MessageSquareText size={18} /> {showSurvey ? "ซ่อนแบบประเมิน" : "ประเมินน้องพร้อม"}
+            </button>
+            {showSurvey && <SatisfactionSurvey isLoggedIn onLogin={() => undefined} />}
             <button
               className="secondary-button"
               disabled={submitting}

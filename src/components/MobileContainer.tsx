@@ -2,7 +2,6 @@
 import { ReactNode } from "react";
 import { House, BookOpen, ShieldCheck, Info, X, UserRound } from "lucide-react";
 import { PromMark } from './PromMark';
-import { SatisfactionSurvey } from './SatisfactionSurvey';
 
 type Tab = "home" | "learn" | "mission" | "about";
 interface Props {
@@ -127,7 +126,6 @@ export function MobileContainer({
       )}
       <main id="main-content" className="app-main" tabIndex={-1}>
         {children}
-        {!focusMode && <SatisfactionSurvey />}
       </main>
     </div>
   );

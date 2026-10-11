@@ -9,7 +9,9 @@ type PlayerRpcName =
   | "logout_game_player"
   | "submit_game_attempt"
   | "get_public_leaderboard"
-  | "submit_app_feedback";
+  | "submit_app_feedback"
+  | "submit_app_feedback_v2"
+  | "get_app_feedback_v2";
 // The private implementations are exposed only through invoker RPC wrappers.
 type MeasuredRpcName = 'get_game_player_v2' | 'get_public_leaderboard_v2' | 'submit_game_attempt_v2';
 
