@@ -134,6 +134,8 @@ export interface PlayerProfile {
   measuredAttemptsCount?: number;
   id: string;
   displayName: string;
+  schoolName?: string;
+  trainingYear?: number;
   bestScore: number;
   bestRhythmScore: number;
   attemptsCount: number;

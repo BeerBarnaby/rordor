@@ -1058,7 +1058,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .auth-mode button[aria-selected="true"] { color: var(--color-ink); background: var(--color-surface); box-shadow: 0 2px 8px rgb(25 25 31 / 0.08); }
 .player-form { display: grid; gap: var(--space-4); }
 .player-form label { display: grid; gap: 7px; font-size: 14px; line-height: 20px; font-weight: 700; }
-.player-form input {
+.player-form input, .player-form select {
   width: 100%;
   min-height: 50px;
   padding: 11px 13px;
@@ -1068,7 +1068,21 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   color: var(--color-ink);
   font: 400 16px/24px var(--font-line-seed), system-ui, sans-serif;
 }
-.player-form input:focus { border-color: var(--color-signal); outline: 3px solid var(--color-signal-soft); outline-offset: 1px; }
+.player-form input:focus, .player-form select:focus { border-color: var(--color-signal); outline: 3px solid var(--color-signal-soft); outline-offset: 1px; }
+.profile-school-grid { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px; }
+.satisfaction-survey { display: grid; gap: 18px; max-width: 760px; margin: 52px auto 0; padding: 24px 0 8px; border-top: 1px solid var(--color-line); }
+.satisfaction-survey h2 { margin: 4px 0; font-size: 22px; line-height: 32px; }
+.survey-rating { min-width: 0; padding: 0; border: 0; }
+.survey-rating legend { margin-bottom: 9px; font-size: 15px; line-height: 24px; font-weight: 700; }
+.survey-rating > div { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 7px; }
+.survey-rating button { min-height: 54px; display: grid; place-content: center; gap: 1px; border: 1px solid var(--color-line-strong); border-radius: 9px; color: var(--color-ink-muted); background: var(--color-surface); }
+.survey-rating button strong { font-size: 17px; line-height: 22px; }
+.survey-rating button span { min-height: 15px; font-size: 10px; line-height: 15px; }
+.survey-rating button[aria-checked="true"] { border-color: var(--color-signal); color: white; background: var(--color-signal); }
+.survey-thanks { display: flex; align-items: center; gap: 14px; padding: 18px; border-radius: 12px; color: var(--color-pine); background: var(--color-success-soft); }
+.survey-thanks svg { flex: none; width: 30px; height: 30px; }
+.survey-thanks h2 { margin: 0; font-size: 18px; line-height: 28px; }
+.survey-thanks p { color: var(--color-ink-muted); font-size: 13px; line-height: 21px; }
 .skip-link { position: fixed; z-index: 100; top: -100px; left: 16px; padding: 12px; background: white; }
 .skip-link:focus { top: 8px; }
 

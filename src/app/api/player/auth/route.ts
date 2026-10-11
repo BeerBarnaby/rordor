@@ -10,6 +10,8 @@ type AuthPayload = {
   mode?: unknown;
   phone?: unknown;
   displayName?: unknown;
+  schoolName?: unknown;
+  trainingYear?: unknown;
   pin?: unknown;
 };
 
@@ -24,15 +26,18 @@ export async function POST(request: Request) {
     const pin = typeof body.pin === "string" ? body.pin.slice(0, 8) : "";
     const displayName =
       typeof body.displayName === "string" ? body.displayName.slice(0, 24) : "";
+    const schoolName =
+      typeof body.schoolName === "string" ? body.schoolName.slice(0, 120) : "";
+    const trainingYear = Number(body.trainingYear);
 
     if (mode !== "register" && mode !== "login") {
       return noStoreJson({ ok: false, error: "invalid_request" }, 400);
     }
 
     const envelope = await callSupabaseRpc<PlayerRpcEnvelope>(
-      mode === "register" ? "register_game_player" : "login_game_player",
+      mode === "register" ? "register_game_player_v3" : "login_game_player",
       mode === "register"
-        ? { p_phone: phone, p_display_name: displayName, p_pin: pin }
+        ? { p_phone: phone, p_display_name: displayName, p_pin: pin, p_school_name: schoolName, p_training_year: trainingYear }
         : { p_phone: phone, p_pin: pin },
     );
 

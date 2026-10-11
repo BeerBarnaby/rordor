@@ -28,6 +28,8 @@ export function PlayerModal({
   const [displayName, setDisplayName] = useState("");
   const [phone, setPhone] = useState("");
   const [pin, setPin] = useState("");
+  const [schoolName, setSchoolName] = useState("");
+  const [trainingYear, setTrainingYear] = useState("1");
   const [status, setStatus] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const configured = isSupabaseConfigured();
@@ -46,7 +48,7 @@ export function PlayerModal({
     try {
       const session =
         mode === "register"
-          ? await registerPlayer(phone, displayName, pin)
+          ? await registerPlayer(phone, displayName, pin, schoolName, trainingYear)
           : await loginPlayer(phone, pin);
       onPlayerChange(session.profile);
       setStatus(`พร้อมแล้ว ${session.profile.displayName} คะแนนครั้งต่อไปจะขึ้นลีดเดอร์บอร์ด`);
@@ -81,6 +83,7 @@ export function PlayerModal({
                 <p className="caption">
                   {player.rank ? `อันดับปัจจุบัน #${player.rank}` : "ทำภารกิจแรกเพื่อขึ้นลีดเดอร์บอร์ด"}
                 </p>
+                {player.schoolName && <p className="caption">{player.trainingYear ? `ชั้นปีที่ ${player.trainingYear}` : "บุคคลทั่วไป / อื่น ๆ"} · {player.schoolName}</p>}
               </div>
             </section>
             <dl className="player-stats">
@@ -137,10 +140,25 @@ export function PlayerModal({
                       minLength={2}
                       maxLength={24}
                       autoComplete="nickname"
-                      placeholder="เช่น พร้อมช่วย"
+                      placeholder="เช่น นศท. ทำดี ใส่ใจ"
                       required
                     />
                   </label>
+                )}
+                {mode === "register" && (
+                  <div className="profile-school-grid">
+                    <label>
+                      <span>ชั้นปี</span>
+                      <select value={trainingYear} onChange={(event) => setTrainingYear(event.target.value)} required>
+                        {[1, 2, 3, 4, 5].map((year) => <option value={year} key={year}>ชั้นปีที่ {year}</option>)}
+                        <option value="0">บุคคลทั่วไป / อื่น ๆ</option>
+                      </select>
+                    </label>
+                    <label>
+                      <span>โรงเรียน</span>
+                      <input value={schoolName} onChange={(event) => setSchoolName(event.target.value)} minLength={2} maxLength={120} autoComplete="organization" placeholder="ชื่อโรงเรียน" required />
+                    </label>
+                  </div>
                 )}
                 <label>
                   <span>เบอร์โทร</span>

@@ -13,6 +13,8 @@ type RpcEnvelope = {
   player?: {
     id?: string;
     display_name?: string;
+    school_name?: string;
+    training_year?: number;
     best_score?: number;
     best_rhythm_score?: number;
     attempts_count?: number;
@@ -28,6 +30,8 @@ function toProfile(value: RpcEnvelope["player"]): PlayerProfile | null {
   return {
     id: value.id,
     displayName: value.display_name,
+    schoolName: value.school_name,
+    trainingYear: value.training_year == null ? undefined : Number(value.training_year),
     bestScore: Number(value.best_score ?? 0),
     bestRhythmScore: Number(value.best_rhythm_score ?? 0),
     attemptsCount: Number(value.attempts_count ?? 0),
@@ -52,6 +56,8 @@ function rpcError(code?: string): Error {
     invalid_phone: "กรุณากรอกเบอร์มือถือไทยให้ถูกต้อง",
     invalid_pin: "PIN ต้องเป็นตัวเลข 4–8 หลัก",
     invalid_display_name: "ชื่อที่แสดงต้องมี 2–24 ตัวอักษร",
+    invalid_school: "กรุณากรอกชื่อโรงเรียนให้ถูกต้อง",
+    invalid_training_year: "กรุณาเลือกชั้นปีให้ถูกต้อง",
     invalid_session: "เซสชันหมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง",
     invalid_attempt: "ข้อมูลผลการฝึกไม่ถูกต้อง กรุณาลองฝึกใหม่",
     attempt_too_fast: "ระบบยังไม่รับคะแนนที่จบเร็วผิดปกติ กรุณาลองฝึกใหม่",
@@ -85,11 +91,15 @@ export function registerPlayer(
   phone: string,
   displayName: string,
   pin: string,
+  schoolName: string,
+  trainingYear: string,
 ) {
   return createSession("register", {
     phone,
     displayName,
     pin,
+    schoolName,
+    trainingYear,
   });
 }
 

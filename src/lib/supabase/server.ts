@@ -3,11 +3,13 @@ import "server-only";
 const RPC_TIMEOUT_MS = 10_000;
 type PlayerRpcName =
   | "register_game_player"
+  | "register_game_player_v3"
   | "login_game_player"
   | "get_game_player"
   | "logout_game_player"
   | "submit_game_attempt"
-  | "get_public_leaderboard";
+  | "get_public_leaderboard"
+  | "submit_app_feedback";
 // The private implementations are exposed only through invoker RPC wrappers.
 type MeasuredRpcName = 'get_game_player_v2' | 'get_public_leaderboard_v2' | 'submit_game_attempt_v2';
 
