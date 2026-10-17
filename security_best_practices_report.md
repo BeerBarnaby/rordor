@@ -1,141 +1,112 @@
-# Security and Capacity Review — น้องพร้อม
+# Security review — น้องพร้อม
 
-Reviewed: 2026-09-21  
-Scope: Next.js application, player/session API, Supabase RPC functions and grants, dependency advisories, production-plan limits, and a bounded read-load test.
+Reviewed: 17 October 2026
+Scope: production Next.js app, player APIs, single-admin dashboard, Supabase functions/tables, Vercel configuration, dependencies, and browser-facing controls.
 
 ## Executive summary
 
-The application is appropriate for a low-risk training game after the hardening in this change set. The highest-risk issue was a bearer session token stored in browser `localStorage`. The browser no longer receives or stores that token: Next.js Route Handlers now keep it in an `HttpOnly`, `Secure` production cookie with `SameSite=Strict`, a seven-day maximum lifetime, and an API-only path.
+The production design has a sound boundary for a small training application: browser code never receives the raw database session token, mutations require same-origin JSON, private responses are not cached, direct table access is revoked, and admin operations require both a live player session and a separate server-only secret.
 
-The live Supabase project was also hardened. Sessions expire after seven days, old sessions are pruned, each player is limited to five active sessions, score submissions have schema/allowlist/rate checks, and implicit PostgreSQL `PUBLIC` execute privileges were removed. The migration completed successfully and the resulting defaults, constraint, and function ACLs were queried back from the live database.
+One critical dependency issue was found and fixed during this review: Next.js `16.3.4` was affected by published advisories including an `ImageResponse` remote-code-execution issue. The project is now pinned to Next.js `16.4.2`; `sharp` and `source-map-js` were also updated through the lockfile. `npm audit --omit=dev` now reports zero production vulnerabilities.
 
-No known dependency vulnerabilities were reported by `npm audit` at review time. Lint, 9 automated tests, the production build, API security checks, and a bounded concurrency test all passed.
+The application is ready for a controlled pilot. A broad public or official assessment rollout should wait for global/IP rate limiting, a retention policy, a recovery procedure for the single administrator, and a real-device/mobile acceptance pass.
 
-The leaderboard must remain a motivational practice feature, not an official assessment record. Its score is calculated in the browser, so a determined user can still fabricate a plausible score even though spam and obviously invalid submissions are rejected.
+## Closed findings
 
-## Fixed findings
+### SEC-001 — Critical — Vulnerable production framework dependency
 
-### SEC-001 — High — Browser-readable bearer session
+- **Location:** `package.json`, `package-lock.json`
+- **Evidence:** the pre-fix audit reported Next.js advisories including `GHSA-vcvr-r3jv-pc5j`; the installed version was `16.3.4`.
+- **Impact:** a vulnerable framework release can expose the production server even when application code is correct.
+- **Fix:** upgraded `next` and `eslint-config-next` to `16.4.2`; refreshed transitive production dependencies.
+- **Verification:** `npm audit --omit=dev` reports 0 production vulnerabilities.
 
-**Risk:** A session token persisted in `localStorage` could be read by injected JavaScript or a malicious browser extension and reused for up to 30 days.
+### SEC-002 — High — Browser-readable session token
 
-**Fix:** Player requests now use same-origin Next.js endpoints. The raw token is removed from every browser response and stored only in an `HttpOnly` cookie. Legacy local/session storage values are deleted on load. Cookie controls are in `src/lib/playerServer.ts`; client calls are in `src/lib/player.ts`.
+- **Location:** `src/lib/playerServer.ts:39`
+- **Evidence:** sessions are stored in an `HttpOnly`, production-`Secure`, `SameSite=Strict` cookie scoped to `/api/player`.
+- **Impact:** JavaScript running in the page cannot read and copy the bearer token.
+- **Fix status:** closed in the existing server-session architecture.
 
-**Verification:** The unauthenticated session endpoint returns `401`; API responses do not expose `session_token`; the cookie is `HttpOnly`, `Secure` in production, `SameSite=Strict`, scoped to `/api/player`, and expires within seven days.
+### SEC-003 — High — Admin authorization and destructive actions
 
-### SEC-002 — Medium — Missing browser security policy
+- **Location:** `src/lib/adminServer.ts:13`, `src/app/api/player/admin/players/[id]/route.ts:14`, `supabase/migrations/20261017022541_single_admin_dashboard.sql:27`
+- **Evidence:** every admin RPC requires a live player session plus a 43+ character server secret. Delete validates same-origin JSON, a UUID, and the exact display name. The database blocks admin self-deletion and writes a PII-free audit record.
+- **Impact:** knowing an administrator phone/PIN alone is insufficient to call database admin functions outside the deployed server.
+- **Fix status:** closed and verified against the live database.
 
-**Risk:** The site did not set a Content Security Policy or common anti-clickjacking/content-sniffing/privacy headers.
+### SEC-004 — Medium — CSRF, caching, and security headers
 
-**Fix:** `next.config.ts` now disables the framework signature and sets CSP, HSTS in production, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, a restrictive Permissions Policy, Referrer Policy, and Cross-Origin Opener Policy.
+- **Location:** `src/lib/playerServer.ts:17`, `next.config.ts:4`
+- **Evidence:** mutation routes compare `Origin` exactly with the request origin and require JSON; private responses use `private, no-store`; production returns CSP, HSTS, frame denial, MIME sniffing protection, referrer policy, permissions policy, and no `X-Powered-By` header.
+- **Fix status:** closed. Runtime verification returned `401` for unauthenticated admin data and `Cache-Control: private, no-store`.
 
-**Verification:** A production server response returned all expected headers and no `X-Powered-By` header.
+### SEC-005 — Medium — Direct table exposure
 
-### SEC-003 — Medium — Cross-site mutation and oversized request surface
+- **Location:** Supabase migrations under `supabase/migrations/`
+- **Evidence:** player, session, attempt, feedback, and admin tables have RLS enabled and direct grants revoked from `PUBLIC`, `anon`, and `authenticated`. Browser access is limited to allowlisted RPCs.
+- **Fix status:** closed for the NONG PROM data model.
 
-**Risk:** Cookie-authenticated mutation endpoints need explicit CSRF protection and bounded inputs.
+## Residual findings
 
-**Fix:** Authentication, logout, and score submission verify exact same-origin requests. JSON bodies are capped at 2 KiB and every field is length/type/range checked before reaching Supabase. Responses use `private, no-store`.
+### SEC-101 — Medium — No durable IP/global request limiter
 
-**Verification:** A cross-origin authentication request returns `403`; invalid same-origin input returns `400`.
+- **Location:** `src/app/api/player/auth/route.ts`, Vercel/Supabase edge configuration
+- **Evidence:** the database locks one account for 15 minutes after five failed PIN attempts, but there is no durable IP-level limit covering account creation and distributed phone/PIN guessing.
+- **Impact:** an attacker can create junk accounts or rotate target phone numbers/IPs.
+- **Recommendation:** add Vercel Firewall rate rules for `/api/player/auth` and a database/edge quota keyed by trusted client IP before a large public launch.
+- **Current mitigation:** per-account lockout, bcrypt PIN hashes, bounded inputs, short session lifetime.
 
-### SEC-004 — Medium — Unbounded/replayed score submissions
+### SEC-102 — Medium — Phone ownership is not verified and PIN recovery is unavailable
 
-**Risk:** A valid player could flood the leaderboard or submit impossible data.
+- **Location:** `src/components/PlayerModal.tsx`
+- **Evidence:** registration intentionally uses phone + 4–8 digit PIN without SMS/OTP.
+- **Impact:** a person can register someone else's number first; forgotten PINs require manual account deletion/recreation.
+- **Recommendation:** keep this limitation visible. Add instructor-assisted recovery or OTP only if identity becomes important.
 
-**Fix:** The database now enforces known scenario IDs, the generated attempt-ID format, a minimum 20-second completion time, one accepted new result per 20 seconds, no more than 100 accepted results per player per day, score ranges, and idempotent duplicate delivery.
+### SEC-103 — Medium — Practice scores are client-originated
 
-**Verification:** The live database reports the minimum-duration constraint and updated RPC definition. The UI labels the leaderboard as motivational practice, not an official assessment.
+- **Location:** `src/lib/missionAttempt.ts`, `src/app/api/player/attempt/route.ts`
+- **Evidence:** the server validates identity, ranges, timing, frequency, and replay IDs, but the browser calculates skill scores.
+- **Impact:** a determined user may submit plausible fabricated practice results.
+- **Recommendation:** do not use XP/leaderboard results for grades, certification, awards, or formal evaluation. Move scoring to a server-issued attempt protocol if that requirement changes.
 
-### SEC-005 — Medium — Session accumulation
+### SEC-104 — Low — CSP allows inline script/style
 
-**Risk:** Thirty-day sessions could accumulate without a per-player cap.
+- **Location:** `next.config.ts:6`
+- **Evidence:** production `script-src` and `style-src` retain `'unsafe-inline'` for the current static Next.js delivery model.
+- **Impact:** CSP provides less protection if an HTML injection sink is introduced later.
+- **Recommendation:** evaluate Next.js nonce CSP or experimental SRI in a dedicated release. Do not change this without browser regression testing.
+- **Current mitigation:** no `dangerouslySetInnerHTML`, `innerHTML`, `eval`, dynamic code execution, or user-controlled script URL was found in `src`.
 
-**Fix:** New sessions expire after seven days; expired sessions are cleaned during authentication; login keeps at most five active sessions per player.
+### SEC-105 — Low — Development-tool advisory remains
 
-**Verification:** The live database default is `(now() + '7 days'::interval)`.
+- **Location:** `eslint-config-next` dependency chain
+- **Evidence:** full `npm audit` reports a `braces` stack-exhaustion advisory through lint-only tooling; no patched `braces` release is currently available from npm. `npm audit --omit=dev` is clean.
+- **Impact:** this does not ship in the production runtime. It matters only when maintainers run lint against attacker-controlled glob patterns.
+- **Recommendation:** keep tooling current and remove the exception when the upstream chain publishes a patch.
 
-### SEC-006 — Low — Implicit PostgreSQL function execution
+### SEC-106 — Low — No documented retention schedule
 
-**Risk:** PostgreSQL grants function execution to `PUBLIC` by default.
+- **Location:** operational policy, not code
+- **Evidence:** profiles, attempts, sessions, and feedback remain until manually deleted; expired sessions are pruned during authentication but there is no scheduled retention job.
+- **Impact:** personal data can remain longer than necessary.
+- **Recommendation:** approve a retention period and add a scheduled cleanup/export process before collecting a large cohort.
 
-**Fix:** The migration explicitly revokes `PUBLIC` execution and grants only the Supabase roles required by the application. Base tables remain RLS-enabled with direct access revoked.
+## Supabase advisor results
 
-**Verification:** Live ACLs list `postgres`, `anon`, `authenticated`, and Supabase `service_role`; no implicit `PUBLIC` entry remains.
+The NONG PROM tables intentionally show `RLS enabled, no policy`: direct access is denied and privileged work occurs through narrowly scoped functions. This is a defense-in-depth design, not an open table.
 
-### SEC-007 — Low — Unused browser SDK surface
-
-**Risk:** The full Supabase browser SDK was no longer required after moving RPC calls server-side.
-
-**Fix:** Removed `@supabase/supabase-js` and its transitive browser/auth/realtime/storage packages. The server uses a small, allowlisted REST RPC wrapper with an HTTPS-only base URL and a 10-second timeout.
-
-**Verification:** `npm audit` reports 0 known vulnerabilities across all severities.
-
-## Accepted residual risks
-
-### RISK-001 — Medium — Leaderboard is not authoritative
-
-The server validates shape, limits, timing, identity, and frequency, but the browser still calculates the underlying skill scores. A determined user can call the public Supabase RPC with fabricated but plausible values if they possess their own session token. This is acceptable only because the leaderboard is explicitly presented as a motivational practice feature. Before using it for grades, certification, awards, or official ranking, move event validation and score calculation to a trusted server and issue server-side attempt challenges.
-
-### RISK-002 — Medium — Phone ownership is intentionally not verified
-
-The requested design has no SMS/OTP and no email. A person can register another person's phone number first, and there is no PIN recovery. The UI now states this limitation. Add OTP or an instructor-issued recovery process if account ownership later matters.
-
-### RISK-003 — Medium — Short PIN and account lockout trade-off
-
-A four-digit PIN has only 10,000 combinations. Bcrypt hashing and five-failure/15-minute lockout reduce online guessing, but someone who knows a phone number can intentionally trigger the lock. Add durable IP/device throttling or a Vercel WAF rate rule before a large public launch.
-
-### RISK-004 — Low — Static CSP allows inline script/style
-
-The CSP retains `'unsafe-inline'` because the application is statically rendered and Next.js emits inline bootstrap/style content. A per-request nonce would require dynamic rendering and remove the CDN/static-capacity advantage. The current code has no `dangerouslySetInnerHTML`, `eval`, dynamic script URLs, or raw DOM HTML sinks, which lowers the practical risk.
-
-### RISK-005 — Low — Phone number is visible to project administrators
-
-Phone numbers are normalized and access-controlled with RLS/table grants, but not field-encrypted. They are never returned by public RPCs or shown on the leaderboard. Limit Supabase dashboard access and define a deletion/retention policy before collecting real users at scale.
-
-## Capacity result
-
-### Observed test
-
-The production Next.js build was run locally while calling the live Supabase leaderboard RPC through the new server API. This measures the application/RPC path but not Vercel network/runtime overhead.
-
-| Concurrent requests | Requests | Success | Throughput | p50 | p95 |
-|---:|---:|---:|---:|---:|---:|
-| 1 | 100 | 100% | 12.6 req/s | 62 ms | 113 ms |
-| 5 | 100 | 100% | 67.5 req/s | 58 ms | 155 ms |
-| 10 | 100 | 100% | 145.7 req/s | 58 ms | 125 ms |
-| 20 | 100 | 100% | 251.2 req/s | 62 ms | 202 ms |
-| 50 | 100 | 100% | 247.1 req/s | 114 ms | 377 ms |
-| 100 | 200 | 100% | 131.4 req/s | 699 ms | 1,192 ms |
-
-### Practical answer
-
-- **Verified read burst:** at least **100 simultaneous leaderboard/API requests** with zero errors in this bounded test.
-- **Recommended event size on the current free tiers:** **100 trainees starting together**, or roughly **200–300 concurrently active trainees** when actions are naturally spread over the five-minute simulation.
-- **Conservative synchronized login/register burst:** keep to **20–30 at once** until a staging write test is run. PIN verification uses bcrypt and is more CPU-heavy than leaderboard reads.
-- **Not a hard maximum:** static pages can serve much more traffic from Vercel's CDN; Supabase database work, synchronized authentication, monthly quotas, network latency, and abuse patterns determine the real limit.
-
-The current project is on Vercel Hobby and Supabase Free/Nano. Official Supabase documentation lists Nano at 60 direct database connections and 200 pooler client connections, but a web user is not equivalent to one database connection because the app uses the REST API and pooling. Supabase Free currently includes unlimited API requests subject to resource/fair-use constraints, 500 MB database size, and 5 GB egress. Vercel Hobby currently includes up to 1,000,000 Edge Requests and 1,000,000 Function Invocations per usage period; these quotas are more likely to become a monthly ceiling than a simultaneous-user ceiling for this app.
-
-For a guaranteed event above 300 active trainees or a public launch, use Vercel Pro plus a paid Supabase compute tier and run a staging load test matching the exact ratio of page loads, logins, leaderboard reads, and result writes.
+Supabase also reports warnings for legacy `public` SECURITY DEFINER functions and for unrelated equipment-borrowing objects (`students`, `staff_users`, `borrow_requests`, `equipment`, `sync_borrow_request_dates`) that share this Supabase project. Do not alter those unrelated objects from this repository. The NONG PROM v2 and admin public endpoints are security-invoker wrappers with fixed empty `search_path`; privileged implementations live in `nong_prom_private`.
 
 ## Verification record
 
-- `npm audit`: 0 known vulnerabilities.
-- ESLint: passed.
-- Vitest: 2 files, 9 tests passed.
-- Next.js production build: passed; homepage remains statically generated; four player API routes are dynamic.
-- HTTP checks: homepage `200`, empty session `401`, leaderboard `200`, cross-origin mutation `403`, invalid auth `400`.
-- Secret scan: no service-role key, database password, private key, or connection string tracked in the repository.
-- Injection scan: no `dangerouslySetInnerHTML`, `eval`, `new Function`, raw `innerHTML`, `document.write`, or child-process execution in `src`.
-- External links using a new tab include `rel="noopener noreferrer"`.
-- Live Supabase migration: completed successfully and queried back.
+- Secret scan: no database password, service-role key, admin secret, PIN, or connection string is tracked.
+- Injection scan: no raw HTML sink, dynamic code execution, arbitrary filesystem access, child process, open redirect, permissive CORS, or server-side user-controlled fetch in `src`.
+- Production dependency audit: 0 vulnerabilities.
+- Live response: homepage `200`; unauthenticated admin overview `401`; sensitive responses `private, no-store`.
+- Live headers: CSP, HSTS, `DENY` framing, and `nosniff` present; framework signature absent.
+- Vercel: `NONG_PROM_ADMIN_SECRET` is stored as a hidden Secret for Production and Preview.
+- Supabase: admin session + server-secret check, self-delete denial, exact-name confirmation, cascade deletion, and audit logging were verified.
 
-## Official limit references
-
-- Supabase connection management: https://supabase.com/docs/guides/database/connection-management
-- Supabase connection limits: https://supabase.com/docs/guides/troubleshooting/how-to-change-max-database-connections-_BQ8P5
-- Supabase billing/quotas: https://supabase.com/docs/guides/platform/billing-on-supabase
-- Vercel Hobby plan: https://vercel.com/docs/plans/hobby
-- Vercel limits: https://vercel.com/docs/limits
-
+The complete architecture and operating checklist are in `docs/SYSTEM_AUDIT_AND_OPERATIONS_2026-10-17.md`.
