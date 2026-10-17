@@ -1223,6 +1223,38 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
 }
 
+/* Admin navigation is interactive state, not an in-page hash menu. */
+.admin-sidebar button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 0;
+  border-radius: 9px;
+  color: #555;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+.admin-sidebar button:hover { background: #efede9; }
+.admin-sidebar button.active { color: #fff; background: #20252b; }
+.admin-sidebar button:focus-visible { outline: 3px solid #ef3a48; outline-offset: 2px; }
+.admin-table button, .admin-pages button, .admin-back { cursor: pointer; }
+.admin-view-note {
+  margin: -4px 0 14px;
+  padding: 12px 14px;
+  border-left: 3px solid #ef3a48;
+  background: #fff;
+  color: #5f5a54;
+  font-size: 14px;
+}
+@media (max-width: 899px) {
+  .admin-sidebar button { width: auto; white-space: nowrap; }
+}
+
 .mission-menu { display: grid; gap: 18px; max-width: 840px; margin: 0 auto; }
 .mission-menu-heading .page-title { margin: 6px 0; font-size: 28px; line-height: 36px; font-weight: 700; }
 .mission-menu-heading > p:last-child { font-size: 15px; line-height: 24px; color: var(--color-ink-muted); }

@@ -15,6 +15,13 @@ describe("admin dashboard", () => {
     expect(html).toContain("กำลังตรวจสิทธิ์");
   });
 
+  it("renders working dashboard view controls instead of dead hash links", () => {
+    const html = renderToStaticMarkup(<AdminDashboard />);
+    expect(html.match(/data-admin-view=/g)).toHaveLength(4);
+    expect(html).not.toContain('href="#attempts"');
+    expect(html).toContain('aria-pressed="true"');
+  });
+
   it("requires the exact display name before permanent deletion", () => {
     expect(canConfirmDelete("นศท. ทำดี ใส่ใจ", "นศท. ทำดี ใส่ใจ")).toBe(true);
     expect(canConfirmDelete("นศท. ทำดี ใส่ใจ", "ทำดี")).toBe(false);
