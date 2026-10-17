@@ -80,6 +80,7 @@ docs/                             # แผน ระบบ และคู่ม
 ## เอกสารสำหรับผู้ดูแล
 
 - [สถาปัตยกรรม การไหลของข้อมูล และคู่มือปฏิบัติการ](docs/SYSTEM_AUDIT_AND_OPERATIONS_2026-10-17.md)
+- [รายงานหลักการทำงานของระบบ (ภาษาไทย)](docs/SYSTEM_WORKING_PRINCIPLES_REPORT_TH.md)
 - [รายงานตรวจความปลอดภัย](security_best_practices_report.md)
 - [แผนพัฒนาผลิตภัณฑ์](docs/PRODUCT_DEVELOPMENT_PLAN.md)
 - [แนวทาง UX และเนื้อหา](docs/UX_CONTENT_DESIGN_PLAN.md)
