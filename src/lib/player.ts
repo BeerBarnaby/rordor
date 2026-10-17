@@ -121,6 +121,13 @@ export async function logoutPlayer() {
   await fetch("/api/player/session", { method: "DELETE" });
 }
 
+export async function getAdminAccess() {
+  const response = await fetch("/api/player/admin/access", { cache: "no-store" });
+  if (!response.ok) return false;
+  const envelope = (await response.json().catch(() => ({}))) as { ok?: boolean; is_admin?: boolean };
+  return envelope.ok === true && envelope.is_admin === true;
+}
+
 export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
   const response = await fetch('/api/player/leaderboard', { cache: "no-store" });
   const data = await response.json().catch(() => []);

@@ -1,13 +1,14 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { LogOut, MessageSquareText, ShieldCheck, Trophy } from "lucide-react";
+import { FormEvent, useEffect, useState } from "react";
+import { LayoutDashboard, LogOut, MessageSquareText, ShieldCheck, Trophy } from "lucide-react";
 import { AppDialog } from "./AppDialog";
 import type { PlayerProfile } from "@/types";
 import {
   loginPlayer,
   logoutPlayer,
   registerPlayer,
+  getAdminAccess,
 } from "@/lib/player";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { SatisfactionSurvey } from "./SatisfactionSurvey";
@@ -34,7 +35,17 @@ export function PlayerModal({
   const [status, setStatus] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [showSurvey, setShowSurvey] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const configured = isSupabaseConfigured();
+
+  useEffect(() => {
+    let active = true;
+    if (!player) return;
+    void getAdminAccess().then((allowed) => {
+      if (active) setIsAdmin(allowed);
+    });
+    return () => { active = false; };
+  }, [player]);
 
   function handleClose() {
     setPin("");
@@ -99,6 +110,11 @@ export function PlayerModal({
               <strong>การเข้าสู่ระบบเป็นทางเลือก</strong>
               ออกจากโปรไฟล์แล้วก็ยังเรียนและฝึกแบบ Guest ได้ คะแนนในเครื่องจะไม่หาย
             </p>
+            {isAdmin && (
+              <a className="primary-button" href="/admin">
+                <LayoutDashboard size={18} /> เปิดหลังบ้าน
+              </a>
+            )}
             <button className="secondary-button" type="button" onClick={() => setShowSurvey((current) => !current)}>
               <MessageSquareText size={18} /> {showSurvey ? "ซ่อนแบบประเมิน" : "ประเมินน้องพร้อม"}
             </button>
