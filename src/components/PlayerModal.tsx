@@ -12,6 +12,7 @@ import {
 } from "@/lib/player";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { SatisfactionSurvey } from "./SatisfactionSurvey";
+import { SchoolField } from "./SchoolField";
 
 type Mode = "register" | "login";
 
@@ -62,7 +63,7 @@ export function PlayerModal({
     try {
       const session =
         mode === "register"
-          ? await registerPlayer(phone, displayName, pin, schoolName, trainingYear)
+          ? await registerPlayer(phone, displayName, pin, schoolName.trim(), trainingYear)
           : await loginPlayer(phone, pin);
       onPlayerChange(session.profile);
       setStatus(`พร้อมแล้ว ${session.profile.displayName} คะแนนครั้งต่อไปจะขึ้นลีดเดอร์บอร์ด`);
@@ -177,10 +178,7 @@ export function PlayerModal({
                         <option value="0">บุคคลทั่วไป / อื่น ๆ</option>
                       </select>
                     </label>
-                    <label>
-                      <span>โรงเรียน</span>
-                      <input value={schoolName} onChange={(event) => setSchoolName(event.target.value)} minLength={2} maxLength={120} autoComplete="organization" placeholder="ชื่อโรงเรียน" required />
-                    </label>
+                    <SchoolField value={schoolName} onChange={setSchoolName} />
                   </div>
                 )}
                 <label>
