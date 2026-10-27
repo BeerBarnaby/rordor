@@ -12,6 +12,7 @@ vi.mock("next/headers", () => ({
 vi.mock("@/lib/supabase/server", () => ({ callSupabaseRpc: mocks.rpc }));
 
 import { GET as getOverview } from "@/app/api/player/admin/overview/route";
+import { GET as getAnalytics } from "@/app/api/player/admin/analytics/route";
 import { GET as getDetail, DELETE as deletePlayer } from "@/app/api/player/admin/players/[id]/route";
 
 const playerId = "11111111-1111-4111-8111-111111111111";
@@ -24,6 +25,23 @@ beforeEach(() => {
 });
 
 describe("admin routes", () => {
+  it("protects aggregate analytics with the same session and admin check", async () => {
+    mocks.token = undefined;
+    expect((await getAnalytics(new Request("http://localhost/api/player/admin/analytics"))).status).toBe(401);
+    expect(mocks.rpc).not.toHaveBeenCalled();
+    mocks.token = "a".repeat(64);
+    mocks.rpc.mockResolvedValue({ ok: false, error: "forbidden" });
+    expect((await getAnalytics(new Request("http://localhost/api/player/admin/analytics"))).status).toBe(403);
+  });
+  it("validates analytics filters and forwards year zero without treating it as all years", async () => {
+    expect((await getAnalytics(new Request("http://localhost/api/player/admin/analytics?days=999"))).status).toBe(400);
+    expect(mocks.rpc).not.toHaveBeenCalled();
+    mocks.rpc.mockResolvedValue({ ok: true });
+    const response = await getAnalytics(new Request("http://localhost/api/player/admin/analytics?days=7&year=0&school=Example"));
+    expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toContain("private, no-store");
+    expect(mocks.rpc).toHaveBeenCalledWith("admin_training_analytics", expect.objectContaining({ p_days: 7, p_year: 0, p_school: "Example" }));
+  });
   it("requires a player session", async () => {
     mocks.token = undefined;
     expect((await getOverview(new Request("http://localhost/api/player/admin/overview"))).status).toBe(401);

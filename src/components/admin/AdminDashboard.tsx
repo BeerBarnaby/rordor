@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { Activity, ClipboardCheck, LogIn, Search, ShieldCheck, Users } from "lucide-react";
+import { Activity, ClipboardCheck, LogIn, Search, ShieldCheck, Users, ChartNoAxesCombined } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { AdminClientError, deleteAdminPlayer, fetchAdminOverview, fetchAdminPlayer, type AdminOverview, type AdminPlayerDetail, type AdminPlayerSummary } from "@/lib/adminClient";
 import { AdminPlayerDetail as PlayerDetail } from "./AdminPlayerDetail";
+import { TrainingDashboard } from "./TrainingDashboard";
 
 type AdminView = "users" | "attempts" | "feedback" | "sessions";
 const views = [
+  { id: "analytics" as const, label: "ภาพรวมการฝึก", icon: ChartNoAxesCombined },
   { id: "users" as const, label: "ผู้ใช้งาน", icon: Users },
   { id: "attempts" as const, label: "ผลการฝึก", icon: Activity },
   { id: "feedback" as const, label: "แบบประเมิน", icon: ClipboardCheck },
@@ -42,20 +44,20 @@ function ResultTable({ view, users, onOpen }: { view: AdminView; users: AdminPla
 }
 
 export function AdminDashboard() {
-  const [view, setView] = useState<AdminView>("users");
+  const [view, setView] = useState<AdminView | "analytics">("analytics");
   const [data, setData] = useState<AdminOverview | null>(null), [detail, setDetail] = useState<AdminPlayerDetail | null>(null);
   const [search, setSearch] = useState(""), [page, setPage] = useState(1), [loading, setLoading] = useState(true), [error, setError] = useState("");
   const [confirmation, setConfirmation] = useState(""), [deleting, setDeleting] = useState(false);
   const load = useCallback(async () => { setLoading(true); setError(""); try { setData(await fetchAdminOverview(search, page)); } catch (cause) { setError(cause instanceof AdminClientError && [401, 403].includes(cause.status) ? "ไม่มีสิทธิ์เข้าหลังบ้าน" : "โหลดข้อมูลไม่สำเร็จ"); } finally { setLoading(false); } }, [search, page]);
-  useEffect(() => { const timer = setTimeout(() => void load(), 300); return () => clearTimeout(timer); }, [load]);
+  useEffect(() => { if (view === "analytics") return; const timer = setTimeout(() => void load(), 300); return () => clearTimeout(timer); }, [load, view]);
   async function openPlayer(id: string) { setLoading(true); try { setDetail(await fetchAdminPlayer(id)); setConfirmation(""); } catch { setError("เปิดข้อมูลผู้ใช้ไม่สำเร็จ"); } finally { setLoading(false); } }
   async function removePlayer() { if (!detail || !canConfirmDelete(detail.player.display_name, confirmation)) return; setDeleting(true); try { await deleteAdminPlayer(detail.player.id, confirmation); setDetail(null); setConfirmation(""); await load(); } catch { setError("ลบผู้ใช้ไม่สำเร็จ"); } finally { setDeleting(false); } }
   if (error && !data) return <main className="admin-auth-state"><ShieldCheck /><h1>หลังบ้านน้องพร้อม</h1><p>{error}</p><Link href="/">กลับหน้าแรกเพื่อเข้าสู่ระบบ</Link></main>;
-  const copy = viewCopy[view];
+  const copy = view === "analytics" ? viewCopy.users : viewCopy[view];
   return <main className="admin-shell">
     <header className="admin-header"><div><span className="admin-mark">พ</span><div><b>น้องพร้อม · หลังบ้าน</b><small>บัญชีผู้ดูแลระบบ</small></div></div><Link href="/">กลับหน้าเว็บ</Link></header>
     <div className="admin-layout"><aside className="admin-sidebar" aria-label="เมนูหลังบ้าน"><b>จัดการข้อมูล</b>{views.map((item) => { const Icon = item.icon; return <button key={item.id} type="button" data-admin-view={item.id} aria-pressed={view === item.id} className={view === item.id ? "active" : ""} onClick={() => { setView(item.id); setDetail(null); setPage(1); }}><Icon size={18} />{item.label}</button>; })}</aside>
-      <section className="admin-main">{detail ? <PlayerDetail detail={detail} confirmation={confirmation} deleting={deleting} onConfirmation={setConfirmation} onBack={() => setDetail(null)} onDelete={removePlayer} /> : <>
+      <section className="admin-main">{view === "analytics" ? <TrainingDashboard /> : detail ? <PlayerDetail detail={detail} confirmation={confirmation} deleting={deleting} onConfirmation={setConfirmation} onBack={() => setDetail(null)} onDelete={removePlayer} /> : <>
         <div className="admin-title-row"><div><p className="protocol-code">{copy.eyebrow}</p><h1>{copy.title}</h1></div><label className="admin-search"><Search size={18} /><input aria-label="ค้นหาผู้ใช้" value={search} onChange={(event) => { setSearch(event.target.value.slice(0, 80)); setPage(1); }} placeholder="ค้นหาชื่อ เบอร์ หรือโรงเรียน" /></label></div>
         {loading && !data ? <div className="admin-loading">กำลังตรวจสิทธิ์และโหลดข้อมูล...</div> : data && <><div className="admin-stats"><div><span>ผู้ใช้ทั้งหมด</span><b>{data.summary.total_users}</b></div><div><span>เข้าใช้วันนี้</span><b>{data.summary.active_today}</b></div><div><span>ภารกิจที่จบ</span><b>{data.summary.completed_missions}</b></div><div><span>แบบประเมิน</span><b>{data.summary.feedback_count}</b></div></div>
           {view === "feedback" && <p className="admin-view-note">เลือก “ตรวจข้อมูล” เพื่อดูคะแนนแบบประเมินและความคิดเห็นของผู้ใช้แต่ละคน</p>}

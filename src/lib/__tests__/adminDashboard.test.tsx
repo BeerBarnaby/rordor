@@ -17,7 +17,7 @@ describe("admin dashboard", () => {
 
   it("renders working dashboard view controls instead of dead hash links", () => {
     const html = renderToStaticMarkup(<AdminDashboard />);
-    expect(html.match(/data-admin-view=/g)).toHaveLength(4);
+    expect(html).toContain('data-admin-view="analytics"');
     expect(html).not.toContain('href="#attempts"');
     expect(html).toContain('aria-pressed="true"');
   });

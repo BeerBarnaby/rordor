@@ -18,7 +18,7 @@ export function readAdminSecret() {
   return secret;
 }
 
-export async function adminRpc(name: "admin_access" | "admin_overview" | "admin_player_detail" | "admin_delete_player", parameters: Record<string, unknown>) {
+export async function adminRpc(name: "admin_access" | "admin_overview" | "admin_player_detail" | "admin_delete_player" | "admin_training_analytics", parameters: Record<string, unknown>) {
   const token = await readPlayerToken();
   if (!token) return { response: noStoreJson({ ok: false, error: "authentication_required" }, 401) };
   let secret: string;
