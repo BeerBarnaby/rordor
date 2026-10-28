@@ -1,4 +1,5 @@
 import { AEDStepItem, EmergencyCallField, ScenarioVariant, SequenceCardItem } from '@/types';
+import { ROTC_CPR_STEPS } from './rotcProtocol';
 
 export interface ProtocolMetadata {
   protocolId: string;
@@ -9,9 +10,9 @@ export interface ProtocolMetadata {
 
 export const MAIN_PROTOCOL_METADATA: ProtocolMetadata = {
   protocolId: 'CPR_ADULT_ROTC_V1',
-  version: '1.2.0',
+  version: '1.3.0',
   reviewStatus: 'pending_re_review_after_content_update',
-  lastUpdated: '2026-10-10',
+  lastUpdated: '2026-10-28',
 };
 
 // บริบทเปลี่ยนได้ แต่ลำดับและสาระทางการแพทย์ใช้ชุดที่รอตรวจทานชุดเดิม
@@ -49,69 +50,15 @@ export const SCENARIO_VARIANTS: ScenarioVariant[] = [
 ];
 
 export const INITIAL_SEQUENCE_CARDS: SequenceCardItem[] = [
-  {
-    id: 'seq_1',
-    title: 'ตรวจความปลอดภัยของพื้นที่',
-    subtitle: 'ประเมินภัยรอบตัวก่อนเข้าช่วยเหลือ',
+  ...ROTC_CPR_STEPS.map((step, index) => ({
+    id: `seq_${index + 1}`,
+    title: step.title,
+    subtitle: step.detail,
     isCorrect: true,
-    correctOrder: 1,
-    feedbackIfCorrect: 'ตรวจพื้นที่ก่อนช่วย เพื่อลดความเสี่ยงต่อผู้ช่วยเหลือและผู้ประสบเหตุ',
-    feedbackIfWrong: 'ก่อนเข้าช่วย ควรตรวจความปลอดภัยของพื้นที่ก่อน เพื่อไม่ให้เกิดผู้บาดเจ็บเพิ่ม',
-  },
-  {
-    id: 'seq_2',
-    title: 'ตรวจการตอบสนอง',
-    subtitle: 'ตบไหล่ทั้งสองข้างแรงๆ แล้วเรียก',
-    isCorrect: true,
-    correctOrder: 2,
-    feedbackIfCorrect: 'ประเมินการตอบสนองด้วยการเรียกและตบไหล่ทั้งสองข้าง',
-    feedbackIfWrong: 'หากพื้นที่ปลอดภัยแล้ว ต้องรีบประเมินการรู้สึกตัวของผู้ป่วย',
-  },
-  {
-    id: 'seq_3',
-    title: 'ประเมินการหายใจ',
-    subtitle: 'ดูการหายใจไม่เกิน 10 วินาที',
-    isCorrect: true,
-    correctOrder: 3,
-    feedbackIfCorrect: 'หากไม่หายใจปกติหรือหายใจเฮือก ให้สงสัยภาวะหัวใจหยุดเต้น',
-    feedbackIfWrong: 'หลังพบว่าไม่ตอบสนอง ให้ประเมินการหายใจอย่างรวดเร็วไม่เกิน 10 วินาที',
-  },
-  {
-    id: 'seq_4',
-    title: 'ขอความช่วยเหลือ แจ้ง 1669 และนำ AED มา',
-    subtitle: 'ระบุคนให้โทร เปิดลำโพง และนำ AED มา',
-    isCorrect: true,
-    correctOrder: 4,
-    feedbackIfCorrect: 'การโทร 1669 และนำ AED มา ทำให้ระบบฉุกเฉินและการช่วยเหลือเริ่มได้เร็ว',
-    feedbackIfWrong: 'ต้องระบุคนให้โทร 1669 และตามเครื่อง AED โดยเร็ว',
-  },
-  {
-    id: 'seq_5',
-    title: 'เริ่ม CPR (กดหน้าอก)',
-    subtitle: 'กดตรงกลางหน้าอกที่ 100–120 ครั้ง/นาที',
-    isCorrect: true,
-    correctOrder: 5,
-    feedbackIfCorrect: 'เริ่มกดหน้าอกทันทีและหยุดให้น้อยที่สุด',
-    feedbackIfWrong: 'เมื่อผู้ป่วยไม่หายใจปกติหรือหายใจเฮือก ให้เริ่มกดหน้าอกทันที',
-  },
-  {
-    id: 'seq_6',
-    title: 'รักษาจังหวะและคุณภาพการกดหน้าอก',
-    subtitle: 'กด 100–120 ครั้ง/นาที ปล่อยหน้าอกคืนตัว และหยุดให้น้อยที่สุด',
-    isCorrect: true,
-    correctOrder: 6,
-    feedbackIfCorrect: 'รักษาจังหวะ 100–120 ครั้ง/นาที ปล่อยหน้าอกคืนตัว และหยุดกดให้น้อยที่สุด',
-    feedbackIfWrong: 'หลังเริ่ม CPR ต้องรักษาจังหวะและคุณภาพการกดหน้าอกอย่างต่อเนื่อง',
-  },
-  {
-    id: 'seq_7',
-    title: 'ทำ CPR ต่อจนมีผู้รับช่วง',
-    subtitle: 'ทำต่อจนทีม 1669 รับช่วง ผู้ป่วยเริ่มตอบสนอง หรือพื้นที่ไม่ปลอดภัย',
-    isCorrect: true,
-    correctOrder: 7,
-    feedbackIfCorrect: 'ทำ CPR ต่อเนื่องจนทีมฉุกเฉินรับช่วง ผู้ป่วยเริ่มตอบสนอง หรือไม่สามารถช่วยต่อได้อย่างปลอดภัย',
-    feedbackIfWrong: 'อย่าหยุด CPR เองโดยไม่มีเหตุ ให้ทำต่อจนมีผู้รับช่วงหรือสถานการณ์เปลี่ยน',
-  },
+    correctOrder: index + 1,
+    feedbackIfCorrect: step.feedback,
+    feedbackIfWrong: step.feedback,
+  })),
   // Distractor items
   {
     id: 'dis_1',

@@ -134,7 +134,7 @@ export const SequenceGame: React.FC<SequenceGameProps> = ({
       <header>
         <h1 className="page-title">เรียงลำดับการช่วยเหลือ</h1>
         <p className="mt-2">เพื่อนล้มลง คุณควรทำอะไรตามลำดับ?</p>
-        <p className="caption mt-2">แตะเลือกให้ครบ {targetStepCount} ขั้นตอน แล้วตรวจคำตอบ</p>
+        <p className="caption mt-2">เรียงตาม 7 ขั้นตอนการฝึก รด. แล้วตรวจคำตอบ</p>
       </header>
       <div className="sequence-grid">
         <details className="sequence-selection" open={!isSubmitted}>
